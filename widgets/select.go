@@ -1,0 +1,159 @@
+package ant
+
+import (
+	"github.com/egoist/mygo/ui"
+)
+
+// ControlOption 选择类控件（Checkbox/Radio/Switch/Slider/Rate/Segmented）
+// 的通用选项。
+type ControlOption func(*controlConfig)
+
+type controlConfig struct {
+	disabled bool
+	onChg    func()
+}
+
+// ControlDisabled 禁用（antd disabled）。
+func ControlDisabled(b bool) ControlOption { return func(c *controlConfig) { c.disabled = b } }
+
+// OnChange 值变化回调（antd onChange；Changed 为本帧变化语义）。
+func OnChange(fn func()) ControlOption { return func(c *controlConfig) { c.onChg = fn } }
+
+// applyControl 应用通用选项并在值变化时触发回调。
+func applyControl(el ui.Element, cfg *controlConfig) {
+	if cfg.disabled {
+		el.Disabled(true)
+	}
+	if cfg.onChg != nil && el.Changed() {
+		cfg.onChg()
+	}
+}
+
+// Checkbox 复选框（antd Checkbox）。选中色为品牌色（来自主题 Accent）：
+//
+//	var agree bool
+//	ant.Checkbox(c, &agree, "同意协议", ant.OnChange(app.validate))
+func Checkbox(c *ui.Context, checked *bool, label string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Checkbox(c, checked, label)
+	applyControl(el, cfg)
+	return el
+}
+
+// RadioGroupItem 供 RadioGroup 内使用的单项。泛型对齐 antd 的受控值。
+//
+//	ant.RadioGroup(c, func() {
+//	    ant.Radio(c, &size, "small", "小")
+//	    ant.Radio(c, &size, "large", "大")
+//	})
+func RadioGroup(c *ui.Context, fn func()) ui.Element {
+	return ui.RadioGroup(c, fn)
+}
+
+// Radio 单选项（antd Radio）。
+func Radio[T comparable](c *ui.Context, selected *T, value T, label string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Radio(c, selected, value, label)
+	applyControl(el, cfg)
+	return el
+}
+
+// Switch 开关（antd Switch）。开为品牌色：
+//
+//	ant.Switch(c, &app.enabled, ant.OnChange(app.toggle))
+func Switch(c *ui.Context, on *bool, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Switch(c, on)
+	applyControl(el, cfg)
+	return el
+}
+
+// SwitchWithLabel 带旁边文字的开关（组合 Switch + 标签文本）。
+func SwitchWithLabel(c *ui.Context, on *bool, label string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
+	var sw ui.Element
+	row.Children(func() {
+		sw = ui.Switch(c, on)
+		if cfg.disabled {
+			sw.Disabled(true)
+		}
+		ui.Text(c, label).TextColor(t.Text)
+	})
+	if cfg.onChg != nil && sw.Changed() {
+		cfg.onChg()
+	}
+	return row
+}
+
+// Slider 滑动条（antd Slider）。宽度默认随父容器，可用返回值链式
+// .FillWidth() / .Width() 调整：
+//
+//	ant.Slider(c, &volume, 0, 100, ant.OnChange(app.setVolume)).FillWidth()
+func Slider(c *ui.Context, value *float64, lo, hi float64, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Slider(c, value, lo, hi)
+	applyControl(el, cfg)
+	return el
+}
+
+// RangeSliderDouble 范围滑动条（antd Slider range）。
+func RangeSliderDouble(c *ui.Context, low, high *float64, lo, hi, step float64, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.RangeSlider(c, low, high, lo, hi, step)
+	applyControl(el, cfg)
+	return el
+}
+
+// Rate 评分（antd Rate）：
+//
+//	ant.Rate(c, &score, 5, ant.OnChange(app.submit))
+func Rate(c *ui.Context, value *int, max int, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Rating(c, value, max)
+	applyControl(el, cfg)
+	return el
+}
+
+// Segmented 分段控制器（antd Segmented）。selected 为选中下标：
+//
+//	ant.Segmented(c, &tab, "全部", "进行中", "已完成")
+func Segmented(c *ui.Context, selected *int, labels ...string) ui.Element {
+	return ui.Segmented(c, selected, labels...)
+}
+
+// CheckboxAll 三态复选框（全选框：全选/半选/未选），antd 表格表头场景：
+//
+//	var all ui.CheckState
+//	ant.CheckboxAll(c, &all, "全选")
+func CheckboxAll(c *ui.Context, state *ui.CheckState, label string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.CheckboxState(c, state, label)
+	applyControl(el, cfg)
+	return el
+}

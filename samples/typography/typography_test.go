@@ -12,6 +12,7 @@ import (
 	"github.com/lishuangquan1987/mygo-antdesign/samples/divider"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/input"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
+	selectdemo "github.com/lishuangquan1987/mygo-antdesign/samples/selectdemo"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/typography"
 	"github.com/lishuangquan1987/mygo-antdesign/theme"
 )
@@ -24,6 +25,7 @@ var demos = []struct {
 	{"Divider", divider.Demo()},
 	{"Layout", layout.Demo()},
 	{"Input", input.Demo()},
+	{"Select", selectdemo.Demo()},
 }
 
 func TestDemoCompleteness(t *testing.T) {

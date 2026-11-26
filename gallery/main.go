@@ -9,6 +9,7 @@ import (
 
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/button"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/display"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/divider"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/input"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
@@ -24,6 +25,7 @@ func main() {
 	samples.Register(layout.Demo())
 	samples.Register(input.Demo())
 	samples.Register(selectdemo.Demo())
+	samples.Register(display.Demo())
 
 	g := NewGallery()
 	mygo.App.WhenReady(func() {

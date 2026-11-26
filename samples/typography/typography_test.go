@@ -9,6 +9,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/display"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/divider"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/input"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
@@ -26,6 +27,7 @@ var demos = []struct {
 	{"Layout", layout.Demo()},
 	{"Input", input.Demo()},
 	{"Select", selectdemo.Demo()},
+	{"Display", display.Demo()},
 }
 
 func TestDemoCompleteness(t *testing.T) {

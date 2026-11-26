@@ -111,7 +111,8 @@ func ProgressDemo(c *ui.Context) {
 	value := ui.Local(col, "ant.sample.progress.value", func() float64 { return 68 })
 	col.Children(func() {
 		widgets.ProgressLine(c, *value).FillWidth()
-		widgets.ProgressLine(c, 100).FillWidth()
+		widgets.Slider(c, value, 0, 100).FillWidth()
+		widgets.ProgressLine(c, 100, widgets.ProgressHideText()).FillWidth()
 		widgets.ProgressLine(c, 0).FillWidth()
 	})
 }

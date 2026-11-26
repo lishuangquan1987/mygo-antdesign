@@ -62,7 +62,8 @@ func OnSubmit(fn func()) InputOption { return func(c *inputConfig) { c.onSub = f
 
 // inputFrame 统一的输入框容器：高度、底色、圆角、内边距与状态描边
 // （默认 1px colorBorder，聚焦 2px 焦点色，禁用灰底——对齐 antd）。
-func inputFrame(c *ui.Context, t *ui.Theme, cfg *inputConfig, focused bool) ui.Element {
+// 聚焦描边由各 Input 函数在内层原语 Focused() 后追加（容器不可聚焦）。
+func inputFrame(c *ui.Context, t *ui.Theme, cfg *inputConfig) ui.Element {
 	el := ui.Row(c).
 		Height(internal.ControlHeight(t, cfg.size)).
 		Padding(0, internal.ControlPaddingX(t, cfg.size)).
@@ -71,8 +72,6 @@ func inputFrame(c *ui.Context, t *ui.Theme, cfg *inputConfig, focused bool) ui.E
 		AlignItems(ui.Center)
 	if cfg.disabled {
 		el.Background(t.Background).Border(1, t.Border)
-	} else if focused {
-		el.Border(2, t.Focus)
 	} else {
 		el.Border(1, t.Border)
 	}
@@ -101,7 +100,7 @@ func Input(c *ui.Context, value *string, opts ...InputOption) ui.Element {
 	}
 	t := c.Theme()
 
-	el := inputFrame(c, t, cfg, false)
+	el := inputFrame(c, t, cfg)
 	var inp ui.Element
 	el.Children(func() {
 		if cfg.prefix != nil {
@@ -217,7 +216,7 @@ func NumberInputV(c *ui.Context, value *float64, lo, hi, step float64, opts ...I
 	}
 	t := c.Theme()
 
-	el := inputFrame(c, t, cfg, false)
+	el := inputFrame(c, t, cfg)
 	var inp ui.Element
 	el.Children(func() {
 		inp = ui.NumberInput(c, value, lo, hi, step).Grow(1).
@@ -230,6 +229,9 @@ func NumberInputV(c *ui.Context, value *float64, lo, hi, step float64, opts ...I
 		}
 	})
 	el.Disabled(cfg.disabled)
+	if cfg.readonly {
+		el.ReadOnly(true)
+	}
 	fireInputEvents(inp, cfg)
 	return el
 }

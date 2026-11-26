@@ -77,7 +77,7 @@ func Tag(c *ui.Context, text string, opts ...TagOption) ui.Element {
 			x.Children(func() {
 				ui.Text(c, "✕").TextColor(pal.Fg).FontSize(t.Rem(0.7))
 			})
-			if x.Clicked() && !cfg.disabled && cfg.onClose != nil {
+			if x.Clicked() && cfg.onClose != nil {
 				cfg.onClose()
 			}
 		}
@@ -92,7 +92,6 @@ type tagConfig struct {
 	color    TagColor
 	closable bool
 	onClose  func()
-	disabled bool
 }
 
 // TagSuccess 成功色标签。
@@ -119,7 +118,9 @@ func TagGold() TagOption { return func(c *tagConfig) { c.color = TagColorGold } 
 // TagClosable 可关闭标签，关闭时回调。
 func TagClosable(fn func()) TagOption { return func(c *tagConfig) { c.closable, c.onClose = true, fn } }
 
-// Badge 徽标（antd Badge）。count <= 0 不显示；dot 为小红点模式：
+// Badge 徽标（antd Badge）。count <= 0 不显示；数字超过 99 显示 "99+"。
+// 徽标显示在内容右侧（简单行内布局；叠在内容右上角的 Overlay 定位
+// 列入后续增强，见 docs/06 下一步）：
 //
 //	ant.Badge(c, 5, func() { ant.Button(c, "消息") })
 //	ant.BadgeDot(c, func() { ant.AvatarEl(c, "LY") })

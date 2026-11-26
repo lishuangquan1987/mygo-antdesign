@@ -243,8 +243,11 @@ type progressConfig struct {
 	height   float32
 }
 
-// ProgressShowText 在条尾显示百分比。
+// ProgressShowText 在条尾显示百分比（默认已开启，无需显式传入）。
 func ProgressShowText() ProgressOption { return func(c *progressConfig) { c.showText = true } }
+
+// ProgressHideText 隐藏条尾百分比（antd showInfo={false}）。
+func ProgressHideText() ProgressOption { return func(c *progressConfig) { c.showText = false } }
 
 // ProgressLine 线形进度条（antd Progress）。value 0–100：
 //

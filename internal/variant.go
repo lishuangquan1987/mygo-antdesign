@@ -75,13 +75,9 @@ func ButtonColors(t *ui.Theme, typ string, danger bool) ButtonPalette {
 	return p
 }
 
-// lighten/danger 系的 hover 与 pressed 派生：亮色主题下 hover 提亮、
-// pressed 加深；暗色主题相反（antd dark 的实底按钮 hover 更亮，这里
-// 保持与亮色一致的简化处理，视觉校准在 Gallery 截图阶段微调）。
+// lighten/danger 系的 hover 与 pressed 派生：hover 提亮、pressed 加深
+// （暗色主题的实底按钮 hover 同样更亮，与 antd dark 行为一致）。
 func lighten(t *ui.Theme, c ui.Color) ui.Color {
-	if t.Dark {
-		return c.Mix(ui.RGB(255, 255, 255), 0.12)
-	}
 	return c.Mix(ui.RGB(255, 255, 255), 0.12)
 }
 

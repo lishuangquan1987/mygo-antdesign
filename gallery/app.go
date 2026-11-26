@@ -167,6 +167,10 @@ func (g *Gallery) sidebar(c *ui.Context) {
 // content 右侧内容区：当前控件的标题、简介与示例卡片流（可滚动）。
 func (g *Gallery) content(c *ui.Context) {
 	all := samples.All()
+	if len(all) == 0 {
+		ui.Text(c, "尚未注册任何示例（在 gallery/main.go 中调用 samples.Register）")
+		return
+	}
 	if g.selected >= len(all) {
 		g.selected = 0
 	}

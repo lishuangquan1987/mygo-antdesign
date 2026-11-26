@@ -92,9 +92,9 @@ mygo-antdesign/
 ```go
 // 目标 API 形态（设计示意，非已实现代码）
 ant.Button(c, "保存", ant.Primary(), ant.Size(ant.Small), ant.Loading(app.saving))
-ant.Table(c, &state, cols, rows, ant.Size(ant.Compact))
+ant.Table(c, &state, cols, rows, ant.Size(ant.Small)) // B9 计划中
 extra.Pagination(c, &app.page, app.total)
-theme.Apply(c, theme.Light(theme.WithPrimary("#1677ff"), theme.WithDensity(theme.Compact)))
+theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensity(theme.Compact)))
 ```
 
 - 控件返回 `ui.Element`，与 MyGo 组合方式一致。
@@ -280,7 +280,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 ### 关键实现决策（实现期新增）
 
 - 包名 `ant`（目录 `widgets/`），导入别名按需；示例目录 `samples/<widget>`、包名 `sample`（目录 `samples/`）。
-- MyGo v0.10.0 无 `OnClick`/`ui.Local` 文档化的 main 分支 API：`OnClick` 用 `ui.Local` 上升沿实现（`Button` 内置）。
+- MyGo v0.10.0 无 `OnClick`（main 分支才有）：`OnClick` 用 `ui.Local` 上升沿实现（`Button` 内置）。
 - `Wrap()` 无参（与设计文档 `Wrap(true)` 写法不同）。
 - 品牌色与系统偏好冲突：`Apply` 默认不跟随系统强调色（ADR 0002）。
 - `Changed()/Focused()/Submitted()` 必须查询内层原语元素（容器不可聚焦，Button 除外）。
@@ -294,3 +294,4 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 3. C 缺口控件：Upload、Transfer、Tree、Carousel、QRCode（P1/P2）。
 4. D 图标：从 antd SVG 生成 `icon/` Go 常量。
 5. E 文档：迁移指南、发布 v0.1.0。
+6. 体验增强：Badge 用 `ui.Overlay` 实现内容右上角叠加定位；Segmented 支持禁用与 onChange（当前为透传原语，无 opts）。

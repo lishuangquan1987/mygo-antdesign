@@ -9,11 +9,17 @@ import (
 
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/button"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/divider"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/typography"
 )
 
 func main() {
 	// 注册控件示例：新增控件时在此追加一行。
 	samples.Register(button.Demo())
+	samples.Register(typography.Demo())
+	samples.Register(divider.Demo())
+	samples.Register(layout.Demo())
 
 	g := NewGallery()
 	mygo.App.WhenReady(func() {

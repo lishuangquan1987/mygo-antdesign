@@ -14,6 +14,7 @@ import (
 	"github.com/lishuangquan1987/mygo-antdesign/samples/feedback"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/input"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/nav"
 	selectdemo "github.com/lishuangquan1987/mygo-antdesign/samples/selectdemo"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/typography"
 	"github.com/lishuangquan1987/mygo-antdesign/theme"
@@ -30,6 +31,7 @@ var demos = []struct {
 	{"Select", selectdemo.Demo()},
 	{"Display", display.Demo()},
 	{"Feedback", feedback.Demo()},
+	{"Nav", nav.Demo()},
 }
 
 func TestDemoCompleteness(t *testing.T) {

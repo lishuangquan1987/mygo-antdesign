@@ -4,7 +4,7 @@
 
 本仓库目标：为 MyGo 的 `package ui` 原生控件提供一套完整的 **Ant Design 视觉与交互规范**，并补齐 Ant Design 有而 MyGo 暂缺的控件。所有控件共享一套主题，支持**运行时切换**；在 Ant Design 标准间距之外，额外提供一套**紧凑密度**风格，用于上位机、IDE 等信息密集型场景。
 
-> 当前状态：**实现进行中**——主题层、Button 控件、示例框架与 Gallery 已落地（见 [docs/06](docs/06-development-plan.md) 进度章节）；其余控件按 WBS 推进。
+> 当前状态：**实现进行中**——主题层 + Gallery + 8 组控件已落地（Button / Typography / Divider / 布局 / 输入 / 选择 / 数据展示 / 反馈 / 导航，共 30+ 控件函数），全部带示例、单测与截图验证（见 [docs/06](docs/06-development-plan.md) 进度章节）；其余控件按 WBS 推进。
 
 ## 一句话结论
 

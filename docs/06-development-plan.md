@@ -270,6 +270,12 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | Button 示例 | 基础/类型/尺寸/状态四组，真实可编译、可交互 | 点击反馈测试 |
 | F1–F3+A8 Gallery | 侧栏 + 卡片流 + 控制条（主题/密度/品牌色/亮暗并排对比）+ 代码视图 | 交互测试 + 截图基线 |
 | 截图基线 | `samples/golden/`：亮/暗 × 标准/紧凑 4 张 PNG | 二次运行比对稳定 |
+| B1 余项 | Typography（H1-H5/正文变体/Code）、Divider（横/竖/虚线/带文字）、Space/Flex/Grid | 4 主题组合 + 示例 |
+| B2 文本录入 | Input（密码/前后缀/聚焦描边）、TextArea、SearchInput、NumberInputV | 键入/回车/禁用测试 + 4 主题组合 |
+| B4 选择控件 | Checkbox/CheckboxAll（三态）/Radio/Switch/Slider/RangeSlider/Rate/Segmented | 点击切换/禁用拦截测试 + 视觉截图 |
+| B7 数据展示 | Tag（七色系/可关闭）、Badge（99+ 截断/红点）、Avatar、Card（头/体/操作区） | 变体渲染测试 + 视觉截图 |
+| B10 反馈 | Alert（四级别/可关闭）、Modal（OnOk/OnCancel）、Message/Notify、ProgressLine、Confirm | 关闭回调/弹窗确定取消测试 + 视觉截图 |
+| B8 导航 | Breadcrumb、Tabs、Dropdown（菜单项/分隔线/危险项）、Pagination（窗口折叠）、Steps（三态） | 选择/切换/页码窗口测试 + 视觉截图 |
 
 ### 关键实现决策（实现期新增）
 
@@ -277,10 +283,14 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - MyGo v0.10.0 无 `OnClick`/`ui.Local` 文档化的 main 分支 API：`OnClick` 用 `ui.Local` 上升沿实现（`Button` 内置）。
 - `Wrap()` 无参（与设计文档 `Wrap(true)` 写法不同）。
 - 品牌色与系统偏好冲突：`Apply` 默认不跟随系统强调色（ADR 0002）。
+- `Changed()/Focused()/Submitted()` 必须查询内层原语元素（容器不可聚焦，Button 除外）。
+- Breadcrumbs 语义：`chosen=-1` 未选择，最后一项是当前页不可点；菜单选择用 `ChooseMenuItem`。
+- `ui.AlertDialog` 返回被点按钮下标（0 起）；Tag 色系全部由主题语义色 Mix 派生（暗色自动成立）。
 
 ### 下一步（按 WBS 顺序）
 
-1. B1 余项：Typography、Icon 封装、Divider、Space/Flex/Grid 包装（各带示例）。
-2. B2 文本录入：Input、TextArea、InputNumber、SearchField。
-3. B4 选择控件：Checkbox、Radio、Switch、Slider、Rate。
-4. 每个控件完成即配示例（DoD 第 4.3 节）。
+1. B3/B5 余项：DatePicker/TimeInput（DateInput/TimeInput 原语包装）、Select/Combobox/Cascader（extra/）。
+2. B9 表格：Table（列定义/排序/选择）。
+3. C 缺口控件：Upload、Transfer、Tree、Carousel、QRCode（P1/P2）。
+4. D 图标：从 antd SVG 生成 `icon/` Go 常量。
+5. E 文档：迁移指南、发布 v0.1.0。

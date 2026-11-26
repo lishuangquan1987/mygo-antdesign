@@ -13,7 +13,7 @@
 4. 提供标准与紧凑两套密度（上位机 / IDE 场景）。
 5. 每个控件配可运行示例（不同主题/尺寸/密度/状态），由 Gallery 展示。
 
-当前状态：**设计阶段，尚未编写实现代码**。先读 `docs/README.md`（若有）与 `docs/01`–`docs/07` 再动手。
+当前状态：**实现进行中**——theme/、widgets/（包 ant）、samples/、gallery/ 均已落地并持续扩展。先读 `AGENTS.md` 本文件、`docs/06-development-plan.md`（含进度章节）与现有控件实现风格再动手。
 
 ## 2. 必须遵守的硬规则
 

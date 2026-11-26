@@ -295,3 +295,22 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 4. D 图标：从 antd SVG 生成 `icon/` Go 常量。
 5. E 文档：迁移指南、发布 v0.1.0。
 6. 体验增强：Badge 用 `ui.Overlay` 实现内容右上角叠加定位；Segmented 支持禁用与 onChange（当前为透传原语，无 opts）。
+
+## 12. v0.1.0 发布（2026-11-27）
+
+「下一步」清单全部落地（自测、提交、推送逐项完成）：
+
+| 范围 | 交付物 | 验证 |
+| --- | --- | --- |
+| B3/B5 | `widgets/picker.go`（DatePicker/TimePicker）+ Select/Combobox 包装 | 弹层选择/键入过滤/禁用测试 + 4 主题组合 |
+| B9 | `widgets/table.go`（列定义/表头排序/行多选） | 排序升降序/选择替换与加选/4 主题组合 |
+| 体验增强 | Badge Overlay 右上角骑角定位；Segmented 支持 ControlOption | 截图视觉核查 + 全量测试 |
+| C 缺口 | `extra/`：Tree/Upload（系统对话框+拖放）/Transfer/Carousel/QRCode | 交互测试 + 4 主题组合 + 视觉核查 |
+| D 图标 | `icon/`：44 个 antd outlined 图标常量 + Icon 渲染 + genicons 生成器 | 4 主题组合 + 颜色渲染核查 |
+| E 文档 | `docs/08-migration.md` 迁移指南；README 更新；v0.1.0 tag | — |
+
+### 已知限制（记录在 docs/08 第 4 节）
+
+- `ant.Table` 字符串排序（数字列需定宽格式化）。
+- `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
+- Cascader / TreeSelect / Tour 等高工作量缺口控件列入 v0.2 计划。

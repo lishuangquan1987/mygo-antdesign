@@ -4,7 +4,7 @@
 
 本仓库目标：为 MyGo 的 `package ui` 原生控件提供一套完整的 **Ant Design 视觉与交互规范**，并补齐 Ant Design 有而 MyGo 暂缺的控件。所有控件共享一套主题，支持**运行时切换**；在 Ant Design 标准间距之外，额外提供一套**紧凑密度**风格，用于上位机、IDE 等信息密集型场景。
 
-> 当前状态：**实现进行中**——主题层 + Gallery + 8 组控件已落地（Button / Typography / Divider / 布局 / 输入 / 选择 / 数据展示 / 反馈 / 导航，共 30+ 控件函数），全部带示例、单测与截图验证（见 [docs/06](docs/06-development-plan.md) 进度章节）；其余控件按 WBS 推进。
+> 当前状态：**v0.1.0**——主题层 + Gallery + 全部 9 组换肤控件（Button / Typography / Divider / 布局 / 输入 / 选择 / 数据展示 / 表格 / 反馈 / 导航）+ 缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标，共 50+ 控件函数，全部带示例、单测与截图验证（见 [docs/06](docs/06-development-plan.md) 进度章节与 [docs/08](docs/08-migration.md) 迁移指南）。
 
 ## 一句话结论
 
@@ -34,6 +34,7 @@
 | [05 紧凑密度](docs/05-compact-density.md) | 需求 6 | 标准/紧凑两套密度规范、数值表、运行时切换 |
 | [06 开发计划](docs/06-development-plan.md) | 整体 | WBS、里程碑、时间线、DoD、风险 |
 | [07 Samples & Gallery](docs/07-samples-gallery.md) | 示例展示 | 每控件示例、四维展示、并排对比、真实代码、截图回归 |
+| [08 迁移指南](docs/08-migration.md) | 采用 | 从 MyGo 原生到 antd 控件的对照迁移、事件差异、限制 |
 
 ## 目录约定（后续实现阶段）
 
@@ -41,11 +42,12 @@
 mygo-antdesign/
 ├── theme/        # Token 定义、预设主题、与 MyGo Theme 的桥接
 ├── widgets/      # 换肤后的控件（与 MyGo 原生一一对应）
-├── extra/        # 用 Base / Element 补齐的缺口控件
-├── icon/         # Ant Design 图标的 SVG 路径数据（Go 常量）
+├── extra/        # 缺口控件：Tree / Upload / Transfer / Carousel / QRCode
+├── icon/         # Ant Design 图标的 SVG 常量（44 个 outlined）+ 渲染函数
 ├── samples/      # 每控件示例源码（真实可编译，go:embed 提取代码片段）
 ├── gallery/      # 示例展示应用：侧栏 + 实时预览 + 代码 + 主题/尺寸/密度切换 + 并排对比
-└── docs/         # 本文档集（含自动生成的截图）
+├── scripts/      # genicons：图标常量生成器
+└── docs/         # 本文档集（含截图基线）
 ```
 
 ## License

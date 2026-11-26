@@ -123,26 +123,27 @@ theme.Apply(c, theme.Light(theme.WithPrimary("#1677ff"), theme.WithDensity(theme
 ## 5. WBS 详细任务分解
 
 > 估算单位：人日（1 名熟悉 Go 的开发者）。任务 ID 用于跟踪。
+> **进度**（2026-11-26）：A1–A8、F1–F5、B1 已完成并推送；详见文末「当前进度」。
 
 ### WS-A · 基础设施与主题层
 
-| ID | 任务 | 估算 | 依赖 |
-| --- | --- | --- | --- |
-| A1 | `go.mod`、目录骨架、`.github/workflows/ci.yml`、ADR 模板 | 1 | — |
-| A2 | `theme/token.go`：`AntToken`、`Density`、Option 框架 | 2 | A1 |
-| A3 | `theme/bridge.go`：Token → `ui.Theme` 映射，含 `WithAccent` 色阶生成、`WithPreferences` 系统跟随 | 2 | A2 |
-| A4 | `theme/preset.go`：亮/暗/紧凑预设、品牌色、密度组合 | 2 | A3 |
-| A5 | `theme/theme.go`：`Apply`（全局）/`Sub`（局部 `ui.Themed`） | 1 | A3 |
-| A6 | `internal/variant.go` + `metrics.go`：状态映射与度量 helper | 2 | A3 |
-| A7 | `internal/check.go`：静态检查（禁止 widgets/extra 中出现裸 `ui.Hex`） | 1 | A1 |
-| A8 | `gallery/`：应用骨架（空壳启动、无窗口 PNG 渲染入口） | 2 | A4 |
-| | **小计** | **13** | |
+| ID | 任务 | 估算 | 依赖 | 状态 |
+| --- | --- | --- | --- | --- |
+| A1 | `go.mod`、目录骨架、`.github/workflows/ci.yml`、ADR 模板 | 1 | — | ✅ |
+| A2 | `theme/token.go`：`AntToken`、`Density`、Option 框架 | 2 | A1 | ✅ |
+| A3 | `theme/bridge.go`：Token → `ui.Theme` 映射，含 `WithAccent` 色阶生成 | 2 | A2 | ✅ |
+| A4 | `theme/preset.go`：亮/暗/紧凑预设、品牌色、密度组合 | 2 | A3 | ✅ |
+| A5 | `theme/theme.go`：`Apply`（全局）/`Sub`（局部 `ui.Themed`） | 1 | A3 | ✅ |
+| A6 | `internal/variant.go` + `metrics.go`：状态映射与度量 helper | 2 | A3 | ✅ 随 B1 |
+| A7 | 静态检查（禁止 widgets/extra 中出现裸 `ui.Hex`/裸间距） | 1 | A1 | ✅ `internal/check` |
+| A8 | `gallery/`：应用骨架（空壳启动、无窗口 PNG 渲染入口） | 2 | A4 | ✅ |
+| | **小计** | **13** | | |
 
 ### WS-B · 换肤控件（widgets/）
 
 | ID | 任务包 | 控件 | 估算 | 依赖 |
 | --- | --- | --- | --- | --- |
-| B1 | 按钮与排版 | Button（含 primary/dashed/text/link/danger）、Typography、Icon 封装、Divider、Space/Flex/Grid 包装 | 4 | A6 |
+| B1 | 按钮与排版 | Button（含 primary/dashed/text/link/danger）✅（Typography/Icon/Divider/Space 包装待续） | 4 | A6 |
 | B2 | 文本录入 | Input、TextArea、InputNumber、SearchField、Mentions 输入框部分 | 4 | A6 |
 | B3 | 选择类 | Select、AutoComplete、Cascader 触发器部分、TreeSelect 触发器部分 | 5 | A6, B1 |
 | B4 | 选择控件 | Checkbox、Radio、Switch/Toggle、Slider/RangeSlider、Rate | 4 | A6 |
@@ -253,3 +254,33 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 5. 闭环通过后按 WBS 顺序推进，**每个控件完成时立即配示例**，每个里程碑结束时更新本文档进度。
 
 > 完成定义（全局）：v0.1.0 发布时，WS-A/B/C/D/E/F 全部任务满足第 4.3 节控件 DoD，示例覆盖率 100%，且全部里程碑退出标准达成。
+
+## 11. 当前进度（2026-11-26）
+
+### 已完成（全部含自测、提交与推送）
+
+| 范围 | 交付物 | 验证 |
+| --- | --- | --- |
+| A1 骨架 | `go.mod`（mygo v0.10.0）、CI、ADR 0001/0002 | CI 全绿 |
+| A2–A5 主题层 | `theme/`：AntToken、antd v5 亮暗预设、桥接（WithAccent 色阶）、Apply/Sub | 单测 + NewTester 闭环 |
+| A6 helpers | `internal/metrics.go`（三档尺寸×密度）、`internal/variant.go`（按钮状态色集中映射） | 随 Button 测试 |
+| A7 静态检查 | `internal/check`：禁裸颜色/裸间距（0 值豁免），CI 门禁 | 工具自验证 |
+| B1 Button | `widgets/`（包 ant）：五型 × danger × 三档尺寸 × Loading/Disabled/Block/OnClick | NewTester：变体/点击/禁用/4 主题组合 |
+| F4/F5 示例框架 | `samples/`：注册表、`// sample:` 标记提取（go:embed，代码即源码） | 提取与渲染测试 |
+| Button 示例 | 基础/类型/尺寸/状态四组，真实可编译、可交互 | 点击反馈测试 |
+| F1–F3+A8 Gallery | 侧栏 + 卡片流 + 控制条（主题/密度/品牌色/亮暗并排对比）+ 代码视图 | 交互测试 + 截图基线 |
+| 截图基线 | `samples/golden/`：亮/暗 × 标准/紧凑 4 张 PNG | 二次运行比对稳定 |
+
+### 关键实现决策（实现期新增）
+
+- 包名 `ant`（目录 `widgets/`），导入别名按需；示例目录 `samples/<widget>`、包名 `sample`（目录 `samples/`）。
+- MyGo v0.10.0 无 `OnClick`/`ui.Local` 文档化的 main 分支 API：`OnClick` 用 `ui.Local` 上升沿实现（`Button` 内置）。
+- `Wrap()` 无参（与设计文档 `Wrap(true)` 写法不同）。
+- 品牌色与系统偏好冲突：`Apply` 默认不跟随系统强调色（ADR 0002）。
+
+### 下一步（按 WBS 顺序）
+
+1. B1 余项：Typography、Icon 封装、Divider、Space/Flex/Grid 包装（各带示例）。
+2. B2 文本录入：Input、TextArea、InputNumber、SearchField。
+3. B4 选择控件：Checkbox、Radio、Switch、Slider、Rate。
+4. 每个控件完成即配示例（DoD 第 4.3 节）。

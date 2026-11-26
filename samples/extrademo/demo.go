@@ -1,0 +1,119 @@
+// Package extrademo 提供缺口控件（extra 包）的示例。
+package extrademo
+
+import (
+	_ "embed"
+
+	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/extra"
+	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
+	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
+)
+
+//go:embed demo.go
+var demoSrc string
+
+// Demo 返回缺口控件的示例集合。
+func Demo() samples.WidgetDemo {
+	return samples.WidgetDemo{
+		Name:     "缺口控件",
+		Package:  "extra",
+		Category: samples.CatExtra,
+		Summary:  "Tree / Upload / Transfer / Carousel / QRCode：基于底座组合实现。",
+		Samples: []samples.Sample{
+			{
+				Title:       "树形控件",
+				Description: "Tree 分支展开/折叠，叶子与分支点击选中。",
+				Code:        samples.Extract(demoSrc, "tree"),
+				View:        TreeDemo,
+			},
+			{
+				Title:       "上传",
+				Description: "Upload 点击选择文件（系统对话框）或拖入，列表可移除。",
+				Code:        samples.Extract(demoSrc, "upload"),
+				View:        UploadDemo,
+			},
+			{
+				Title:       "穿梭框",
+				Description: "Transfer 点击行选中，▶ 移入右列、◀ 移回。",
+				Code:        samples.Extract(demoSrc, "transfer"),
+				View:        TransferDemo,
+			},
+			{
+				Title:       "走马灯与二维码",
+				Description: "Carousel 指示点切换页面；QRCode 码色随主题。",
+				Code:        samples.Extract(demoSrc, "carousel"),
+				View:        CarouselDemo,
+			},
+		},
+	}
+}
+
+// sample:tree
+func TreeDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth()
+	picked := ui.Local(col, "ant.sample.extra.tree", func() string { return "" })
+	col.Children(func() {
+		nodes := []extra.TreeNode{
+			{Label: "src", Children: []extra.TreeNode{
+				{Label: "main.go", Key: "main"},
+				{Label: "view.go", Key: "view"},
+			}},
+			{Label: "go.mod", Key: "gomod"},
+		}
+		extra.Tree(c, nodes, extra.OnTreeNodeSelect(func(key string) { *picked = key }))
+		if *picked != "" {
+			widgets.Tag(c, "已选 "+*picked, widgets.TagSuccess())
+		}
+	})
+}
+
+// /sample
+
+// sample:upload
+func UploadDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth()
+	count := ui.Local(col, "ant.sample.extra.upload", func() int { return 0 })
+	col.Children(func() {
+		extra.Upload(c, extra.UploadMultiple(true),
+			extra.UploadAccept("任意类型"),
+			extra.UploadOnChange(func(files []extra.UploadFile) { *count = len(files) }))
+		if *count > 0 {
+			widgets.TextMuted(c, "已选择文件（见列表）")
+		}
+	})
+}
+
+// /sample
+
+// sample:transfer
+func TransferDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth()
+	right := ui.Local(col, "ant.sample.extra.transfer", func() []string { return []string{"b"} })
+	col.Children(func() {
+		items := []extra.TransferItem{
+			{Key: "a", Label: "列表项 A"},
+			{Key: "b", Label: "列表项 B"},
+			{Key: "c", Label: "列表项 C"},
+		}
+		extra.Transfer(c, items, right, extra.TransferTitles("候选", "已选"))
+	})
+}
+
+// /sample
+
+// sample:carousel
+func CarouselDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth()
+	col.Children(func() {
+		extra.Carousel(c, []func(*ui.Context){
+			func(c *ui.Context) { widgets.Title(c, "欢迎使用", widgets.H3) },
+			func(c *ui.Context) { widgets.Title(c, "第二页", widgets.H3) },
+			func(c *ui.Context) { widgets.Title(c, "第三页", widgets.H3) },
+		}, extra.CarouselHeight(96))
+		extra.QRCode(c, "https://github.com/lishuangquan1987/mygo-antdesign", extra.QRCodeSize(88))
+	})
+}
+
+// /sample

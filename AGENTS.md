@@ -1,7 +1,7 @@
 # AGENTS.md
 
 > 面向 AI 编码助手（Copilot / CodeBuddy / Claude Code 等）的项目指南。
-> 修改本仓库代码前请先读完本文件与 `docs/06-development-plan.md` 的第 4 节。
+> 修改本仓库代码前请先读完本文件与 `docs/06-development-plan.md` 的第 4 节；写控件时另读 `docs/07-samples-gallery.md`。
 
 ## 1. 项目是什么
 
@@ -11,8 +11,9 @@
 2. 用 MyGo 的 Base / Element 补齐 antd 有而 mygo 无的控件。
 3. 所有控件共用主题，支持运行时切换亮/暗、品牌色、密度。
 4. 提供标准与紧凑两套密度（上位机 / IDE 场景）。
+5. 每个控件配可运行示例（不同主题/尺寸/密度/状态），由 Gallery 展示。
 
-当前状态：**设计阶段，尚未编写实现代码**。先读 `docs/README.md`（若有）与 `docs/01`–`docs/06` 再动手。
+当前状态：**设计阶段，尚未编写实现代码**。先读 `docs/README.md`（若有）与 `docs/01`–`docs/07` 再动手。
 
 ## 2. 必须遵守的硬规则
 
@@ -30,6 +31,8 @@
 - `theme/`：`AntToken` → `ui.Theme` 的唯一桥接层，含 `Apply`（全局）/`Sub`（局部 `ui.Themed`）。
 - `internal/`：共享私有 helper（状态映射、度量、静态检查）。
 - `icon/`：从 antd SVG 生成的 Go 路径常量，带 `go:generate`。
+- `samples/`：每个控件的示例源码（真实可编译代码，`go:embed` 提取片段），在 `registry.go` 注册。
+- `gallery/`：示例展示应用，遍历注册表渲染；**不硬编码任何控件示例清单**。
 - **禁止**跨控件硬编码颜色/间距，禁止控件之间循环依赖。
 
 ### 2.3 API 约定
@@ -64,9 +67,10 @@ go generate ./icon
 
 1. 对照 `docs/02-widget-mapping.md` 或 `docs/03-gap-widgets.md` 确认控件归属与复杂度。
 2. 按 `docs/06-development-plan.md` 第 4.3 节 DoD 检查表逐项实现。
-3. 在 `gallery/` 添加该控件条目（含标准/紧凑两档预览）。
-4. 生成或更新截图基线 `widgets/golden/`，确保 4 种主题组合（亮/暗 × 标准/紧凑）通过。
-5. 提交前确认 CI 全绿：`go test ./...` + 静态检查 + 截图 diff。
+3. **立即为该控件写示例**：在 `samples/<widget>/` 下写真实可编译示例（基础 + 主要变体 + 禁用 + 三档尺寸，见 `docs/07-samples-gallery.md` 第 4 节矩阵），并在 `samples/registry.go` 注册；不要等到后期补写。
+4. 示例本身也遵守样式铁律（2.1），代码片段用 `// sample:xxx` 标记包起来供 `go:embed` 提取。
+5. 生成或更新截图基线 `samples/golden/`，确保 4 种主题组合（亮/暗 × 标准/紧凑）通过。
+6. 提交前确认 CI 全绿：`go test ./...` + 静态检查 + 截图 diff；并确认 Gallery 侧栏能看到该控件。
 
 ## 5. 不要做的事
 
@@ -87,6 +91,7 @@ go generate ./icon
 | `docs/04-theme-system.md` | Token 映射、运行时切换设计 |
 | `docs/05-compact-density.md` | 双密度规范与数值表 |
 | `docs/06-development-plan.md` | WBS、里程碑、时间线、DoD |
+| `docs/07-samples-gallery.md` | 每控件示例的四维覆盖、Gallery 结构、代码片段与截图联动 |
 
 ## 7. 代码风格
 

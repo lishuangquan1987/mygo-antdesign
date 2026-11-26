@@ -50,4 +50,4 @@ mygo-antdesign/
 
 ## License
 
-待定（建议 MIT，与 MyGo 保持一致）。
+[MIT](LICENSE) © 2026 lishuangquan1987

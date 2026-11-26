@@ -1,0 +1,125 @@
+# 发布构建：release 发布后自动构建示例安装程序（Gallery 应用）；
+# 也可在 Actions 页面手动触发（workflow_dispatch）。
+#
+# 产物：mygo-ant-design-gallery-<版本>-<系统>-<架构>.{zip,tar.gz}
+#   - release 事件：自动上传到对应 Release 的附件
+#   - 手动事件：上传为 workflow artifact（可在 Actions 运行页下载）
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "构建的分支或 tag（默认 main）"
+        required: false
+        default: "main"
+
+permissions:
+  contents: write
+
+env:
+  APP_NAME: mygo-ant-design-gallery
+
+jobs:
+  build:
+    name: ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            archive: tar.gz
+          - goos: linux
+            goarch: arm64
+            archive: tar.gz
+          - goos: windows
+            goarch: amd64
+            archive: zip
+          - goos: darwin
+            goarch: amd64
+            archive: zip
+          - goos: darwin
+            goarch: arm64
+            archive: zip
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.ref }}
+
+      - name: 安装 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.4"
+
+      - name: 解析版本号
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "version=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 构建
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          suffix=""
+          [ "$GOOS" = "windows" ] && suffix=".exe"
+          bin="${APP_NAME}-${VERSION}-${GOOS}-${GOARCH}${suffix}"
+          go build -trimpath -ldflags "-s -w -X main.version=${VERSION}" \
+            -o "dist/${bin}" ./gallery
+          echo "BUILT=dist/${bin}" >> "$GITHUB_ENV"
+
+      - name: 打包
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p package
+          cp dist/${APP_NAME}-${VERSION}-${GOOS}-${GOARCH}* package/
+          cat > package/README.txt <<EOF
+          mygo-antdesign Gallery ${VERSION}（Ant Design 风格 MyGo 控件库示例程序）
+
+          运行：
+            Windows: 双击 ${APP_NAME}-${VERSION}-${GOOS}-${GOARCH}.exe
+            macOS:   ./mygo-ant-design-gallery-${VERSION}-${GOOS}-${GOARCH}
+            Linux:   ./mygo-ant-design-gallery-${VERSION}-${GOOS}-${GOARCH}
+
+          需要 GUI 环境（Wayland / X11 / Win32 / Cocoa，由 mygo 通过 purego 调用系统 API）。
+          仓库：https://github.com/lishuangquan1987/mygo-antdesign
+          EOF
+          out="${APP_NAME}-${VERSION}-${GOOS}-${GOARCH}"
+          case "${{ matrix.archive }}" in
+            zip)     (cd package && zip -q -r "../dist/${out}.zip" .) ;;
+            tar.gz)  tar -czf "dist/${out}.tar.gz" -C package . ;;
+          esac
+
+      - name: 上传 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-${{ steps.ver.outputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/*.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: 附到 Release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release upload "${{ github.event.release.tag_name }}" \
+            dist/${APP_NAME}-*.zip dist/${APP_NAME}-*.tar.gz \
+            --repo "${{ github.repository }}" --clobber

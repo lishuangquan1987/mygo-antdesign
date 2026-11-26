@@ -21,7 +21,12 @@ import (
 	"github.com/lishuangquan1987/mygo-antdesign/samples/typography"
 )
 
+// version 由发布流水线注入：go build -ldflags "-X main.version=v0.1.0"。
+var version = "dev"
+
 func main() {
+	log.Printf("mygo-antdesign Gallery %s", version)
+
 	// 注册控件示例：新增控件时在此追加一行。
 	samples.Register(button.Demo())
 	samples.Register(typography.Demo())

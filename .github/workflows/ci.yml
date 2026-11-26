@@ -30,6 +30,5 @@ jobs:
       - name: go test
         run: go test ./...
 
-      # A7 静态一致性检查就绪后启用：
-      # - name: style check (no raw colors in widgets/extra)
-      #   run: go run ./internal/check
+      - name: style check (no raw colors / spacing in widgets/extra)
+        run: go run ./internal/check

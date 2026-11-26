@@ -21,31 +21,31 @@ MyGo 官方对 `Spacing` 的定义（`styling.md`）：
 
 这与 Ant Design 的 `compactAlgorithm` 完全同构——antd 通过缩小 `sizeUnit`（4→2）、`controlHeight`（32→24）、各 margin token 实现紧凑。两者映射如下：
 
-| Ant Design（default → compact） | 本库（标准 → 紧凑） |
-| --- | --- |
-| `sizeUnit: 4 → 2`（内部基础单位） | `Theme.Spacing: 4 → 3`（对外基本单位） |
-| `controlHeight: 32 → 24` | 控件高度 `t.Space(n)` 的 n 下调 / 用 `Size()` 覆盖 |
-| `marginXS/SM/M/L: 8/12/16/24 → 4/8/12/16` | `t.Space(n)` 的 n 下调 |
-| `fontSize` 基本不变 | `Theme.FontSize` 可微调（IDE 常用 13px） |
-| `borderRadiusLG/SM` 不变或略减 | `Theme.Radius` 可略减（如 6 → 4） |
+| Ant Design（default → compact）             | 本库（标准 → 紧凑）                              |
+| ----------------------------------------- | ---------------------------------------- |
+| `sizeUnit: 4 → 2`（内部基础单位）                 | `Theme.Spacing: 4 → 3`（对外基本单位）           |
+| `controlHeight: 32 → 24`                  | 控件高度 `t.Space(n)` 的 n 下调 / 用 `Size()` 覆盖 |
+| `marginXS/SM/M/L: 8/12/16/24 → 4/8/12/16` | `t.Space(n)` 的 n 下调                      |
+| `fontSize` 基本不变                           | `Theme.FontSize` 可微调（IDE 常用 13px）        |
+| `borderRadiusLG/SM` 不变或略减                 | `Theme.Radius` 可略减（如 6 → 4）              |
 
 ## 两档密度数值表（设计基线）
 
-| 维度 | 标准 Comfortable | 紧凑 Compact | 说明 |
-| --- | --- | --- | --- |
-| `Theme.Spacing` | 4 | 3 | 核心开关，影响所有内建控件 |
-| `t.Space(1)` | 4px | 3px | 最小间隙 |
-| `t.Space(2)` | 8px | 6px | 控件内边距（横向） |
-| `t.Space(3)` | 12px | 9px | 卡片内边距、gap |
-| `t.Space(4)` | 16px | 12px | 区块间距 |
-| `t.Space(6)` | 24px | 18px | 大区块间距 |
-| 默认按钮高度 | ~32px | ~24–26px | 由 padding + 字号推得 |
-| 输入框高度 | 32px | 24–26px | `TextInputBase` padding 下调 |
-| 表格/树行高 | 由 Spacing 倍数 | 约降 25% | MyGo 内建按 Spacing 计算 |
-| 复选框/开关尺寸 | `t.Space(n)` | 自动缩小 | Base 控件随 Spacing |
-| `Theme.FontSize` | 系统默认（14/13） | 可设 12–13 | IDE 场景常用 |
-| `Theme.Radius` | 6 | 4（可选） | 紧凑界面更利落 |
-| 滚动条 | `ScrollbarStyle` 默认 | 可设更窄 `ThumbWidth` | MyGo 原生支持「VS Code 方形滚动条」 |
+| 维度               | 标准 Comfortable      | 紧凑 Compact        | 说明                         |
+| ---------------- | ------------------- | ----------------- | -------------------------- |
+| `Theme.Spacing`  | 4                   | 3                 | 核心开关，影响所有内建控件              |
+| `t.Space(1)`     | 4px                 | 3px               | 最小间隙                       |
+| `t.Space(2)`     | 8px                 | 6px               | 控件内边距（横向）                  |
+| `t.Space(3)`     | 12px                | 9px               | 卡片内边距、gap                  |
+| `t.Space(4)`     | 16px                | 12px              | 区块间距                       |
+| `t.Space(6)`     | 24px                | 18px              | 大区块间距                      |
+| 默认按钮高度           | ~32px               | ~24–26px          | 由 padding + 字号推得           |
+| 输入框高度            | 32px                | 24–26px           | `TextInputBase` padding 下调 |
+| 表格/树行高           | 由 Spacing 倍数        | 约降 25%            | MyGo 内建按 Spacing 计算        |
+| 复选框/开关尺寸         | `t.Space(n)`        | 自动缩小              | Base 控件随 Spacing           |
+| `Theme.FontSize` | 系统默认（14/13）         | 可设 12–13          | IDE 场景常用                   |
+| `Theme.Radius`   | 6                   | 4（可选）             | 紧凑界面更利落                    |
+| 滚动条              | `ScrollbarStyle` 默认 | 可设更窄 `ThumbWidth` | MyGo 原生支持「VS Code 方形滚动条」   |
 
 > 说明：紧凑档同时提供 `Compact`（3）与可选的 `UltraCompact`（2.5）用于极端信息密度；但 2 以下控件会过于拥挤，不建议常规使用。
 

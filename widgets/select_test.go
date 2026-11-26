@@ -100,7 +100,7 @@ func TestRateAndSegmented(t *testing.T) {
 		col := ui.Column(c).Gap(8)
 		col.Children(func() {
 			widgets.Rate(c, &score, 5, widgets.OnChange(func() { fired++ }))
-			widgets.Segmented(c, &tab, "全部", "进行中", "已完成")
+			widgets.Segmented(c, &tab, []string{"全部", "进行中", "已完成"})
 		})
 	}
 	tt := ui.NewTester(view, 360, 160)
@@ -158,7 +158,7 @@ func TestSelectFollowsThemeAndDensity(t *testing.T) {
 				widgets.Slider(c, &low, 0, 100)
 				widgets.RangeSliderDouble(c, &low, &high, 0, 100, 1)
 				widgets.Rate(c, &score, 5)
-				widgets.Segmented(c, &tab, "一", "二")
+				widgets.Segmented(c, &tab, []string{"一", "二"})
 			})
 		}
 		tt := ui.NewTester(view, 400, 400)

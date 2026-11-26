@@ -141,9 +141,15 @@ func Rate(c *ui.Context, value *int, max int, opts ...ControlOption) ui.Element 
 
 // Segmented 分段控制器（antd Segmented）。selected 为选中下标：
 //
-//	ant.Segmented(c, &tab, "全部", "进行中", "已完成")
-func Segmented(c *ui.Context, selected *int, labels ...string) ui.Element {
-	return ui.Segmented(c, selected, labels...)
+//	ant.Segmented(c, &tab, []string{"全部", "进行中", "已完成"}, ant.OnChange(app.filter))
+func Segmented(c *ui.Context, selected *int, labels []string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Segmented(c, selected, labels...)
+	applyControl(el, cfg)
+	return el
 }
 
 // Select 下拉选择（antd Select）。selected 与 options 由调用方持有；

@@ -119,18 +119,22 @@ func TagGold() TagOption { return func(c *tagConfig) { c.color = TagColorGold } 
 func TagClosable(fn func()) TagOption { return func(c *tagConfig) { c.closable, c.onClose = true, fn } }
 
 // Badge 徽标（antd Badge）。count <= 0 不显示；数字超过 99 显示 "99+"。
-// 徽标显示在内容右侧（简单行内布局；叠在内容右上角的 Overlay 定位
-// 列入后续增强，见 docs/06 下一步）：
+// 徽标通过 Overlay + AttachTo 叠在内容右上角（中心骑角，对齐 antd）：
 //
 //	ant.Badge(c, 5, func() { ant.Button(c, "消息") })
 //	ant.BadgeDot(c, func() { ant.AvatarEl(c, "LY") })
 func Badge(c *ui.Context, count int, fn func()) ui.Element {
 	t := c.Theme()
-	row := ui.Row(c).Gap(0).AlignItems(ui.Start)
-	row.Children(func() {
-		fn()
-		if count > 0 {
-			// 徽标叠在内容的右上角。
+	// 外层 Row 内的内容容器收缩为内容宽度，作为徽标定位锚点
+	// （先于 Overlay 构建，同帧有效）。
+	host := ui.Row(c).AlignItems(ui.Start)
+	var anchor ui.Element
+	host.Children(func() {
+		anchor = ui.Row(c)
+		anchor.Children(fn)
+	})
+	if count > 0 {
+		ui.Overlay(c, func() {
 			text := "99+"
 			if count <= 99 {
 				text = strconv.Itoa(count)
@@ -143,23 +147,30 @@ func Badge(c *ui.Context, count int, fn func()) ui.Element {
 				Background(t.Danger).
 				AlignItems(ui.Center)
 			badge.Children(func() {
-				ui.Text(c, text).TextColor(t.Background).FontSize(t.Rem(0.7))
+				ui.Text(c, text).TextColor(t.Background).FontSize(t.Rem(0.7)).SingleLine()
 			})
-		}
-	})
-	return row
+			// 徽标中心骑在内容右上角上。
+			badge.AttachTo(anchor, ui.AnchorTopRight, ui.AnchorCenter)
+		})
+	}
+	return host
 }
 
-// BadgeDot 红点徽标（antd Badge dot）。
+// BadgeDot 红点徽标（antd Badge dot），叠在内容右上角。
 func BadgeDot(c *ui.Context, fn func()) ui.Element {
 	t := c.Theme()
-	row := ui.Row(c).Gap(0).AlignItems(ui.Start)
-	row.Children(func() {
-		fn()
+	host := ui.Row(c).AlignItems(ui.Start)
+	var anchor ui.Element
+	host.Children(func() {
+		anchor = ui.Row(c)
+		anchor.Children(fn)
+	})
+	ui.Overlay(c, func() {
 		dot := ui.Box(c).Size(t.Space(2), t.Space(2)).Radius(t.Space(1)).Background(t.Danger)
 		dot.Children(func() {})
+		dot.AttachTo(anchor, ui.AnchorTopRight, ui.AnchorCenter)
 	})
-	return row
+	return host
 }
 
 // AvatarEl 头像（antd Avatar）。name 提供首字符回退，image 可为 nil：

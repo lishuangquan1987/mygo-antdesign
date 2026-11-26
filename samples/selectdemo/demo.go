@@ -120,7 +120,7 @@ func SegmentedDemo(c *ui.Context) {
 	row := ui.Row(c)
 	tab := ui.Local(row, "ant.sample.segmented.tab", func() int { return 0 })
 	row.Children(func() {
-		widgets.Segmented(c, tab, "全部", "进行中", "已完成")
+		widgets.Segmented(c, tab, []string{"全部", "进行中", "已完成"})
 	})
 }
 

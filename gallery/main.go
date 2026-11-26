@@ -15,7 +15,8 @@ import (
 	"github.com/lishuangquan1987/mygo-antdesign/samples/input"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/nav"
-	selectdemo "github.com/lishuangquan1987/mygo-antdesign/samples/selectdemo"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/selectdemo"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/table"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/typography"
 )
 
@@ -28,6 +29,7 @@ func main() {
 	samples.Register(input.Demo())
 	samples.Register(selectdemo.Demo())
 	samples.Register(display.Demo())
+	samples.Register(table.Demo())
 	samples.Register(feedback.Demo())
 	samples.Register(nav.Demo())
 

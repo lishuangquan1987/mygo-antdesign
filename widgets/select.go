@@ -2,6 +2,8 @@ package ant
 
 import (
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
 // ControlOption 选择类控件（Checkbox/Radio/Switch/Slider/Rate/Segmented）
@@ -142,6 +144,38 @@ func Rate(c *ui.Context, value *int, max int, opts ...ControlOption) ui.Element 
 //	ant.Segmented(c, &tab, "全部", "进行中", "已完成")
 func Segmented(c *ui.Context, selected *int, labels ...string) ui.Element {
 	return ui.Segmented(c, selected, labels...)
+}
+
+// Select 下拉选择（antd Select）。selected 与 options 由调用方持有；
+// 原语自带下拉弹层与键盘导航，这里对齐 antd 的控件高度、字号与圆角：
+//
+//	var city string
+//	ant.Select(c, &city, []string{"北京", "上海", "广州"}, ant.OnChange(app.reload))
+func Select(c *ui.Context, selected *string, options []string, opts ...ControlOption) ui.Element {
+	return wrapSelect(c, func() ui.Element { return ui.Select(c, selected, options) }, opts)
+}
+
+// Combobox 可输入下拉（antd AutoComplete / Combobox）：输入过滤 + 下拉候选。
+//
+//	var q string
+//	ant.Combobox(c, &q, []string{"重启服务", "重启网关"}, ant.OnChange(app.suggest))
+func Combobox(c *ui.Context, selected *string, options []string, opts ...ControlOption) ui.Element {
+	return wrapSelect(c, func() ui.Element { return ui.Combobox(c, selected, options) }, opts)
+}
+
+// wrapSelect 统一的下拉类包装（Select/Combobox 共用）。
+func wrapSelect(c *ui.Context, build func() ui.Element, opts []ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+	el := build().
+		Height(internal.ControlHeight(t, internal.SizeMiddle)).
+		FontSize(internal.ControlFont(t, internal.SizeMiddle)).
+		Radius(t.Radius)
+	applyControl(el, cfg)
+	return el
 }
 
 // CheckboxAll 三态复选框（全选框：全选/半选/未选），antd 表格表头场景：

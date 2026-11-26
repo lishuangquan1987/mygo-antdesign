@@ -19,7 +19,7 @@ func Demo() samples.WidgetDemo {
 		Name:     "选择控件",
 		Package:  "widgets",
 		Category: samples.CatInput,
-		Summary:  "Checkbox / Radio / Switch / Slider / Rate / Segmented：选中色随品牌色。",
+		Summary:  "Checkbox / Radio / Switch / Slider / Rate / Segmented / Select / Combobox：选中色随品牌色。",
 		Samples: []samples.Sample{
 			{
 				Title:       "复选框",
@@ -50,6 +50,12 @@ func Demo() samples.WidgetDemo {
 				Description: "Segmented 切换互斥选项。",
 				Code:        samples.Extract(demoSrc, "segmented"),
 				View:        SegmentedDemo,
+			},
+			{
+				Title:       "下拉选择",
+				Description: "Select 下拉单选与 Combobox 输入过滤。",
+				Code:        samples.Extract(demoSrc, "selectdemo"),
+				View:        SelectDemo,
 			},
 		},
 	}
@@ -115,6 +121,19 @@ func SegmentedDemo(c *ui.Context) {
 	tab := ui.Local(row, "ant.sample.segmented.tab", func() int { return 0 })
 	row.Children(func() {
 		widgets.Segmented(c, tab, "全部", "进行中", "已完成")
+	})
+}
+
+// /sample
+
+// sample:selectdemo
+func SelectDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth().Gap(8)
+	city := ui.Local(col, "ant.sample.select.city", func() string { return "上海" })
+	cmd := ui.Local(col, "ant.sample.select.cmd", func() string { return "" })
+	col.Children(func() {
+		widgets.Select(c, city, []string{"北京", "上海", "广州", "深圳"}, widgets.OnChange(func() {}))
+		widgets.Combobox(c, cmd, []string{"重启服务", "重启网关", "重启集群"}, widgets.OnChange(func() {}))
 	})
 }
 

@@ -89,9 +89,9 @@ Ant Design 有而 MyGo 无的控件（分页、级联选择、穿梭框、上传
 | 换肤控件 | ✅ `widgets/`（包 `ant`）99 个构造函数，覆盖 MyGo 绝大多数原生控件与 Base 原语 |
 | 缺口控件 | ✅ `extra/` 7 个（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内自建（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 等） |
 | 图标 | ✅ 44 个 antd outlined 常量 + `icon.Icon` |
-| 示例 | ◐ 12 个示例分组 / 66 个示例片段；未逐控件覆盖 |
+| 示例 | ◐ 12 个示例分组 / 74 个示例片段；未逐控件覆盖 |
 | Gallery | ✅ 侧栏 + 卡片流 + 主题/密度/品牌色切换 + 亮暗并排对比；搜索/分类/全局尺寸为待办 |
-| 视觉回归 | ◐ 3 张 Gallery 级截图基线（`samples/golden/`），尚无逐示例基线 |
+| 视觉回归 | ✅ 3 张 Gallery 级 + 72 张逐示例截图基线（`samples/golden/`，按平台生效） |
 | 静态检查 | ✅ `go run ./internal/check` 禁裸颜色/裸间距 |
 | 版本 | v0.1.0 已打 tag；v0.2 已推送待打 tag；v0.3 开发中 |
 

@@ -41,7 +41,7 @@
 | 换肤 + 缺口控件构造函数 | ≥ 55 | **106**（`widgets/` 99 + `extra/` 7，另有 `icon.Icon`） |
 | 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **12 个示例分组 / 66 个示例片段**，尚未逐控件覆盖 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **12 个示例分组 / 74 个示例片段**，尚未逐控件覆盖 |
 | 视觉回归 | 每个示例 × 3 种主题组合 | **3 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
@@ -218,7 +218,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | F3 | 代码视图（真实源码 + 只读展示） | 2 | ✅ | 只读源码 + 复制代码按钮（`ui/editor` 未接） |
 | F4 | 示例注册表 + 分类 | 1 | ✅ | `samples/registry.go` |
 | F5 | `go:embed` 片段提取 | 2 | ✅ | `samples/extract.go` |
-| F6 | 截图生成与回归 | 3 | ◐ | 3 张 Gallery 级基线；无逐示例/文档嵌图流水线 |
+| F6 | 截图生成与回归 | 3 | ✅ | 3 张 Gallery 级 + 72 张逐示例基线；文档嵌图流水线待做 |
 | | **小计** | **14** | | |
 
 **总计估算：约 121 人日**（立项估算；示例编写约 21 人日摊入各控件）。单人约 6 个月，2 人并行约 3.5 个月。
@@ -272,7 +272,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 ## 10. 下一步（按优先级）
 
 1. **发布 v0.2/v0.3**：CHANGELOG + tag + Release 附件（流水线已就绪）。
-2. **示例覆盖**：为每个控件补独立示例页与逐控件截图基线（当前 11 组 / 65 片段）。
+2. **文档嵌图**：把逐示例截图嵌入文档/README（截图与基线已就绪）。
 3. **Gallery 增强**：侧栏分类/搜索/每组数量与代码复制已完成；剩余全局尺寸切换（控件尺寸无统一注入点，暂缓）与 `ui/editor` 代码视图。
 4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。
 5. **文档定稿**：README 状态、02 覆盖度、07 覆盖矩阵与截图。
@@ -337,7 +337,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
 - Gallery 暂无全局尺寸切换（各控件尺寸选项无统一注入点）与 `ui/editor` 代码视图；代码以只读纯文本展示。
-- 逐控件示例与逐控件截图基线尚未建立（当前为 12 个示例分组 + 3 张 Gallery 级基线）。
+- 逐示例基线为单组合（亮色标准），且含加载动画的示例（Button 状态、反馈 加载中）不纳入逐字节比对。
 - `ant.Skeleton` 为静态骨架，暂未做呼吸动画；`ant.Descriptions` 的 `bordered` 是「外框 + 内边距」简化版，无内部网格线。
 - `ant.Collapse` 用自建头部（无展开/收起动画）；`ant.FormItem` 的必填标记是纯文本「*」，未单独着色。
 - `ant.Drawer` 无滑入动画（直接显示/隐藏）；`ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。

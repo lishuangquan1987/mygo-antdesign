@@ -63,6 +63,18 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "toggle"),
 				View:        ToggleDemo,
 			},
+			{
+				Title:       "双滑块范围",
+				Description: "RangeSliderDouble 用两个滑块选择区间。",
+				Code:        samples.Extract(demoSrc, "rangedouble"),
+				View:        RangeDoubleDemo,
+			},
+			{
+				Title:       "开关按钮组",
+				Description: "ToggleGroup 将多个 Toggle 组合为单选按钮组。",
+				Code:        samples.Extract(demoSrc, "togglegroup"),
+				View:        ToggleGroupDemo,
+			},
 		},
 	}
 }
@@ -157,6 +169,38 @@ func ToggleDemo(c *ui.Context) {
 			widgets.Toggle(c, italic, "I")
 			widgets.Paragraph(c, "Toggle 保持按下的按钮，适合编辑器工具条。", widgets.Secondary())
 		})
+	})
+}
+
+// /sample
+
+// sample:rangedouble
+func RangeDoubleDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
+	lo := ui.Local(host, "ant.sample.select.rangelo", func() float64 { return 20 })
+	hi := ui.Local(host, "ant.sample.select.rangehi", func() float64 { return 80 })
+	host.Children(func() {
+		widgets.RangeSliderDouble(c, lo, hi, 0, 100, 1)
+		widgets.Paragraph(c, "双滑块范围选择", widgets.Secondary())
+	})
+}
+
+// /sample
+
+// sample:togglegroup
+func ToggleGroupDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
+	align := ui.Local(host, "ant.sample.select.togglegroup", func() int { return 0 })
+	host.Children(func() {
+		widgets.ToggleGroup(c, func() {
+			for i, label := range []string{"左", "中", "右"} {
+				on := *align == i
+				if widgets.Toggle(c, &on, label).Clicked() {
+					*align = i
+				}
+			}
+		})
+		widgets.Paragraph(c, "ToggleGroup 将多个 Toggle 组合成单选按钮组。", widgets.Secondary())
 	})
 }
 

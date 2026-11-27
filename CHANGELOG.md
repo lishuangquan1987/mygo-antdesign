@@ -6,7 +6,7 @@
 
 ### 计划中
 
-- 逐控件示例与逐控件截图基线（当前为 12 个分组 / 66 个片段 + 3 张 Gallery 级基线）。
+- 文档嵌图流水线（把已有逐示例截图嵌入文档/README）。
 - 系统亮暗自动跟随（`theme.WithFollowSystem` 已覆盖强调色/高对比/文字缩放，亮暗跟随仍为 TODO，见 ADR 0002）。
 - Gallery 全局尺寸切换（各控件尺寸选项无统一注入点）与 `ui/editor` 代码视图。
 
@@ -20,7 +20,8 @@
 - **原生控件补全包装**：`Hyperlink`、`DecimalInput`、`SearchField`、`Stepper`、`Calendar`、`TokenField`、`EditableText`、`Meter`、`Collapsible`、`Accordion` / `AccordionItem`、`Popover`、`ContextMenu`。
 - **主题**：`theme.WithFollowSystem()`（跟随系统强调色/高对比/文字缩放，默认关闭，见 ADR 0002）。
 - **Gallery**：侧栏分类分组 + 搜索 + 每组示例数、代码复制按钮、亮暗对比与密度对比、按平台生效的截图基线。
-- **示例**：新增 `samples/ide`（紧凑型 IDE 布局）；`scripts/visualcheck` 可把任意示例分组渲染为 PNG 供人工核对。
+- **示例**：新增 `samples/ide`（紧凑型 IDE 布局）；`scripts/visualcheck` 可把任意示例分组渲染为 PNG 供人工核对；每个控件均有示例（12 组 / 74 片段）。
+- **逐示例截图基线**：`samples/golden_test.go` 渲染 72 张逐示例 PNG（含平台 manifest），含动画的 2 个示例不纳入逐字节比对。
 
 ### 变更
 

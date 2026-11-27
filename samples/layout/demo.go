@@ -52,6 +52,24 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "floatbutton"),
 				View:        FloatButtonDemo,
 			},
+			{
+				Title:       "固钉",
+				Description: "Affix 把内容固定在滚动容器顶部。",
+				Code:        samples.Extract(demoSrc, "affix"),
+				View:        AffixDemo,
+			},
+			{
+				Title:       "百分比与垂直分隔",
+				Description: "SplitterPercent 百分比分栏；SplitterVerticalPercent 上下按比例分栏。",
+				Code:        samples.Extract(demoSrc, "splitter"),
+				View:        SplitterDemo2,
+			},
+			{
+				Title:       "垂直分隔",
+				Description: "SplitterVertical 上下分栏，尺寸由调用方持有。",
+				Code:        samples.Extract(demoSrc, "verticalsplit"),
+				View:        VerticalSplitDemo,
+			},
 		},
 	}
 }
@@ -133,6 +151,60 @@ func FloatButtonDemo(c *ui.Context) {
 		widgets.Paragraph(c, "右下角悬浮按钮固定在窗口上。")
 		widgets.Paragraph(c, "点击次数："+strconv.Itoa(*count), widgets.Secondary())
 		widgets.FloatButton(c, "↑", func() { *count++ })
+	})
+}
+
+// /sample
+
+// sample:affix
+func AffixDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth()
+	host.Children(func() {
+		widgets.Affix(c, 0, func() {
+			box := ui.Box(c).FillWidth().Padding(c.Theme().Space(2)).
+				Background(c.Theme().Surface).Border(1, c.Theme().Border)
+			box.Children(func() { ui.Text(c, "吸顶工具条（滚动时保持顶部）") })
+		})
+		for i := 0; i < 12; i++ {
+			widgets.Paragraph(c, "可滚动内容行")
+		}
+	})
+}
+
+// /sample
+
+// sample:splitter
+func SplitterDemo2(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(40)).Gap(c.Theme().Space(2))
+	percent := ui.Local(host, "ant.sample.layout.splitpercent", func() float32 { return 30 })
+	verticalPercent := ui.Local(host, "ant.sample.layout.splitverticalpercent", func() float32 { return 50 })
+	host.Children(func() {
+		row := ui.Row(c).Fill().AlignItems(ui.Stretch)
+		row.Children(func() {
+			widgets.SplitterPercent(c, percent, func() {
+				widgets.Paragraph(c, "左栏（30%）")
+			}, func() {
+				widgets.Paragraph(c, "右栏")
+			})
+		})
+		widgets.SplitterVerticalPercent(c, verticalPercent, func() {
+			widgets.Paragraph(c, "上栏（50%）")
+		}, func() {
+			widgets.Paragraph(c, "下栏")
+		})
+	})
+}
+
+// sample:verticalsplit
+func VerticalSplitDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(30))
+	size := ui.Local(host, "ant.sample.layout.splitvertical", func() float32 { return 100 })
+	host.Children(func() {
+		widgets.SplitterVertical(c, size, func() {
+			widgets.Paragraph(c, "上栏（固定 100 DIP）")
+		}, func() {
+			widgets.Paragraph(c, "下栏")
+		})
 	})
 }
 

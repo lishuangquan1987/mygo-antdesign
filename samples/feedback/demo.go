@@ -75,6 +75,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "guide"),
 				View:        GuideDemo,
 			},
+			{
+				Title:       "确认对话",
+				Description: "Confirm 的危险操作二次确认（删除）。",
+				Code:        samples.Extract(demoSrc, "confirm"),
+				View:        ConfirmDemo,
+			},
 		},
 	}
 }
@@ -256,6 +262,23 @@ func GuideDemo(c *ui.Context) {
 			{Title: "继续", Description: "点「下一步」继续。"},
 		}, step)
 		widgets.Notification(c, notice, "部署完成", "v0.3.0 已上线")
+	})
+}
+
+// /sample
+
+// sample:confirm
+func ConfirmDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth()
+	open := ui.Local(host, "ant.sample.feedback.confirmopen", func() bool { return false })
+	result := ui.Local(host, "ant.sample.feedback.confirmresult", func() string { return "" })
+	host.Children(func() {
+		widgets.Button(c, "删除项目", widgets.Danger(), widgets.OnClick(func() { *open = true }))
+		widgets.Confirm(c, open, "删除项目", "此操作不可撤销，是否继续？",
+			func() { *result = "已删除" })
+		if *result != "" {
+			widgets.Alert(c, *result, widgets.AlertTypeOpt(widgets.AlertSuccess))
+		}
 	})
 }
 

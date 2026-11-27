@@ -6,6 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
 )
@@ -50,6 +51,12 @@ func Demo() samples.WidgetDemo {
 				Description: "Sidebar 分区 + 条目 + 选中态，键盘可导航。",
 				Code:        samples.Extract(demoSrc, "sidebar"),
 				View:        SidebarDemo,
+			},
+			{
+				Title:       "带图标的侧栏",
+				Description: "SidebarItemWithIcon 在条目左侧显示图标。",
+				Code:        samples.Extract(demoSrc, "sidebaricons"),
+				View:        SidebarIconsDemo,
 			},
 		},
 	}
@@ -135,6 +142,28 @@ func SidebarDemo(c *ui.Context) {
 		})
 	})
 	widgets.Paragraph(c, "当前选择："+*chosen, widgets.Secondary())
+}
+
+// /sample
+
+// sample:sidebaricons
+func SidebarIconsDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(40))
+	selected := ui.Local(host, "ant.sample.nav.sidebaricon", func() string { return "home" })
+	openSection := ui.Local(host, "ant.sample.nav.sidebarsection", func() bool { return true })
+	home, errHome := ui.ParseSVG([]byte(icon.Home))
+	setting, errSetting := ui.ParseSVG([]byte(icon.Setting))
+	if errHome != nil || errSetting != nil {
+		return
+	}
+	host.Children(func() {
+		widgets.Sidebar(c, selected, func() {
+			widgets.SidebarSection(c, "导航", openSection, func() {
+				widgets.SidebarItemWithIcon(c, "home", "首页", home)
+				widgets.SidebarItemWithIcon(c, "settings", "设置", setting)
+			})
+		})
+	})
 }
 
 // /sample

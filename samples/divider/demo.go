@@ -39,6 +39,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "vertical"),
 				View:        Vertical,
 			},
+			{
+				Title:       "虚线分隔",
+				Description: "DashedVerticalDivider 虚竖线，视觉层级更轻。",
+				Code:        samples.Extract(demoSrc, "dashed"),
+				View:        DashedDemo,
+			},
 		},
 	}
 }
@@ -81,6 +87,18 @@ func Vertical(c *ui.Context) {
 		widgets.Button(c, "编辑")
 		widgets.VerticalDivider(c)
 		widgets.Button(c, "删除", widgets.Danger())
+	})
+}
+
+// /sample
+
+// sample:dashed
+func DashedDemo(c *ui.Context) {
+	host := ui.Row(c).Gap(c.Theme().Space(4)).Height(c.Theme().Space(10)).AlignItems(ui.Center)
+	host.Children(func() {
+		ui.Text(c, "左")
+		widgets.DashedVerticalDivider(c)
+		ui.Text(c, "右")
 	})
 }
 

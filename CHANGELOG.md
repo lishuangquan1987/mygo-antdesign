@@ -8,6 +8,7 @@
 
 - **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
 - **第二批控件校准**：Pagination（32×32 页码 + 翻页箭头 + 悬停主色描边）、Steps（32px 图标/2px 连线）、Empty/Result（64/72px 插画、14/24px 文字）、FormItem（纵向标签 + 红色必填星号 + 24px 项距）、Collapse（44px 头 + `#fafafa` 底）、Checkbox（8px 间距 + 标签可点击）。
+- **第三批校准**：Drawer（378px 宽/56px 头/24px 体）、List（12/16 内边距 + 悬停选中）、Descriptions（14px 标签 + 16px 内边距）、Timeline（10px 圆点/2px 连线）、Gallery 默认窗口 1280×800。
 - **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
 - **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 

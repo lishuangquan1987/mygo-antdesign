@@ -12,7 +12,7 @@ type drawerConfig struct {
 	closable bool
 }
 
-// DrawerWidth 抽屉宽度（主题单位数，默认 80；随密度缩放）。
+// DrawerWidth 抽屉宽度（主题单位数，默认 94.5 ≈ antd 378px；随密度缩放）。
 func DrawerWidth(units float32) DrawerOption {
 	return func(c *drawerConfig) { c.width = units }
 }
@@ -30,7 +30,7 @@ func DrawerClosable(b bool) DrawerOption {
 //	    ant.Paragraph(c, "抽屉内容")
 //	}, ant.DrawerWidth(80))
 func Drawer(c *ui.Context, open *bool, title string, body func(), opts ...DrawerOption) ui.Element {
-	cfg := &drawerConfig{width: 80, closable: true}
+	cfg := &drawerConfig{width: 94.5, closable: true}
 	for _, o := range opts {
 		o(cfg)
 	}
@@ -51,8 +51,8 @@ func Drawer(c *ui.Context, open *bool, title string, body func(), opts ...Drawer
 		panel.Children(func() {
 			// 标题栏。
 			head := ui.Row(c).FillWidth().
-				Height(t.Space(9)).
-				Padding(0, t.Space(4)).
+				Height(t.Space(14)).
+				Padding(0, t.Space(6)).
 				Justify(ui.SpaceBetween).
 				AlignItems(ui.Center).
 				Border(1, t.Border)
@@ -71,7 +71,7 @@ func Drawer(c *ui.Context, open *bool, title string, body func(), opts ...Drawer
 			})
 			// 可滚动内容区。
 			ui.Scroll(c).FillWidth().Children(func() {
-				inner := ui.Column(c).FillWidth().Padding(t.Space(4)).Gap(t.Space(3))
+				inner := ui.Column(c).FillWidth().Padding(t.Space(6)).Gap(t.Space(4))
 				inner.Children(body)
 			})
 		})

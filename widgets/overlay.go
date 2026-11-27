@@ -32,12 +32,13 @@ func Tooltip(c *ui.Context, text string, anchor func(*ui.Context), opts ...Toolt
 		anchorEl.Children(func() { anchor(c) })
 	})
 	ui.TooltipBase(c, anchorEl, func(tip ui.Element) {
+		// 反色小气泡（antd 深色 tooltip）；箭头需自绘 Path，暂未实现。
 		tip.Padding(t.Space(1), t.Space(2)).
 			Radius(t.Radius*0.67).
 			Background(t.Inverse).
 			Border(1, t.Border)
 		tip.Children(func() {
-			ui.Text(c, text).TextColor(t.InverseText).FontSize(t.Rem(0.86)).SingleLine()
+			ui.Text(c, text).TextColor(t.InverseText).FontSize(t.FontSize).SingleLine()
 		})
 	})
 	return host

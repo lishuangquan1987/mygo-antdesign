@@ -314,13 +314,14 @@ func Descriptions(c *ui.Context, items []DescriptionItem, opts ...DescriptionsOp
 	el := ui.Column(c).FillWidth().Gap(t.Space(2))
 	el.Children(func() {
 		if cfg.title != "" {
-			ui.Text(c, cfg.title).FontSize(t.Rem(1.05)).FontWeight(600).TextColor(t.Text)
+			ui.Text(c, cfg.title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
 		}
 		grid := ui.Grid(c).Columns(cfg.columns).Gap(t.Space(2)).FillWidth()
 		if cfg.bordered {
-			grid = ui.Grid(c).Columns(cfg.columns).Gap(t.Space(2)).FillWidth().
-				Padding(t.Space(3)).
-				Radius(t.Radius).
+			// antd 带边框描述列表：8px 圆角、16px 内边距、浅色标签。
+			grid = ui.Grid(c).Columns(cfg.columns).Gap(t.Space(4)).FillWidth().
+				Padding(t.Space(4)).
+				Radius(t.Radius+t.Space(0.5)).
 				Border(1, t.Border).
 				Background(t.Surface)
 		}
@@ -328,8 +329,8 @@ func Descriptions(c *ui.Context, items []DescriptionItem, opts ...DescriptionsOp
 			for _, it := range items {
 				cell := ui.Column(c).Gap(t.Space(1))
 				cell.Children(func() {
-					ui.Text(c, it.Label).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
-					ui.Text(c, it.Value).TextColor(t.Text).FontSize(t.Rem(0.95))
+					ui.Text(c, it.Label).TextColor(t.TextMuted).FontSize(t.FontSize)
+					ui.Text(c, it.Value).TextColor(t.Text).FontSize(t.FontSize).FontWeight(500)
 				})
 			}
 		})
@@ -393,7 +394,7 @@ func Timeline(c *ui.Context, items []TimelineItem, opts ...TimelineOption) ui.El
 	}
 	t := c.Theme()
 	// 时间轴连接线的 1px 基准：从主题单位派生，避免裸像素（标准密度下即 1px）。
-	hairline := t.Space(1) / 4
+	hairline := t.Space(0.5)
 
 	el := ui.Column(c).FillWidth()
 	el.Children(func() {
@@ -403,8 +404,8 @@ func Timeline(c *ui.Context, items []TimelineItem, opts ...TimelineOption) ui.El
 				// 左列：节点圆点 + 向下连接线（最后一项不画线）。
 				rail := ui.Column(c).Width(t.Space(3)).AlignItems(ui.Center)
 				rail.Children(func() {
-					dot := ui.Box(c).Size(t.Space(2), t.Space(2)).
-						Radius(t.Space(1)).
+					dot := ui.Box(c).Size(t.Space(2.5), t.Space(2.5)).
+						Radius(t.Space(1.25)).
 						Background(timelineDotColor(t, it.Color))
 					dot.Children(func() {})
 					if i < len(items)-1 {
@@ -414,11 +415,11 @@ func Timeline(c *ui.Context, items []TimelineItem, opts ...TimelineOption) ui.El
 				})
 				// 右列：标题与描述。
 				body := ui.Column(c).Gap(t.Space(1)).Grow(1).
-					Padding(0, 0, t.Space(3), t.Space(2))
+					Padding(0, 0, t.Space(5), t.Space(3))
 				body.Children(func() {
-					ui.Text(c, it.Title).TextColor(t.Text).FontSize(t.Rem(0.95))
+					ui.Text(c, it.Title).TextColor(t.Text).FontSize(t.FontSize)
 					if it.Description != "" {
-						ui.Text(c, it.Description).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
+						ui.Text(c, it.Description).TextColor(t.TextMuted).FontSize(t.FontSize)
 					}
 				})
 			})

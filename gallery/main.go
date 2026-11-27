@@ -45,8 +45,12 @@ func main() {
 	g := NewGallery()
 	mygo.App.WhenReady(func() {
 		mygo.NewWindow(mygo.WindowOptions{
-			Title:   "mygo-antdesign Gallery",
-			Content: ui.View(g.View),
+			Title:     "mygo-antdesign Gallery " + version,
+			Width:     1280,
+			Height:    800,
+			MinWidth:  960,
+			MinHeight: 600,
+			Content:   ui.View(g.View),
 		})
 	})
 	if err := mygo.App.Run(); err != nil {

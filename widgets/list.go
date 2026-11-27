@@ -40,9 +40,15 @@ func List(c *ui.Context, state *ui.ListState, n int, row func(int), opts ...List
 	t := c.Theme()
 
 	return ui.List(c, state, n, func(i int) {
-		el := ui.Row(c).FillWidth().Padding(t.Space(2), t.Space(3)).AlignItems(ui.Center).
+		el := ui.Row(c).FillWidth().Padding(t.Space(3), t.Space(4)).AlignItems(ui.Center).
 			Border(1, t.Border)
 		el.BorderWidth(0, 0, 1, 0) // 行分隔线
+		// antd List.Item：选中/悬停时给整行浅底。
+		if cfg.selection != nil && cfg.selection.Has(i) {
+			el.Background(t.Selection)
+		} else if el.Hovered() {
+			el.Background(t.Background.Mix(t.Surface, 0.5))
+		}
 		el.Children(func() { row(i) })
 	}).FillWidth()
 }

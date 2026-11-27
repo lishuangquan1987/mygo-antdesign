@@ -3,6 +3,7 @@ package ant
 import (
 	"github.com/egoist/mygo/ui"
 
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
@@ -206,13 +207,76 @@ func Segmented(c *ui.Context, selected *int, labels []string, opts ...ControlOpt
 	return el
 }
 
-// Select 下拉选择（antd Select）。selected 与 options 由调用方持有；
-// 原语自带下拉弹层与键盘导航，这里对齐 antd 的控件高度、字号与圆角：
+// Select 下拉选择（antd Select）。selected 与 options 由调用方持有；自绘
+// antd 规格的触发器（32px 高、11px 水平内边距、6px 圆角、右侧箭头）与
+// 下拉面板（32px 选项、选中/悬停浅底），键盘导航由 SelectBase 提供：
 //
 //	var city string
 //	ant.Select(c, &city, []string{"北京", "上海", "广州"}, ant.OnChange(app.reload))
 func Select(c *ui.Context, selected *string, options []string, opts ...ControlOption) ui.Element {
-	return wrapSelect(c, func() ui.Element { return ui.Select(c, selected, options) }, opts)
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+
+	before := *selected
+	sel := ui.SelectBase(c, selected)
+
+	// 触发器：与 Input 同高的 antd Select 外框。
+	sel.Trigger.
+		Height(internal.ControlHeight(t, internal.SizeMiddle)).
+		Padding(0, t.Space(3)).
+		Radius(t.Radius).
+		Border(1, t.Border).
+		Background(t.Surface).
+		AlignItems(ui.Center).
+		Justify(ui.SpaceBetween).
+		Gap(t.Space(1))
+	if cfg.disabled {
+		sel.Trigger.Disabled(true)
+	}
+	sel.Trigger.Children(func() {
+		label := *selected
+		color := t.Text
+		if label == "" {
+			label, color = "请选择", t.TextMuted
+		}
+		ui.Text(c, label).TextColor(color).
+			FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine()
+		icon.Icon(c, icon.Down, t.Space(3), icon.WithColor(t.TextMuted))
+	})
+
+	// 下拉面板：8px 内边距、6px 圆角、32px 选项高。
+	sel.Popup(func(panel ui.Element) {
+		panel.Padding(t.Space(1)).
+			Radius(t.Radius+t.Space(0.5)).
+			Background(t.Surface).
+			Border(1, t.Border).
+			Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
+		for _, opt := range options {
+			opt := opt
+			item := sel.Item(opt).
+				Height(internal.ControlHeight(t, internal.SizeSmall)).
+				Padding(0, t.Space(2)).
+				Radius(t.Radius * 0.67).
+				AlignItems(ui.Center)
+			if opt == *selected {
+				item.Background(t.Selection)
+			} else if item.Highlighted() {
+				item.Background(t.SurfaceHover)
+			}
+			item.Children(func() {
+				ui.Text(c, opt).TextColor(t.Text).
+					FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine()
+			})
+		}
+	})
+
+	if *selected != before && cfg.onChg != nil {
+		cfg.onChg()
+	}
+	return sel.Trigger
 }
 
 // Combobox 可输入下拉（antd AutoComplete / Combobox）：输入过滤 + 下拉候选。

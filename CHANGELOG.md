@@ -11,6 +11,7 @@
 - **第三批校准**：Drawer（378px 宽/56px 头/24px 体）、List（12/16 内边距 + 悬停选中）、Descriptions（14px 标签 + 16px 内边距）、Timeline（10px 圆点/2px 连线）、Gallery 默认窗口 1280×800。
 - **第四批校准**：Switch 自绘 44×22 轨道 + 18px 滑块（补鼠标悬停单测）；Tooltip 补充悬停交互测试（箭头受原生 tooltip 层限制，记录在 docs/09）。
 - **第五批校准**：Tag（22 高/7 内边距/关闭按钮悬停反馈）、Badge（20×20 角标/12px 字号）、Gallery 新增「字号 小/中/大」全局切换与工具条换行；`theme.WithFontSize` 补充单测。
+- **第六批校准**：Select 改为 `ui.SelectBase` 自绘（32px 高/11px 内边距/右侧箭头/32px 选项/选中浅底），保留键盘导航与原有点击交互测试。
 - **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
 - **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 

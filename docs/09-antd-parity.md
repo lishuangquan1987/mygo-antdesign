@@ -38,6 +38,7 @@
 | Descriptions | 标签 12px、内边距 12 | 标签/值 14px、16px 内边距、8px 圆角带边框 |
 | Timeline | 圆点 8px、连线 1px、内容间距 12 | 圆点 10px、连线 2px、内容下间距 20、标题/描述 14px |
 | Switch | 原生 40×22 | 自绘 44×22 轨道 + 18px 滑块（2px 内边距），选中主色、可点击标签切换 |
+| Select | 透传原生 Select，内边距/箭头不可控 | 自绘触发器：32px 高、11px 水平内边距、6px 圆角、右侧箭头；下拉面板 32px 选项、选中/悬停浅底、键盘导航 |
 | Tag | 高度 20、内边距 8、关闭按钮无悬停反馈 | 高度 22、内边距 7、关闭按钮 16px + 悬停浅底 + 4px 间距 |
 | Badge | 角标 16×16、字号 12 | 角标 20×20、圆角 10、字号 12、水平内边距 6 |
 | Gallery 窗口 | 默认 800×600 | 默认 1280×800（最小 960×600），标题带版本号 |
@@ -69,7 +70,7 @@
 | Drawer / Modal 动画 | 直接显示/隐藏，未接入 antd 的滑入与缩放曲线（MyGo `DialogBase` 无动画参数） |
 | Tooltip 箭头 | 反色气泡已对齐；箭头在无头 Tester 中无法稳定绘制（原生 tooltip 层不参与 `Tester.Image()`），未纳入视觉核对 |
 | Dropdown 触发按钮 | 使用原生 `ui.MenuButton`（尺寸/字号/描边无法完全覆盖），下拉项样式由原生菜单绘制 |
-| Select / Combobox 内边距 | 透传原生 `ui.Select`，仅统一高度/字号/圆角，未做到 11px 水平内边距 |
+| Select / Combobox 内边距 | Select 已自绘对齐 antd；Combobox（可输入下拉）仍透传原生 `ui.Combobox`，仅统一高度/字号/圆角 |
 | Gallery 控件尺寸切换 | 字号已支持全局 小/中/大（`theme.WithFontSize`）；控件自身 size（大/中/小）仍由各示例显式指定，无统一注入点 |
 | 系统亮暗自动跟随 | MyGo `ui` 未暴露系统外观 API（见 ADR 0002） |
 

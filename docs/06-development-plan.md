@@ -314,3 +314,26 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - `ant.Table` 字符串排序（数字列需定宽格式化）。
 - `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
 - Cascader / TreeSelect / Tour 等高工作量缺口控件列入 v0.2 计划。
+
+## 13. v0.2 进展（2026-11-27）
+
+### 已完成
+
+- README 重写「快速开始」：CI/Release 徽章、Gallery 首图（docs/images/gallery.png）、
+  可编译最小示例（编译验证）+ 效果图（docs/images/quickstart.png）、
+  `go run ./gallery`、Release 安装包下载入口。
+- CI：release 工作流（5 平台交叉编译安装包，release 后自动附加，支持
+  workflow_dispatch 手动构建），已真实运行验证。
+- extra 新增 **Cascader**（多列逐级下钻浮层，叶子完成选择写入路径，
+  onChange/placeholder/disabled）与 **TreeSelect**（触发器 + 树形浮层，
+  选中后收起），基于 `ui.Popover` 组合实现。
+- 排坑记录：触发器文本 `Grow(1).SingleLine()` 在 Row 布局下高度塌陷
+  （compact 密度时为 0，命中区消失）——去掉修饰即可；Popover 的
+  anchor 必须传触发器元素本身，传空宿主容器会导致浮层定位错误。
+
+### 下一步
+
+1. Popconfirm、Drawer（antd P2 浮层控件，Popover/Dialog 组合）。
+2. Mentions、Tour（P3 高工作量）。
+3. Table 虚拟滚动与单元格渲染函数（大数据量场景）。
+4. 发布 v0.2.0（含安装包流水线验证）。

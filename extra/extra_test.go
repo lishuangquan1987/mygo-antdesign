@@ -181,3 +181,154 @@ func TestExtraFollowsThemeAndDensity(t *testing.T) {
 		}
 	}
 }
+
+func TestCascaderChoose(t *testing.T) {
+	path := []string{}
+	nodes := []extra.CascaderNode{
+		{Label: "浙江", Children: []extra.CascaderNode{{Label: "杭州"}, {Label: "宁波"}}},
+		{Label: "广东", Children: []extra.CascaderNode{{Label: "广州"}}},
+	}
+	view := func(c *ui.Context) {
+		theme.Apply(c, theme.Light())
+		extra.Cascader(c, &path, nodes,
+			extra.CascaderPlaceholder("请选择地区"),
+			extra.CascaderOnChange(func(p []string) { t.Logf("选中: %v", p) }),
+		)
+	}
+	tt := ui.NewTester(view, 400, 240)
+	tt.Frame()
+	if !tt.HasText("请选择地区") {
+		t.Fatal("触发器占位文字未渲染")
+	}
+	// 打开浮层 → 点第一级 → 点第二级叶子。
+	if err := tt.Click("请选择地区"); err != nil {
+		t.Fatalf("点击触发器失败: %v", err)
+	}
+	tt.Frame()
+	if !tt.HasText("浙江") {
+		t.Fatal("浮层第一级未出现")
+	}
+	if err := tt.Click("浙江"); err != nil {
+		t.Fatalf("点击第一级失败: %v", err)
+	}
+	tt.Frame()
+	if !tt.HasText("宁波") {
+		t.Fatal("浮层第二级未出现")
+	}
+	if err := tt.Click("杭州"); err != nil {
+		t.Fatalf("点击叶子失败: %v", err)
+	}
+	tt.Frame()
+	if len(path) != 2 || path[0] != "浙江" || path[1] != "杭州" {
+		t.Errorf("path = %v, want [浙江 杭州]", path)
+	}
+	if !tt.HasText("浙江 / 杭州") {
+		t.Error("触发器未显示选中路径")
+	}
+}
+
+func TestCascaderDisabled(t *testing.T) {
+	path := []string{}
+	nodes := []extra.CascaderNode{{Label: "浙江"}}
+	view := func(c *ui.Context) {
+		theme.Apply(c, theme.Light())
+		extra.Cascader(c, &path, nodes, extra.CascaderDisabled(true))
+	}
+	tt := ui.NewTester(view, 400, 200)
+	tt.Frame()
+	if err := tt.Click("请选择"); err != nil {
+		t.Fatalf("点击失败: %v", err)
+	}
+	tt.Frame()
+	if tt.HasText("浙江") {
+		t.Error("禁用后浮层仍然打开")
+	}
+}
+
+func TestTreeSelectChoose(t *testing.T) {
+	selected := ""
+	nodes := []extra.TreeNode{
+		{Label: "北京", Key: "bj"},
+		{Label: "研发部", Key: "rd", Children: []extra.TreeNode{
+			{Label: "前端组", Key: "fe"},
+		}},
+	}
+	view := func(c *ui.Context) {
+		theme.Apply(c, theme.Light())
+		extra.TreeSelect(c, &selected, nodes, extra.TreeSelectPlaceholder("选择部门"))
+	}
+	tt := ui.NewTester(view, 400, 240)
+	tt.Frame()
+	if err := tt.Click("选择部门"); err != nil {
+		t.Fatalf("点击触发器失败: %v", err)
+	}
+	tt.Frame()
+	if !tt.HasText("北京") {
+		t.Fatal("浮层树未出现")
+	}
+	// 顶层叶子直接选中。
+	if err := tt.Click("北京"); err != nil {
+		t.Fatalf("点击节点失败: %v", err)
+	}
+	tt.Frame()
+	if selected != "bj" {
+		t.Errorf("selected = %q, want bj", selected)
+	}
+	if !tt.HasText("北京") {
+		t.Error("触发器未显示选中节点")
+	}
+}
+
+func TestCascaderTreeSelectThemes(t *testing.T) {
+	for _, tk := range []*theme.AntToken{
+		theme.Light(),
+		theme.Dark(),
+		theme.Light(theme.WithDensity(theme.Compact)),
+		theme.Dark(theme.WithDensity(theme.Compact)),
+	} {
+		token := tk
+		path := []string{}
+		selected := ""
+		nodes := []extra.CascaderNode{
+			{Label: "浙江", Children: []extra.CascaderNode{{Label: "杭州"}}},
+		}
+		tree := []extra.TreeNode{{Label: "北京", Key: "bj"}}
+		view := func(c *ui.Context) {
+			theme.Apply(c, token)
+			extra.Cascader(c, &path, nodes)
+			extra.TreeSelect(c, &selected, tree, extra.TreeSelectPlaceholder("选择节点"))
+		}
+		tt := ui.NewTester(view, 640, 160)
+		tt.Frame()
+		if tt.FramePending() {
+			t.Errorf("密度 %v 下持续请求帧", token.Density)
+		}
+		// 打开浮层并选中，验证交互在 4 主题下都正常。
+		if err := tt.Click("请选择"); err != nil {
+			t.Fatalf("密度 %v: 点击 Cascader 失败: %v", token.Density, err)
+		}
+		tt.Frame()
+		if err := tt.Click("浙江"); err != nil {
+			t.Fatalf("密度 %v: 点击选项失败: %v", token.Density, err)
+		}
+		tt.Frame()
+		if err := tt.Click("杭州"); err != nil {
+			t.Fatalf("密度 %v: 点击叶子失败: %v", token.Density, err)
+		}
+		tt.Frame()
+		if len(path) != 2 {
+			t.Errorf("密度 %v: path = %v", token.Density, path)
+		}
+		if err := tt.Click("选择节点"); err != nil {
+			t.Fatalf("密度 %v: 点击 TreeSelect 失败: %v", token.Density, err)
+		}
+		tt.Frame()
+		if err := tt.Click("北京"); err != nil {
+			t.Fatalf("密度 %v: 点击树节点失败: %v", token.Density, err)
+		}
+		tt.Frame()
+		if selected != "bj" {
+			t.Errorf("密度 %v: selected = %q", token.Density, selected)
+		}
+	}
+}

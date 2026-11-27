@@ -3,6 +3,7 @@ package extrademo
 
 import (
 	_ "embed"
+	"strings"
 
 	"github.com/egoist/mygo/ui"
 
@@ -20,13 +21,25 @@ func Demo() samples.WidgetDemo {
 		Name:     "缺口控件",
 		Package:  "extra",
 		Category: samples.CatExtra,
-		Summary:  "Tree / Upload / Transfer / Carousel / QRCode：基于底座组合实现。",
+		Summary:  "Tree / Cascader / TreeSelect / Upload / Transfer / Carousel / QRCode：基于底座组合实现。",
 		Samples: []samples.Sample{
 			{
 				Title:       "树形控件",
 				Description: "Tree 分支展开/折叠，叶子与分支点击选中。",
 				Code:        samples.Extract(demoSrc, "tree"),
 				View:        TreeDemo,
+			},
+			{
+				Title:       "级联选择",
+				Description: "Cascader 逐级下钻的多列浮层，叶子完成选择。",
+				Code:        samples.Extract(demoSrc, "cascader"),
+				View:        CascaderDemo,
+			},
+			{
+				Title:       "树形下拉选择",
+				Description: "TreeSelect 触发器展开树形浮层，选中节点后收起。",
+				Code:        samples.Extract(demoSrc, "treeselect"),
+				View:        TreeSelectDemo,
 			},
 			{
 				Title:       "上传",
@@ -66,6 +79,43 @@ func TreeDemo(c *ui.Context) {
 		if *picked != "" {
 			widgets.Tag(c, "已选 "+*picked, widgets.TagSuccess())
 		}
+	})
+}
+
+// /sample
+
+// sample:cascader
+func CascaderDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth()
+	region := ui.Local(col, "ant.sample.extra.cascader", func() []string { return nil })
+	col.Children(func() {
+		extra.Cascader(c, region, []extra.CascaderNode{
+			{Label: "浙江", Children: []extra.CascaderNode{
+				{Label: "杭州"},
+				{Label: "宁波"},
+			}},
+			{Label: "广东", Children: []extra.CascaderNode{{Label: "广州"}}},
+		}, extra.CascaderPlaceholder("请选择地区"))
+		if len(*region) > 0 {
+			widgets.Tag(c, strings.Join(*region, " / "), widgets.TagSuccess())
+		}
+	})
+}
+
+// /sample
+
+// sample:treeselect
+func TreeSelectDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth()
+	org := ui.Local(col, "ant.sample.extra.treeselect", func() string { return "" })
+	col.Children(func() {
+		extra.TreeSelect(c, org, []extra.TreeNode{
+			{Label: "研发部", Key: "rd", Children: []extra.TreeNode{
+				{Label: "前端组", Key: "fe"},
+				{Label: "后端组", Key: "be"},
+			}},
+			{Label: "产品部", Key: "pm"},
+		}, extra.TreeSelectPlaceholder("选择部门"))
 	})
 }
 

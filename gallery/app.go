@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo/ui"
+	"github.com/egoist/mygo/ui/editor"
 
 	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
@@ -51,18 +52,35 @@ type Gallery struct {
 	brand    string  // 品牌色 hex，"" 表示 antd 默认
 	compare  int     // compareNone / compareTheme / compareDensity
 	fontSize float32 // 0 表示跟随密度（标准 14 / 紧凑 13）
-	selected string  // 当前展示的控件名
-	query    string  // 侧栏搜索词
+	size     gallerySize
+	selected string // 当前展示的控件名
+	query    string // 侧栏搜索词
 }
+
+// gallerySize Gallery 的全局尺寸档（docs/06 §10：控件尺寸统一注入）。
+type gallerySize int
+
+const (
+	sizeMedium gallerySize = iota
+	sizeSmall
+	sizeLarge
+)
 
 // NewGallery 创建 Gallery。
 func NewGallery() *Gallery {
 	return &Gallery{density: theme.Comfortable, brand: brandColors[0].hex}
 }
 
-// fontScale 把字号选项并入主题（0 表示跟随密度）。
+// fontScale 把尺寸、字号与品牌色并入主题选项（0 表示跟随密度）。
 func (g *Gallery) fontScale(d theme.Density) []theme.Option {
 	opts := []theme.Option{theme.WithDensity(d)}
+	// 全局尺寸：在小/大档用主题度量整体缩放，弥补各控件尺寸选项无统一注入点。
+	switch g.size {
+	case sizeSmall:
+		opts = append(opts, theme.WithSpacing(3), theme.WithRadius(4), theme.WithFontSize(12))
+	case sizeLarge:
+		opts = append(opts, theme.WithSpacing(5), theme.WithRadius(8), theme.WithFontSize(16))
+	}
 	if g.fontSize > 0 {
 		opts = append(opts, theme.WithFontSize(g.fontSize))
 	}
@@ -383,11 +401,19 @@ func (g *Gallery) header(c *ui.Context) {
 				)
 			})
 			widgets.VerticalDivider(c)
+			toolGroup(c, "尺寸", func() {
+				segmented(c,
+					segItem{label: "小", on: g.size == sizeSmall, onClick: func() { g.size = sizeSmall }},
+					segItem{label: "中", on: g.size == sizeMedium, onClick: func() { g.size = sizeMedium }},
+					segItem{label: "大", on: g.size == sizeLarge, onClick: func() { g.size = sizeLarge }},
+				)
+			})
+			widgets.VerticalDivider(c)
 			toolGroup(c, "字号", func() {
 				segmented(c,
-					segItem{label: "小", on: g.fontSize == 12, onClick: func() { g.fontSize = 12 }},
-					segItem{label: "中", on: g.fontSize == 0, onClick: func() { g.fontSize = 0 }},
-					segItem{label: "大", on: g.fontSize == 16, onClick: func() { g.fontSize = 16 }},
+					segItem{label: "12", on: g.fontSize == 12, onClick: func() { g.fontSize = 12 }},
+					segItem{label: "14", on: g.fontSize == 0, onClick: func() { g.fontSize = 0 }},
+					segItem{label: "16", on: g.fontSize == 16, onClick: func() { g.fontSize = 16 }},
 				)
 			})
 			widgets.VerticalDivider(c)
@@ -532,16 +558,29 @@ func (g *Gallery) sampleCard(c *ui.Context, index int, s samples.Sample) {
 					*expanded = !*expanded
 				}
 			})
-			// 代码正文：用 Scroll 承载，超出部分滚动而不是溢出卡片。
-			body := ui.Scroll(c).FillWidth()
+			// 代码正文：ui/editor 只读代码视图（语法高亮 + 行号），
+			// 用 Scroll 承载，超出部分滚动而不是溢出卡片。
+			body := ui.Scroll(c).FillWidth().Background(t.Background)
 			if !*expanded {
 				body.MaxHeight(t.Space(30))
 			}
 			body.Children(func() {
-				ui.Text(c, s.Code).
-					TextColor(t.TextMuted).
-					FontSize(t.Rem(0.78)).
-					Padding(0, t.Space(4), t.Space(3), t.Space(4))
+				st := ui.Local(card, "gallery.codeed."+s.Title, func() editor.State {
+					return editor.State{
+						Buffer:       editor.NewBuffer(s.Code),
+						ReadOnly:     true,
+						NoActiveLine: true,
+					}
+				})
+				lines := strings.Count(s.Code, "\n") + 1
+				h := t.Space(2.2)*float32(lines) + t.Space(2)
+				if h < t.Space(8) {
+					h = t.Space(8)
+				}
+				if h > t.Space(40) {
+					h = t.Space(40)
+				}
+				widgets.CodeEditor(c, st).FillWidth().Height(h)
 			})
 		})
 	})

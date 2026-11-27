@@ -168,7 +168,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | B1 | 按钮与排版 | Button、Typography、Divider、Space/Flex/Grid | 4 | ✅ | 五型 × danger × 三档尺寸 |
 | B2 | 文本录入 | Input、TextArea、SearchInput、NumberInputV、DecimalInput、SearchField、TokenField、EditableText | 4 | ✅ | Mentions 归 P2（C5） |
 | B3 | 选择类 | Select、Combobox、AutoComplete | 5 | ✅ | Cascader/TreeSelect 在 extra |
-| B4 | 选择控件 | Checkbox、CheckboxAll、RadioGroup、Switch、Slider、RangeSlider、Rate、Segmented | 4 | ✅ | `Toggle` 未包装 |
+| B4 | 选择控件 | Checkbox、CheckboxAll、RadioGroup、Switch、Slider、RangeSlider、Rate、Segmented | 4 | ✅ | Toggle/ToggleGroup 已包装（v0.3） |
 | B5 | 日期时间 | DatePicker、TimePicker、Calendar | 4 | ✅ | 基于 `ui.DateInput` / `ui.TimeInput` / `ui.Calendar` |
 | B6 | 表单 | Form（标签/必填/校验） | 2 | ✅ | `ant.Form` / `FormItem` / `FormGroup`（v0.3） |
 | B7 | 数据展示-基础 | Table、Tree、Card、List、Descriptions、Statistic | 6 | ✅ | List 已包装（v0.3） |
@@ -215,7 +215,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | --- | --- | --- | --- | --- |
 | F1 | Gallery 骨架：侧栏 + 示例区 + 顶部控制条 | 4 | ✅ | 侧栏分类分组 + 搜索 + 每组数量 |
 | F2 | 并排对比模式（亮/暗） | 2 | ✅ | `theme.Sub` + 左右两栏 |
-| F3 | 代码视图（真实源码 + 只读展示） | 2 | ✅ | 只读源码 + 复制代码按钮（`ui/editor` 未接） |
+| F3 | 代码视图（真实源码 + 只读展示） | 2 | ✅ | `ui/editor` 只读代码视图（语法高亮 + 行号）+ 复制代码按钮 |
 | F4 | 示例注册表 + 分类 | 1 | ✅ | `samples/registry.go` |
 | F5 | `go:embed` 片段提取 | 2 | ✅ | `samples/extract.go` |
 | F6 | 截图生成与回归 | 3 | ✅ | 3 张 Gallery 级 + 324 张逐示例基线（4 组合）；README 嵌图手工维护 |
@@ -273,10 +273,10 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 WBS A–F 全部完成（见 §11），v0.3.0 已发布。以下为后续可选增强，不阻塞 v0.x：
 
-1. **系统亮暗自动跟随**：MyGo `ui` 暂未暴露系统外观 API（ADR 0002 记录为上游限制）。
-2. **Gallery 全局尺寸切换**：各控件尺寸选项无统一注入点，需要 Gallery 层包装（暂缓）。
-3. **`ui/editor` 代码视图**：当前代码为只读纯文本 + 复制按钮。
-4. **文档嵌图流水线**：README 已手工嵌入 Gallery/快速开始截图，逐示例图像可按需继续引用。
+1. **系统亮暗自动跟随**：MyGo `ui` 暂未暴露系统外观 API（ADR 0002 记录为上游限制，本库无法完成）。
+2. ~~Gallery 全局尺寸切换~~：**已完成（第十二轮）**——顶部「尺寸 小/中/大」通过 `theme.WithSpacing/WithRadius/WithFontSize` 统一缩放。
+3. ~~`ui/editor` 代码视图~~：**已完成（第十二轮）**——Gallery 代码区改为 `ui/editor` 只读视图（语法高亮 + 行号 + 复制按钮）。
+4. ~~文档嵌图流水线~~：**已完成（第十二轮）**——`TestWriteDocsScreenshots` 生成 README 截图，`scripts/visualcheck` 按分组批量出图，均基于无窗口 `ui.NewTester`。
 5. **Pro 组件与更多 antd 高级组件**：超出 v0.x 范围。
 
 ## 11. 当前进度（2026-11-27）
@@ -337,11 +337,11 @@ WBS A–F 全部完成（见 §11），v0.3.0 已发布。以下为后续可选�
 - `ant.Table` 单元格为字符串比较排序（数字列请先格式化定宽文本）。
 - `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
-- Gallery 暂无全局尺寸切换（各控件尺寸选项无统一注入点）与 `ui/editor` 代码视图；代码以只读纯文本展示。
-- 含加载动画的示例（Button 状态、反馈 加载中）不纳入逐字节比对；其余示例覆盖亮/暗 × 标准/紧凑 4 组合。
+- 含加载动画或网络依赖的示例（Button 状态、反馈 加载中、RemoteImage 网络图片）不纳入逐字节比对；其余示例覆盖亮/暗 × 标准/紧凑 4 组合。
 - `ant.Skeleton` 为静态骨架，暂未做呼吸动画；`ant.Descriptions` 的 `bordered` 是「外框 + 内边距」简化版，无内部网格线。
-- `ant.Collapse` 用自建头部（无展开/收起动画）；`ant.FormItem` 的必填标记是纯文本「*」，未单独着色。
-- `ant.Drawer` 无滑入动画（直接显示/隐藏）；`ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。
+- `ant.Collapse` 用自建头部（无展开/收起动画）。
+- `ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。
+- `ant.Drawer` / `ant.Modal` 已实现打开动效；关闭仍为即时（MyGo `DialogBase` 关闭即卸载面板）。
 
 ## 13. 变更记录
 

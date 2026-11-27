@@ -102,6 +102,11 @@ func WithRadius(px float32) Option {
 // 默认关闭，以保证 Ant Design 品牌色忠实呈现（见 ADR 0002）。
 func WithFollowSystem() Option { return func(t *AntToken) { t.followSystem = true } }
 
+// WithTextInverse 设置反色背景上的文字色（Tooltip/Toast）。
+func WithTextInverse(c ui.Color) Option {
+	return func(t *AntToken) { t.TextInverse = c }
+}
+
 // WithSpacing 直接覆盖 Spacing 单位（高级用法；常规请用 WithDensity）。
 func WithSpacing(px float32) Option {
 	return func(t *AntToken) { t.Spacing = px }

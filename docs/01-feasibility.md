@@ -86,14 +86,14 @@ Ant Design 有而 MyGo 无的控件（分页、级联选择、穿梭框、上传
 | 维度 | 现状 |
 | --- | --- |
 | 主题层 | ✅ `AntToken` + `Light()` / `Dark()` + `Apply` / `Sub`，单测覆盖映射与密度 |
-| 换肤控件 | ✅ `widgets/`（包 `ant`）99 个构造函数，覆盖 MyGo 绝大多数原生控件与 Base 原语 |
+| 换肤控件 | ✅ `widgets/`（包 `ant`）137 个构造函数，覆盖 MyGo 绝大多数原生控件与 Base 原语 |
 | 缺口控件 | ✅ `extra/` 7 个（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内自建（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 等） |
 | 图标 | ✅ 44 个 antd outlined 常量 + `icon.Icon` |
 | 示例 | ◐ 13 个示例分组 / 84 个示例片段；按全覆盖矩阵继续补齐 |
-| Gallery | ✅ 侧栏 + 卡片流 + 主题/密度/品牌色切换 + 亮暗并排对比；搜索/分类/全局尺寸为待办 |
+| Gallery | ✅ 侧栏 + 搜索 + 分类目录 + 卡片流 + 主题/密度/字号/全局尺寸/品牌色切换 + 亮暗/密度并排对比 + `ui/editor` 只读代码视图 |
 | 视觉回归 | ✅ 3 张 Gallery 级 + 324 张逐示例截图基线（4 组合 × 81 示例，`samples/golden/`，按平台生效） |
 | 静态检查 | ✅ `go run ./internal/check` 禁裸颜色/裸间距 |
-| 版本 | v0.1.0 已打 tag；v0.2 已推送待打 tag；v0.3 开发中 |
+| 版本 | v0.3.1 tag 已推送（含最新 Release 工作流），Release 待创建 |
 
 > 详细任务状态见 [06 开发计划 §5](06-development-plan.md#5-wbs-详细任务分解与状态)。
 
@@ -127,9 +127,9 @@ Ant Design 有而 MyGo 无的控件（分页、级联选择、穿梭框、上传
 ## 里程碑建议（含状态）
 
 - **M1**：主题层 + 基础控件 20 个，Gallery 可预览 → 验证「换肤 + 切换主题」闭环。✅ 已完成
-- **M2**：数据展示与反馈控件，覆盖常见后台/工具类应用 80% 场景。◐ 主体完成，Form/Collapse/Tooltip/Sidebar/Drawer 未做
+- **M2**：数据展示与反馈控件，覆盖常见后台/工具类应用 80% 场景。✅ 完成（Form/Collapse/Tooltip/Sidebar/Drawer 等已在 v0.3 落地）
 - **M3**：紧凑密度全控件适配，出上位机 / IDE 风格示例。✅ 密度可切换、IDE 风格示例已落地（`samples/ide`）
-- **M4**：缺口控件补齐，发布 v0.1.0。◐ v0.1.0 已发布；P2/P3 缺口控件仍在推进
+- **M4**：缺口控件补齐，发布 v0.1.0。✅ v0.1.0–v0.3 已发布，P1/P2/P3 缺口控件全部落地；v0.3.1 tag 已推送，Release 待创建
 
 ## 建议
 

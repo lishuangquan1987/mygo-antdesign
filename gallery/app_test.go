@@ -81,8 +81,8 @@ func TestGalleryInteractions(t *testing.T) {
 	g := newTestGallery()
 	tt := ui.NewTester(g.View, 1280, 800)
 
-	// 切换暗色 / 紧凑 / 对比：无 panic、无持续帧请求。
-	for _, label := range []string{"暗", "紧凑", "亮暗对比", "标准", "亮"} {
+	// 切换暗色 / 紧凑 / 对比 / 全局尺寸：无 panic、无持续帧请求。
+	for _, label := range []string{"暗", "紧凑", "亮暗对比", "标准", "亮", "大", "中"} {
 		if err := tt.Click(label); err != nil {
 			t.Fatalf("点击 %q 失败: %v", label, err)
 		}

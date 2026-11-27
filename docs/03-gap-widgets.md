@@ -29,12 +29,12 @@
 | Pagination | `ant.Pagination` | widgets | `Row` + `ButtonBase` 页码 + 窗口折叠 | 中 | `OnPageChange`；当前固定每页 10 条 |
 | Steps | `ant.Steps` | widgets | `Row` + 圆点 + 连接线 | 中 | 完成/进行/等待三态 |
 | Message / Notification | `ant.Message` / `MessageTypeTyped` / `Notify` | widgets | `c.Toast` / `c.AddToast` | 低 | 复用 MyGo 底部 toast viewport，不是独立浮层 |
-| Modal.confirm / Popconfirm | `ant.Confirm` | widgets | `ui.AlertDialog` | 低 | 无返回值，只回调 `onOk`；Popconfirm 仍未实现 |
+| Modal.confirm / Popconfirm | `ant.Confirm` / `ant.Popconfirm` | widgets | `ui.AlertDialog` / `ui.Popover` + `ButtonBase` | 低 | `Confirm` 只回调 `onOk`；`Popconfirm` 气泡确认已实现 |
 | Divider（虚线/带文字/竖线） | `ant.Divider` / `VerticalDivider` / `DashedVerticalDivider` | widgets | `Box` + `BorderWidth` | 低 | 实线可直接用原生 `ui.Divider` |
 | Tree | `extra.Tree` | extra | `ui.Tree` + `TreeItem` 递归 | 中 | 声明式节点 + 展开状态 + `OnTreeNodeSelect` |
 | Upload | `extra.Upload` | extra | 系统文件对话框 + `ui.Drop` / `DragOver` + 列表 | 高 | 桌面语义；Tester 无窗口环境不能点 |
 | Transfer | `extra.Transfer` | extra | 两列 `Column` + 行 `ButtonBase` + 中间移动按钮 | 中 | 右列选中 Key 由调用方持有 |
-| Carousel | `extra.Carousel` | extra | 当前页容器 + `ButtonBase` 指示点 | 中 | 直接切页，暂无滑入动画；`el.AnimateTo` 可后补 |
+| Carousel | `extra.Carousel` | extra | 当前页容器 + `ButtonBase` 指示点 | 中 | 直接切页，暂无滑入动画（可后续用 `el.AnimateTo` 补） |
 | QRCode | `extra.QRCode` | extra | `skip2/go-qrcode` → `ui.NewBitmap` → `ui.Image` | 中 | 码色随主题（前景=Text，背景=Surface） |
 | Cascader | `extra.Cascader` | extra | `ui.Popover` + 多列 `Column` | 高 | 逐级下钻，叶子写回路径 |
 | TreeSelect | `extra.TreeSelect` | extra | `ui.Popover` + `extra.Tree` | 高 | 选中后收起 |
@@ -48,12 +48,12 @@
 | Tooltip | `ant.Tooltip` | widgets | `ui.TooltipBase` 反色气泡 | 低 | 悬停 0.6s / 键盘聚焦立即显示，Esc 关闭 |
 | Popconfirm | `ant.Popconfirm` | widgets | `ui.Popover` + `ButtonBase` | 中 | 触发器点击弹出，确认/取消回调 |
 | Collapse | `ant.Collapse` | widgets | `ButtonBase` 头部 + 图标箭头 + 内容区 | 中 | 手风琴模式、默认展开、按 Key 记忆 |
-| Form | `ant.Form` / `FormItem` / `FormGroup` | widgets | `ui.Form` / `Field` / `Fieldset` | 低 | 标签列对齐、必填标记、帮助/错误文字 |
+| Form | `ant.Form` / `FormItem` / `FormGroup` | widgets | `ui.Form` 语义 + 自绘纵向标签 | 低 | 纵向标签 + 红色必填星号 + 24px 项距 + 帮助/错误文字 |
 | List | `ant.List` | widgets | `ui.List`（虚拟滚动）+ 行内边距与分隔线 | 低 | 行选中/多选由 `ListState` 提供 |
 | Sidebar / Menu | `ant.Sidebar` / `SidebarItem` / `SidebarItemWithIcon` / `SidebarSection` | widgets | `ui.Sidebar` 系列 | 低 | 分区 + 条目 + 选中态，键盘可导航 |
 | Splitter | `ant.Splitter` / `SplitterVertical` / `SplitterPercent` / `SplitterVerticalPercent` | widgets | `ui.Split` 系列 | 低 | 分隔条可拖拽，尺寸/百分比两种模式 |
 | AutoComplete | `ant.AutoComplete` | widgets | `ui.Autocomplete` | 低 | 保留键入内容 + 候选建议 |
-| Drawer | `ant.Drawer` | widgets | `ui.DialogBase` + 右侧锚定 + `Scroll` 内容区 | 中 | 遮罩/标题栏/关闭按钮，点遮罩或 Esc 关闭 |
+| Drawer | `ant.Drawer` | widgets | `ui.DialogBase` + 右侧锚定 + `Scroll` 内容区 | 中 | 遮罩/标题栏/关闭按钮，点遮罩或 Esc 关闭；打开 220ms 滑入 |
 | Image | `ant.ImageEl` | widgets | `ui.Image` + `ButtonBase` + `ui.Modal` | 中 | 可指定宽度，点击放大预览 |
 | ColorPicker | `ant.ColorPicker` / `ColorPanel` | widgets | `ui.ColorWell` / `ui.ColorPicker` | 低 | 色块 + 展开面板 / 常驻面板 |
 | Progress（环形） | `ant.ProgressCircle` | widgets | `ui.Box.Draw` + `ui.Path` 圆弧 | 中 | 中心百分比，成功/错误状态色 |

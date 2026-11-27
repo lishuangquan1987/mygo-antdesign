@@ -178,3 +178,34 @@ func TestWithFontSize(t *testing.T) {
 		t.Errorf("FontSize = %v, want 16", got.FontSize)
 	}
 }
+
+func TestHighContrastPreset(t *testing.T) {
+	tk := HighContrast()
+	if tk.Text != black {
+		t.Errorf("高对比 Text = %v, want 纯黑", tk.Text)
+	}
+	if tk.Border != ui.Hex("#8c8c8c") {
+		t.Errorf("高对比 Border = %v, want #8c8c8c", tk.Border)
+	}
+	if tk.Density != Comfortable || tk.FontSize != 14 {
+		t.Errorf("高对比默认度量被破坏：%v/%v", tk.Density, tk.FontSize)
+	}
+	// Option 在预设之后套用。
+	compact := HighContrast(WithDensity(Compact))
+	if compact.Density != Compact || compact.Spacing != 3 {
+		t.Errorf("HighContrast 未套用密度选项：%v/%v", compact.Density, compact.Spacing)
+	}
+}
+
+func TestTextInverseBridge(t *testing.T) {
+	tk := Light(WithTextInverse(ui.RGB(255, 255, 255)))
+	th := tk.toTheme()
+	if th.InverseText != ui.RGB(255, 255, 255) {
+		t.Errorf("InverseText = %v, want 白色", th.InverseText)
+	}
+	// 零值保持 MyGo 默认反色行为。
+	def := Light().toTheme()
+	if def.InverseText != ui.LightTheme().InverseText {
+		t.Errorf("零值 TextInverse 不应改写 InverseText：%v", def.InverseText)
+	}
+}

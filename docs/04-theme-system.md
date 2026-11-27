@@ -51,7 +51,7 @@ type AntToken struct {
 
 	Text          ui.Color // colorText
 	TextSecondary ui.Color // colorTextSecondary
-	TextInverse   ui.Color // 预留：当前桥接未使用
+	TextInverse   ui.Color // 反色文字（Tooltip/Toast）；桥接写入 ui.Theme.InverseText
 
 	BgContainer ui.Color // colorBgContainer（按钮/输入框底色）
 	BgLayout    ui.Color // colorBgLayout（页面底色）
@@ -99,7 +99,7 @@ func WithSpacing(px float32) Option   // 高级用法，常规请用 WithDensity
 | `colorInfo` | 信息 | — | MyGo 无独立 Info 槽；`AntToken.Info` 当前不参与桥接，需要时用主色 |
 | `colorTextSelectionBg` | 文本选中 | `Selection` | `WithAccent` 生成（亮：主色 25% 透明） |
 | `colorPrimaryBorder` / focus | 焦点环 | `Focus` + `FocusRingWidth/Offset` | `WithAccent` 生成 `Focus`；环宽/偏移沿用基底主题 |
-| `colorBgElevated`（弹层） | Tooltip/Toast 反色 | `Inverse` / `InverseText` | ⚠️ MyGo 语义是「反色」，与 antd 浮起色不同；当前预设未使用 |
+| `colorBgElevated`（弹层） | Tooltip/Toast 反色 | `Inverse` / `InverseText` | ⚠️ MyGo 语义是「反色」，与 antd 浮起色不同；`WithTextInverse` 可显式覆盖反色文字 |
 | `colorFillAlter`（弱填充） | 表头/斑马纹 | — | 无独立槽位，控件内用 `Surface` + `Mix`/`Alpha` 表达 |
 | 非活动窗口主色 | — | `InactiveAccent` | 未设置，沿用 MyGo 默认派生 |
 
@@ -159,6 +159,7 @@ theme.Sub(c *ui.Context, t *AntToken) ui.Element // 内部 ui.Themed(c, t.toThem
 | --- | --- | --- |
 | `theme.Light()` | antd 默认亮色 | 主色 `#1677ff`，圆角 6，Spacing 4，字号 14，容器白、页面 `#f5f5f5` |
 | `theme.Dark()` | antd 暗色算法近似 | 主色 `#1668dc`，容器 `#141414`、页面 `#000000`，文字白 85% |
+| `theme.HighContrast()` | 高对比亮色（无障碍） | 纯黑正文、`#4d4d4d` 次要文字、`#8c8c8c` 描边、`#f0f0f0` 页面底；可继续叠加密度/品牌色 |
 | `theme.Light(theme.WithDensity(theme.Compact))` | 亮色 + 紧凑 | Spacing 3、圆角 4、字号 13 |
 | `theme.Dark(theme.WithDensity(theme.Compact))` | 暗色 + 紧凑 | 同上 |
 | 自定义品牌色 | `WithPrimary(...)` | 任意 `ui.Color`，色阶自动派生 |
@@ -174,7 +175,7 @@ theme.Sub(c *ui.Context, t *AntToken) ui.Element // 内部 ui.Themed(c, t.toThem
 
 ## 未实现 / TODO
 
-- 跟随系统强调色与无障碍偏好（`WithFollowSystem` Option 尚未提供）。
-- 系统亮暗切换的自动跟随（需 MyGo 的 dark mode 通知）。
-- `TextInverse` 参与桥接（当前保留字段但未写入）。
-- 高对比预设（`PresetHighContrast`）。
+- **系统亮暗切换的自动跟随**：MyGo `ui` 尚未暴露系统外观通知/API（上游限制，本库无法完成；见 ADR 0002）。
+- 跟随系统强调色与无障碍偏好：已提供 `theme.WithFollowSystem()`（默认关闭，避免覆盖 antd 品牌色），如需默认跟随由应用显式开启。
+- `TextInverse` 桥接：✅ 已实现（`theme.WithTextInverse`）。
+- 高对比预设：✅ 已实现（`theme.HighContrast()`）。

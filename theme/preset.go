@@ -73,3 +73,16 @@ func apply(t *AntToken, opts []Option) {
 		o(t)
 	}
 }
+
+// HighContrast 返回高对比预设：亮色底 + 纯黑正文 + 加深的次要文字与描边，
+// 用于无障碍/强光场景（docs/04）。密度/品牌色等 Option 在预设之后套用。
+func HighContrast(opts ...Option) *AntToken {
+	t := Light()
+	t.Text = black
+	t.TextSecondary = ui.Hex("#4d4d4d")
+	t.Border = ui.Hex("#8c8c8c")
+	t.BgLayout = ui.Hex("#f0f0f0")
+	t.BgContainer = white
+	apply(t, opts)
+	return t
+}

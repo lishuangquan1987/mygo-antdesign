@@ -19,6 +19,11 @@ func (t *AntToken) toTheme() *ui.Theme {
 	th.Success = t.Success
 	th.Text = t.Text
 	th.TextMuted = t.TextSecondary
+	// TextInverse 是 Tooltip/Toast 上的文字；零值保持 MyGo 默认
+	// （Inverse = Text、InverseText = Background）。
+	if t.TextInverse != (ui.Color{}) {
+		th.InverseText = t.TextInverse
+	}
 	th.Background = t.BgLayout
 	th.Surface = t.BgContainer
 	th.Border = t.Border

@@ -18,6 +18,7 @@
 - **MyGo 全量覆盖审计**：docs/02 新增 §九 完整覆盖矩阵（111 个 `package ui` 构造函数逐项状态）与「同类型以 MyGo 命名」规则；新增 `widgets/mygo_names.go` 24+ 个 MyGo 命名入口（Breadcrumbs/Avatar/NumberInput/Progress/Rating/Spinner/RangeSlider/StepSlider/CheckboxGroup/Toolbar/GridView/SplitButton 等）；新增 `samples/native` 分组 5 个示例，示例总数 79、逐示例基线 308 张。
 - **第十批：子包与 Buffer 输入适配**：`TextInputBuffer` / `TextAreaBuffer` 复用 Input/TextArea 外框；新增 `widgets/native_packages.go` 适配 `ui/markdown`（Markdown）、`ui/editor`（CodeEditor/DiffView）、`ui/chart`（ChartPlot）、`ui/richtext`（RichTextEditor）、`ui/netimage`（RemoteImage）、`ui/video`（OpenVideo）；`samples/native` 增加 Markdown 示例（共 6 个），示例总数 80、基线 312 张。
 - **第十一批：子包示例补齐**：`samples/native` 增加 CodeEditor、ChartPlot、RichTextEditor、RemoteImage 示例（共 10 个）；RemoteImage 因网络依赖加入基线排除表；示例总数 84、基线 324 张。
+- **第十二批：按文档计划收尾**：Gallery 新增「尺寸 小/中/大」全局切换，代码区改为 `ui/editor` 只读代码视图（语法高亮 + 行号）；主题新增 `theme.HighContrast()` 高对比预设与 `WithTextInverse`（桥接 `InverseText`）；docs/01、03、04、06、07 的状态与 TODO 同步更新。
 - **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
 - **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 

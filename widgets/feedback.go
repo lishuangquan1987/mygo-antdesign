@@ -1,6 +1,8 @@
 package ant
 
 import (
+	"time"
+
 	"github.com/egoist/mygo/ui"
 )
 
@@ -158,54 +160,72 @@ func Modal(c *ui.Context, open *bool, title string, body func(), opts ...ModalOp
 	}
 	t := c.Theme()
 
-	return ui.Modal(c, open, func() {
-		panel := ui.Column(c).
-			Width(t.Space(130)).
-			MaxWidth(t.Space(160)).
-			Radius(t.Radius+t.Space(0.5)). // antd modal 圆角 8
-			Background(t.Surface).
-			Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
-		panel.Children(func() {
-			// 头部：标题 + 关闭。
-			head := ui.Row(c).FillWidth().Padding(t.Space(5), t.Space(6), t.Space(2), t.Space(6)).
-				Justify(ui.SpaceBetween).AlignItems(ui.Center)
-			head.Children(func() {
-				ui.Text(c, title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
-				x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center()
-				x.Children(func() {
-					ui.Text(c, "×").TextColor(t.TextMuted)
-				})
-				if x.Clicked() {
-					*open = false
-					if cfg.onCancel != nil {
-						cfg.onCancel()
-					}
-				}
-			})
-			// 内容。
-			content := ui.Column(c).FillWidth().Padding(t.Space(2), t.Space(6), t.Space(4), t.Space(6)).Gap(t.Space(2))
-			content.Children(body)
-			// 底部操作区。
-			foot := ui.Row(c).FillWidth().Padding(t.Space(4), t.Space(6)).
-				Gap(t.Space(2)).Justify(ui.End)
-			foot.Children(func() {
-				if !cfg.hideCancel {
-					Button(c, cfg.cancelText, OnClick(func() {
+	host := ui.Row(c)
+	// 打开首帧记录一次：面板从 0.92 缩放 + 淡入（antd Modal 的 open 动效）。
+	opened := ui.Local(host, "ant.modal.opened", func() bool { return false })
+	if !*open {
+		*opened = false
+	}
+	host.Children(func() {
+		ui.Modal(c, open, func() {
+			panel := ui.Column(c).
+				Width(t.Space(130)).
+				MaxWidth(t.Space(160)).
+				Radius(t.Radius+t.Space(0.5)). // antd modal 圆角 8
+				Background(t.Surface).
+				Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
+			if !*opened {
+				panel.Jump("ant.modal.scale", 0.92)
+				panel.Jump("ant.modal.opacity", 0)
+				*opened = true
+			}
+			scale := panel.AnimateTo("ant.modal.scale", 1, ui.Animation{Duration: 200 * time.Millisecond})
+			fade := panel.AnimateTo("ant.modal.opacity", 1,
+				ui.Animation{Duration: 200 * time.Millisecond, NonMotion: true})
+			panel.Scale(scale, scale).Opacity(fade)
+			panel.Children(func() {
+				// 头部：标题 + 关闭。
+				head := ui.Row(c).FillWidth().Padding(t.Space(5), t.Space(6), t.Space(2), t.Space(6)).
+					Justify(ui.SpaceBetween).AlignItems(ui.Center)
+				head.Children(func() {
+					ui.Text(c, title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
+					x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center()
+					x.Children(func() {
+						ui.Text(c, "×").TextColor(t.TextMuted)
+					})
+					if x.Clicked() {
 						*open = false
 						if cfg.onCancel != nil {
 							cfg.onCancel()
 						}
-					}))
-				}
-				Button(c, cfg.okText, Primary(), OnClick(func() {
-					*open = false
-					if cfg.onOk != nil {
-						cfg.onOk()
 					}
-				}))
+				})
+				// 内容。
+				content := ui.Column(c).FillWidth().Padding(t.Space(2), t.Space(6), t.Space(4), t.Space(6)).Gap(t.Space(2))
+				content.Children(body)
+				// 底部操作区。
+				foot := ui.Row(c).FillWidth().Padding(t.Space(4), t.Space(6)).
+					Gap(t.Space(2)).Justify(ui.End)
+				foot.Children(func() {
+					if !cfg.hideCancel {
+						Button(c, cfg.cancelText, OnClick(func() {
+							*open = false
+							if cfg.onCancel != nil {
+								cfg.onCancel()
+							}
+						}))
+					}
+					Button(c, cfg.okText, Primary(), OnClick(func() {
+						*open = false
+						if cfg.onOk != nil {
+							cfg.onOk()
+						}
+					}))
+				})
 			})
 		})
 	})
+	return host
 }
 
 // Message 轻提示（antd message）：底部短暂出现的全局消息。

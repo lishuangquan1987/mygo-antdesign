@@ -1,6 +1,8 @@
 package ant
 
 import (
+	"time"
+
 	"github.com/egoist/mygo/ui"
 )
 
@@ -36,44 +38,60 @@ func Drawer(c *ui.Context, open *bool, title string, body func(), opts ...Drawer
 	}
 	t := c.Theme()
 
-	return ui.DialogBase(c, open, func(backdrop, panel ui.Element) {
-		// 遮罩：从背景与文字色混出中性灰，再压暗，亮/暗主题都成立。
-		backdrop.Background(t.Background.Mix(t.Text, 0.9).Alpha(0.45))
+	host := ui.Row(c)
+	// 打开首帧记录一次：从屏幕右缘滑入（antd Drawer 的 open 动效）。
+	opened := ui.Local(host, "ant.drawer.opened", func() bool { return false })
+	if !*open {
+		*opened = false
+	}
+	host.Children(func() {
+		ui.DialogBase(c, open, func(backdrop, panel ui.Element) {
+			// 遮罩：从背景与文字色混出中性灰，再压暗，亮/暗主题都成立。
+			backdrop.Background(t.Background.Mix(t.Text, 0.9).Alpha(0.45))
 
-		panel.Width(t.Space(cfg.width)).
-			FillHeight().
-			Radius(0).
-			Background(t.Surface).
-			Border(1, t.Border)
-		panel.BorderWidth(0, 0, 0, 1)
-		panel.AttachTo(backdrop, ui.AnchorTopRight, ui.AnchorTopRight)
+			if !*opened {
+				panel.Jump("ant.drawer.slide", t.Space(cfg.width))
+				*opened = true
+			}
+			slide := panel.AnimateTo("ant.drawer.slide", 0, ui.Animation{Duration: 220 * time.Millisecond})
 
-		panel.Children(func() {
-			// 标题栏。
-			head := ui.Row(c).FillWidth().
-				Height(t.Space(14)).
-				Padding(0, t.Space(6)).
-				Justify(ui.SpaceBetween).
-				AlignItems(ui.Center).
-				Border(1, t.Border)
-			head.BorderWidth(0, 0, 1, 0)
-			head.Children(func() {
-				ui.Text(c, title).TextColor(t.Text).FontSize(t.Rem(1.14)).FontWeight(600)
-				if cfg.closable {
-					closeBtn := ui.ButtonBase(c).Size(t.Space(6), t.Space(6)).Radius(t.Radius).Center()
-					closeBtn.Children(func() {
-						ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.9))
-					})
-					if closeBtn.Clicked() {
-						*open = false
+			panel.Width(t.Space(cfg.width)).
+				FillHeight().
+				Radius(0).
+				Background(t.Surface).
+				Border(1, t.Border).
+				Translate(slide, 0)
+			panel.BorderWidth(0, 0, 0, 1)
+			panel.AttachTo(backdrop, ui.AnchorTopRight, ui.AnchorTopRight)
+
+			panel.Children(func() {
+				// 标题栏。
+				head := ui.Row(c).FillWidth().
+					Height(t.Space(14)).
+					Padding(0, t.Space(6)).
+					Justify(ui.SpaceBetween).
+					AlignItems(ui.Center).
+					Border(1, t.Border)
+				head.BorderWidth(0, 0, 1, 0)
+				head.Children(func() {
+					ui.Text(c, title).TextColor(t.Text).FontSize(t.Rem(1.14)).FontWeight(600)
+					if cfg.closable {
+						closeBtn := ui.ButtonBase(c).Size(t.Space(6), t.Space(6)).Radius(t.Radius).Center()
+						closeBtn.Children(func() {
+							ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.9))
+						})
+						if closeBtn.Clicked() {
+							*open = false
+						}
 					}
-				}
-			})
-			// 可滚动内容区。
-			ui.Scroll(c).FillWidth().Children(func() {
-				inner := ui.Column(c).FillWidth().Padding(t.Space(6)).Gap(t.Space(4))
-				inner.Children(body)
+				})
+				// 可滚动内容区。
+				ui.Scroll(c).FillWidth().Children(func() {
+					inner := ui.Column(c).FillWidth().Padding(t.Space(6)).Gap(t.Space(4))
+					inner.Children(body)
+				})
 			})
 		})
 	})
+	return host
 }

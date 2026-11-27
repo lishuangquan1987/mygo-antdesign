@@ -3,6 +3,7 @@ package ant_test
 import (
 	"image"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -33,6 +34,9 @@ func TestDrawerOpensAndCloses(t *testing.T) {
 	if !tt.HasText("设置") || !tt.HasText("抽屉内容") {
 		t.Fatal("抽屉未打开")
 	}
+	// 等滑入动画结束再点关闭按钮（动画期间面板仍在窗口右缘外）。
+	tt.Advance(300 * time.Millisecond)
+	tt.Frame()
 	if err := tt.Click("✕"); err != nil {
 		t.Fatalf("点击关闭失败: %v", err)
 	}

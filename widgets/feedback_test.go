@@ -2,6 +2,7 @@ package ant_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -139,6 +140,9 @@ func TestFeedbackFollowsThemeAndDensity(t *testing.T) {
 			})
 		}
 		tt := ui.NewTester(view, 400, 320)
+		tt.Frame()
+		// 等待 Modal 开场动画（200ms）结束，之后不应再持续请求帧。
+		tt.Advance(300 * time.Millisecond)
 		tt.Frame()
 		if tt.FramePending() {
 			t.Errorf("密度 %v 下反馈控件持续请求帧", token.Density)

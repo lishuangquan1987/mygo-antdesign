@@ -4,11 +4,16 @@
 
 ## [Unreleased]
 
+### 变更
+
+- **README 重写**为标准开源项目结构：徽章、特性、Gallery 本地构建/运行、安装、快速开始、控件覆盖表、主题与密度、开发测试、项目结构、文档索引、发布与贡献。
+- **CI/Release 工作流重写**：Release 发布自动构建 5 平台 Gallery 安装包并上传附件；`workflow_dispatch` 支持填入已发布 tag 手动构建并上传到对应 Release；补充并发控制、Release 存在性校验与构建摘要。
+- 新增 `Makefile`（`run`/`build`/`test`/`check`/`baselines`）与 `.gitattributes`（统一 LF、二进制标记）。
+- Gallery 注册缺失的 IDE 示例分组；截图基线按 LF 源码重新生成。
+
 ### 计划中
 
 - 系统亮暗自动跟随（MyGo `ui` 暂未暴露系统外观 API，见 ADR 0002）。
-- Gallery 全局尺寸切换（各控件尺寸选项无统一注入点）。
-- 系统亮暗自动跟随（`theme.WithFollowSystem` 已覆盖强调色/高对比/文字缩放，亮暗跟随仍为 TODO，见 ADR 0002）。
 - Gallery 全局尺寸切换（各控件尺寸选项无统一注入点）与 `ui/editor` 代码视图。
 
 ## [0.3.0] - 2026-11-27

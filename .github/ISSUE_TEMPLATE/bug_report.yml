@@ -1,0 +1,72 @@
+name: Bug 报告
+description: 报告控件、主题、Gallery 或构建相关的问题
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量提供最小可复现信息，便于快速定位。
+  - type: input
+    id: version
+    attributes:
+      label: 版本 / 提交
+      description: mygo-antdesign 的版本或 commit（运行 Gallery 时启动日志会打印版本）
+      placeholder: v0.3.0 或 5dc7c13
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      options:
+        - Windows (amd64)
+        - Windows (arm64)
+        - macOS (amd64)
+        - macOS (arm64)
+        - Linux (X11)
+        - Linux (Wayland)
+        - 其他
+    validations:
+      required: true
+  - type: input
+    id: go
+    attributes:
+      label: Go 版本
+      placeholder: go version 输出
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 问题描述
+      description: 期望行为 vs 实际行为
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 最小可运行代码或 Gallery 中的控件/示例名
+      placeholder: |
+        1. go run ./gallery
+        2. 打开「反馈 / 抽屉」
+        3. 点击……
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志 / 截图
+      description: 报错堆栈、终端输出或截图（可直接粘贴图片）
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 确认
+      options:
+        - label: 我已搜索过现有 Issue，确认不是重复问题
+          required: true
+        - label: 我使用的是 `go.mod` 中锁定的 Go / MyGo 版本
+          required: false

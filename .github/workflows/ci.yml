@@ -5,21 +5,41 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Test (Go ${{ matrix.go }} / ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        go: ["1.27.4"]
     steps:
-      - uses: actions/checkout@v4
+      - name: 检出代码
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-go@v5
+      - name: 安装 Go
+        uses: actions/setup-go@v5
         with:
-          go-version: "1.27.4"
+          go-version: ${{ matrix.go }}
+          cache: true
 
-      - name: gofmt
+      - name: 下载依赖
+        run: go mod download
+
+      - name: gofmt 检查
         run: |
-          out=$(gofmt -l .)
+          set -euo pipefail
+          out="$(gofmt -l .)"
           if [ -n "$out" ]; then
-            echo "以下文件未格式化："
+            echo "以下文件未格式化，请运行 gofmt -w："
             echo "$out"
             exit 1
           fi
@@ -27,8 +47,38 @@ jobs:
       - name: go vet
         run: go vet ./...
 
-      - name: go test
-        run: go test ./...
+      - name: 构建全部包与 Gallery
+        run: |
+          set -euo pipefail
+          go build ./...
+          go build -trimpath -o /tmp/gallery ./gallery
+          ls -l /tmp/gallery
 
-      - name: style check (no raw colors / spacing in widgets/extra)
+      - name: 单元测试（含截图基线）
+        run: go test -count=1 ./...
+
+      - name: 样式铁律静态检查
         run: go run ./internal/check
+
+  cross-build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 跨平台构建
+        run: go build ./...
+
+      - name: go vet
+        run: go vet ./...

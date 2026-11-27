@@ -53,7 +53,7 @@
 | Go | **1.27.4**（`go.mod` 与 CI 一致） | MyGo native UI 的硬性要求 |
 | MyGo | **v0.10.0**（`go.mod` 锁定） | 升级需跑全量回归；早期文档写的 `v0.7.x` 已过时 |
 | 依赖 | 仅纯 Go 库、无 cgo | 当前额外依赖 `skip2/go-qrcode`（二维码） |
-| 工具 | `go tool mygo dev/build`、`go run ./gallery` | Gallery 用 `ui.NewTester` 无窗口渲染 PNG |
+| 工具 | `go run ./gallery`、`go build ./...`、`scripts/visualcheck` | Gallery 用 `ui.NewTester` 无窗口渲染 PNG |
 | CI | GitHub Actions | `gofmt` + `go vet` + `go test` + `internal/check` |
 
 **已完成的前置动作**：`go.mod`、`docs/decisions/`（ADR 0001/0002）、`.github/workflows/`（CI + Release）。

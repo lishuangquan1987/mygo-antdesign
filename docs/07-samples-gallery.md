@@ -118,25 +118,50 @@ func All() []WidgetDemo
 └────────────┴───────────────────────────────────────────────────┘
 ```
 
-- **左侧**：可滚动的扁平控件列表（无搜索、无分类折叠、无覆盖率）。
-- **中部**：示例卡片流，每张卡片 = 标题 + 描述 + 实时预览 + 代码文本（`MaxHeight` 截断）。
+- **左侧**：搜索框 + 按分类分组的控件列表，每个分组显示示例数量。
+- **中部**：示例卡片流，每张卡片 = 标题 + 描述 + 实时预览 + 代码文本（`MaxHeight` 截断），右上角「复制代码」。
 - **顶部控制条**：亮/暗、标准/紧凑、4 个品牌色块、亮暗对比与密度对比开关。
-- **并排对比模式**：`theme.Sub` 左右两栏，左亮右暗，携带当前密度与品牌色。
+- **并排对比模式**：`theme.Sub` 左右两栏——亮暗对比（左亮右暗）或密度对比（左标准右紧凑），携带当前品牌色。
 
 控制条只改 `Gallery` 的 app state，view 函数是 state 的函数，下一帧全部示例自动重绘——**不需要逐个刷新示例**。
 
-### 5.2 规划增强（未实现）
+### 5.2 实现状态
 
 | 能力 | 状态 | 说明 |
 | --- | --- | --- |
-| 侧栏按 `Category` 分组 | ◻ | 数据已存在，UI 未用 |
-| 侧栏搜索 / 过滤 | ◻ | — |
-| 覆盖率显示（如 `Button 7/7`） | ◻ | 需要示例元数据 |
-| 全局尺寸切换（大/中/小） | ◻ | 目前尺寸写在示例内部 |
-| 标准/紧凑并排 | ◻ | 当前只做了亮/暗并排 |
-| 代码复制按钮 | ◻ | 需接剪贴板 API |
+| 侧栏按 `Category` 分组 | ✅ | 6 个分类（通用/输入/展示/导航/反馈/缺口） |
+| 侧栏搜索 / 过滤 | ✅ | 匹配控件名、简介与分类名 |
+| 覆盖率显示（每组示例数） | ✅ | 行尾显示该分组示例数量 |
+| 全局尺寸切换（大/中/小） | ◻ | 尺寸由各示例内部指定，无统一注入点 |
+| 标准/紧凑并排 | ✅ | 顶部「密度对比」 |
+| 亮/暗并排 | ✅ | 顶部「亮暗对比」 |
+| 代码复制按钮 | ✅ | `c.WriteClipboard` |
 | 代码高亮（`ui/editor` 只读） | ◻ | 当前用 `ui.Text` 等宽展示 |
 | 逐示例截图 | ✅ | 288 张（4 组合 × 72 示例，`samples/golden/controls/`，含平台 manifest） |
+
+### 5.3 本地构建与运行
+
+```bash
+# 直接运行（开发预览；需要桌面环境）
+go run ./gallery
+
+# 构建可执行文件（版本号通过 ldflags 注入，会显示在启动日志中）
+go build -trimpath -ldflags "-X main.version=v0.3.0" -o bin/gallery ./gallery
+./bin/gallery                 # Linux / macOS
+bin\gallery.exe               # Windows（go build -o bin/gallery.exe ...）
+
+# 可选：Make 封装
+make run                      # go run ./gallery
+make build                    # 输出 bin/gallery
+
+# 无窗口渲染示例截图（人工核对控件效果，不依赖 computer use）
+go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
+
+# 重新生成截图基线（Gallery 级 + 逐示例）
+go test ./gallery ./samples -count=1 -run 'TestGalleryBaselines|TestControlScreenshots'
+```
+
+前置：Go 1.27.4+、桌面环境（Windows 10+/macOS 11+/X11 或 Wayland）；无需 cgo。发布时 CI 会为 5 个平台构建 Gallery 安装包并附加到对应 Release（见 `.github/workflows/release.yml`）。
 
 ## 6. 代码片段如何保证「真实不过时」
 

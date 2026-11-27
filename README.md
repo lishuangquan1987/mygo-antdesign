@@ -1,26 +1,92 @@
 # mygo-antdesign
 
-![CI](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml/badge.svg)
-![Release](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml/badge.svg)
-![v0.3.0](https://img.shields.io/badge/version-v0.3.0-1677ff)
+[![CI](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml/badge.svg)](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml)
+[![Release](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml/badge.svg)](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/lishuangquan1987/mygo-antdesign.svg)](https://pkg.go.dev/github.com/lishuangquan1987/mygo-antdesign)
+[![Go Version](https://img.shields.io/badge/Go-1.27.4%2B-00ADD8?logo=go&logoColor=white)](go.mod)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> Ant Design 设计风格的 [MyGo](https://github.com/egoist/mygo) 原生 UI 控件库
+> Ant Design 设计风格的 [MyGo](https://github.com/egoist/mygo) 原生 UI 控件库：为 `package ui` 提供完整的 antd 视觉、交互与设计 Token，并补齐 antd 有而 MyGo 暂缺的控件。
 
-本仓库目标：为 MyGo 的 `package ui` 原生控件提供一套完整的 **Ant Design 视觉与交互规范**，并补齐 Ant Design 有而 MyGo 暂缺的控件。所有控件共享一套主题，支持**运行时切换**；在 Ant Design 标准间距之外，额外提供一套**紧凑密度**风格，用于上位机、IDE 等信息密集型场景。
+MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`）。本库在它的 `Theme` / `Base` 之上做「外观与交互」的一层：一套 Token 驱动全部控件，支持**运行时**切换亮/暗、品牌色与**标准/紧凑**双密度；所有控件都带**可运行示例**、**单元测试**与**截图基线**，示例由 Gallery 应用统一展示。
 
 ![Gallery 示例应用：侧栏 + 实时预览 + 真实代码 + 主题切换](docs/images/gallery.png)
 
-*↑ 示例展示应用 Gallery：左侧控件目录、实时预览、旁边即真实示例代码，顶部可切换亮暗与标准/紧凑密度（`go run ./gallery` 运行）。*
+*Gallery：左侧控件目录（分类 + 搜索），中间实时预览，下方是可复制的真实示例代码；顶部切换亮/暗、标准/紧凑与品牌色，并支持同屏对比。*
 
-## 快速开始
+## 目录
 
-**安装**（Go 1.27.4+，MyGo v0.10.0）：
+- [特性](#特性)
+- [本地运行 Gallery](#本地运行-gallery)
+- [安装](#安装)
+- [快速开始](#快速开始)
+- [控件覆盖](#控件覆盖)
+- [主题与密度](#主题与密度)
+- [开发与测试](#开发与测试)
+- [项目结构](#项目结构)
+- [文档](#文档)
+- [版本与发布](#版本与发布)
+- [贡献](#贡献)
+- [License](#license)
+
+## 特性
+
+- **Ant Design 视觉规范**：颜色、圆角、间距、字号、焦点环、禁用态全部走 Token，不做零散硬编码。
+- **106 个控件构造函数**：`widgets/`（包名 `ant`）99 个换肤/补全控件 + `extra/` 7 个复杂缺口控件。
+- **双密度**：标准（antd 默认）与紧凑（`Spacing` 4→3、`Radius` 6→4、`FontSize` 14→13），一套代码运行时切换。
+- **运行时换肤**：`theme.Apply` 全局、`theme.Sub` 局部；亮/暗、品牌色、密度可任意组合，弹层/菜单/Tooltip 自动跟随。
+- **可选跟随系统**：`theme.WithFollowSystem()` 叠加系统强调色、高对比与文字缩放（默认关闭，保证品牌色忠实）。
+- **示例即交付物**：12 个示例分组 / 74 个示例片段，全部是可编译的真实代码；`go:embed` 提取后与 Gallery 预览一一对应。
+- **视觉回归**：3 张 Gallery 级 + 288 张逐示例截图基线（亮/暗 × 标准/紧凑），CI 逐字节比对。
+- **纯 Go**：无 cgo，可交叉编译到 Windows / macOS / Linux（amd64、arm64）。
+
+## 本地运行 Gallery
+
+Gallery 是 `gallery/` 下的独立可执行程序，直接展示全部控件与真实代码。
+
+**前置条件**
+
+- Go **1.27.4+**（`go.mod` 中已锁定 MyGo v0.10.0）
+- 桌面环境：Windows 10+ / macOS 11+ / Linux（X11 或 Wayland）
+- 无需安装 cgo 工具链；首次运行会自动下载 Go 依赖
+
+**方式一：直接运行（开发时最常用）**
+
+```bash
+git clone https://github.com/lishuangquan1987/mygo-antdesign.git
+cd mygo-antdesign
+
+# 编译并启动 Gallery 窗口
+go run ./gallery
+```
+
+**方式二：构建二进制**
+
+```bash
+# Linux / macOS
+go build -trimpath -ldflags "-X main.version=v0.3.0" -o bin/gallery ./gallery
+./bin/gallery
+
+# Windows（PowerShell / cmd）
+go build -trimpath -ldflags "-X main.version=v0.3.0" -o bin/gallery.exe ./gallery
+bin\gallery.exe
+```
+
+> 若使用 Make，可执行 `make run`（直接运行）或 `make build`（输出 `bin/gallery`）。
+
+**方式三：下载安装包**
+
+到 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases) 下载对应平台的归档（`mygo-ant-design-gallery-<版本>-<系统>-<架构>.zip|tar.gz`），解压后运行其中的 `mygo-ant-design-gallery` 可执行文件。安装包由 [Release 工作流](.github/workflows/release.yml) 在发布时自动构建并上传；也可在 Actions 页面手动触发，填入已发布的 tag（草稿 Release 不可见）后构建并上传到对应 Release。
+
+> Linux 下若无法弹出窗口，请确认已安装 X11/Wayland 运行库；macOS 首次运行如被 Gatekeeper 拦截，可在「系统设置 → 隐私与安全性」中允许，或执行 `xattr -dr com.apple.quarantine mygo-ant-design-gallery`。
+
+## 安装
 
 ```bash
 go get github.com/lishuangquan1987/mygo-antdesign@v0.3.0
 ```
 
-**最小示例**（完整可编译）：
+## 快速开始
 
 ```go
 package main
@@ -39,6 +105,7 @@ import (
 func main() {
 	name := ""
 	remember := false
+
 	mygo.App.WhenReady(func() {
 		mygo.NewWindow(mygo.WindowOptions{
 			Title: "Hello mygo-antdesign",
@@ -60,6 +127,7 @@ func main() {
 			}),
 		})
 	})
+
 	if err := mygo.App.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -68,66 +136,116 @@ func main() {
 
 ![最小示例效果](docs/images/quickstart.png)
 
-**运行示例 Gallery**（浏览全部控件分组、切换主题/密度/品牌色、查看同屏亮暗对比）：
+更多用法：主题自定义见 [docs/04](docs/04-theme-system.md)，紧凑密度见 [docs/05](docs/05-compact-density.md)，从 MyGo 原生控件迁移见 [docs/08](docs/08-migration.md)。
+
+## 控件覆盖
+
+| 分类 | 主要控件 | 示例 |
+| --- | --- | --- |
+| 通用 | Button、Typography（Title/Paragraph/Code）、Divider、Space/Flex/Grid | [button](samples/button)、[typography](samples/typography)、[divider](samples/divider)、[layout](samples/layout) |
+| 数据录入 | Input、TextArea、NumberInput、SearchField、DatePicker、TimePicker、Form、AutoComplete、ColorPicker、Mentions | [input](samples/input) |
+| 选择 | Checkbox、Radio、Switch、Slider、Rate、Segmented、Select、Combobox、Toggle | [selectdemo](samples/selectdemo) |
+| 数据展示 | Table、Tag、Badge、Avatar、Card、Empty、Result、Skeleton、Statistic、Descriptions、Timeline、List、Image、Meter、Masonry | [display](samples/display)、[table](samples/table) |
+| 反馈 | Alert、Modal、Drawer、Message/Notify、Notification、Progress（线形/环形）、Spin、Tooltip、Popconfirm、Popover、Tour、Watermark | [feedback](samples/feedback) |
+| 导航 | Breadcrumb、Tabs、Dropdown、Pagination、Steps、Sidebar、Anchor | [nav](samples/nav) |
+| 复杂缺口 | Tree、TreeSelect、Cascader、Upload、Transfer、Carousel、QRCode | [extrademo](samples/extrademo) |
+| 场景 | 紧凑型 IDE 布局（侧栏/标签页/代码区/状态栏） | [ide](samples/ide) |
+
+完整逐项映射（含实现状态与已知限制）见 [docs/02 控件换肤映射](docs/02-widget-mapping.md) 与 [docs/03 缺口控件](docs/03-gap-widgets.md)。
+
+## 主题与密度
+
+```go
+// 全局：亮色 + 品牌色 + 紧凑密度
+theme.Apply(c, theme.Light(
+	theme.WithPrimary(ui.Hex("#1677ff")),
+	theme.WithDensity(theme.Compact),
+))
+
+// 局部：同一窗口内并排演示亮/暗
+left := theme.Sub(c, theme.Light())
+right := theme.Sub(c, theme.Dark())
+```
+
+- Token → `ui.Theme` 的完整映射见 [docs/04](docs/04-theme-system.md)。
+- 标准/紧凑的数值规范见 [docs/05](docs/05-compact-density.md)。
+- 控件内部禁止裸颜色/裸间距，由 `go run ./internal/check` 静态把关。
+
+## 开发与测试
+
+所有命令在仓库根目录执行：
 
 ```bash
-go run ./gallery
+go run ./gallery          # 启动 Gallery（等价 make run）
+go build ./...            # 构建全部包
+go test ./...             # 单元测试 + 截图基线
+go vet ./...              # 静态检查
+go run ./internal/check   # 样式铁律：禁止 widgets/extra 裸颜色、裸间距
 ```
 
-**下载安装包**：无需配置 Go 环境？到 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases) 页下载对应平台的 Gallery 安装包（Windows / macOS / Linux，发布后由 CI 自动构建）。
+使用 Make（可选）：
 
-**进阶**：主题自定义与运行时切换见 [docs/04](docs/04-theme-system.md)；紧凑密度见 [docs/05](docs/05-compact-density.md)；从 MyGo 原生控件迁移见 [docs/08](docs/08-migration.md)。
+```bash
+make run        # 运行 Gallery
+make build      # 构建 bin/gallery
+make test       # go test -count=1 ./...
+make check      # gofmt + vet + test + 样式检查
+make baselines  # 重新生成截图基线（Gallery 级 + 逐示例）
+```
 
-> **当前状态**
-> - **v0.1.0**（已打 tag）：主题层 + 9 组换肤控件 + 首批缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标 + Gallery + 全部文档。
-> - **v0.2.0**（已打 tag）：README 快速开始重写、Release 安装包流水线、Cascader / TreeSelect，截图基线按平台生效。
-> - **v0.3.0**（当前）：antd 缺口控件全部落地（P1–P3）、原生控件补全包装、Gallery 分类/搜索/复制/密度对比、IDE 紧凑示例、`WithFollowSystem`。
-> - 当前共 **106 个控件构造函数**（`widgets/` 99 + `extra/` 7）、**12 个示例分组 / 74 个示例片段**、**3 张 Gallery 级 + 288 张逐示例截图基线**；剩余规划项见 [docs/03](docs/03-gap-widgets.md) 与 [docs/06](docs/06-development-plan.md)。
+人工核对控件效果（不使用 computer use，直接渲染 PNG）：
 
-## 一句话结论
+```bash
+go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
+# 输出 .visualcheck/*.png，可直接查看
+```
 
-**可行，且 MyGo 的底层设计天然契合**——它自带 headless Base、统一 Theme、`SetTheme` 运行时切换和 `Spacing` 密度单位，恰好对应 Ant Design 的「无样式组件 + Design Token + ConfigProvider + compactAlgorithm」四层能力。主要工作量在视觉规范翻译与缺口控件补齐，而非改造框架。详见 [可行性分析](docs/01-feasibility.md)。
+新增控件/示例的流程与 DoD 见 [AGENTS.md](AGENTS.md) 与 [docs/06](docs/06-development-plan.md)。
 
-## 设计原则
-
-1. **不重复造轮子**：颜色、圆角、焦点环、禁用态、无障碍、键盘交互一律复用 MyGo 的 Theme 与 Base，只在「外观」层做 Ant Design 化。
-2. **view = f(state)**：MyGo 是即时模式（immediate mode），控件是返回 Element 的 Go 函数，不是常驻对象。所有 API 按函数式设计，不引入命令式 `setText` 式调用。
-3. **无 CSS 选择器**：MyGo 明确「State, not selectors」，因此 Ant Design 的 className / CSS-in-JS 动态样式要翻译成 Go 的条件分支与 Theme 字段。
-4. **主题单一真源**：一套 Token 映射表驱动全部控件，杜绝每个控件各自硬编码颜色。
-5. **密度是一等公民**：标准（Ant Design 默认）与紧凑两套密度共用同一组件实现，靠参数切换。
-6. **示例是一等交付物**：每个示例都配可运行代码，展示不同主题、尺寸、密度与状态，代码与效果一一对应（见 [Samples & Gallery](docs/07-samples-gallery.md)）。
-
-## 控件示例 Gallery
-
-像 WPF 的 Material Design 示例程序一样，本库提供一个可运行的 **Gallery 应用**：左侧控件目录、中间实时预览、旁边可复制的真实代码，顶部可切换主题（亮/暗/品牌色）、密度（标准/紧凑），并支持**同屏并排对比**（借助 MyGo 的 `ui.Themed`）。示例同时用于视觉回归截图与文档插图。设计见 [07 Samples & Gallery](docs/07-samples-gallery.md)。
-
-## 文档导航
-
-| 文档 | 覆盖的需求 | 内容 |
-| --- | --- | --- |
-| [01 可行性分析](docs/01-feasibility.md) | 需求 2 | 技术契合度、架构分层、工作量、风险与里程碑 |
-| [02 控件换肤映射](docs/02-widget-mapping.md) | 需求 3 | MyGo v0.10.0 全部原生控件 → Ant Design 皮肤的逐项映射与实现状态 |
-| [03 缺口控件实现](docs/03-gap-widgets.md) | 需求 4 | Ant Design 有而 MyGo 无的控件：已交付、待实现、明确不移植 |
-| [04 主题系统](docs/04-theme-system.md) | 需求 5 | Token 映射、运行时切换、全局/局部主题、预设 |
-| [05 紧凑密度](docs/05-compact-density.md) | 需求 6 | 标准/紧凑两套密度规范、数值表、运行时切换 |
-| [06 开发计划](docs/06-development-plan.md) | 整体 | WBS、里程碑、时间线、DoD、风险、当前进度 |
-| [07 Samples & Gallery](docs/07-samples-gallery.md) | 示例展示 | 示例数据结构、覆盖矩阵、Gallery、截图回归、如何新增示例 |
-| [08 迁移指南](docs/08-migration.md) | 采用 | 从 MyGo 原生到 antd 控件的对照迁移、事件差异、限制 |
-
-## 目录约定
+## 项目结构
 
 ```
-mygo-antdesign/
-├── theme/        # Token 定义、预设主题、与 MyGo Theme 的桥接
-├── widgets/      # 换肤后的控件（包名 ant，与 MyGo 原生一一对应）
-├── extra/        # 缺口控件：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect
-├── icon/         # Ant Design 图标的 SVG 常量（44 个 outlined）+ 渲染函数
-├── samples/      # 示例源码（真实可编译，go:embed 提取代码片段）+ golden 基线
-├── gallery/      # 示例展示应用：侧栏 + 实时预览 + 代码 + 主题/密度切换 + 并排对比
-├── internal/     # 共享度量、状态映射、静态检查
-├── scripts/      # genicons：图标常量生成器
-└── docs/         # 文档集（含 decisions/ 与截图）
+.
+├── theme/        # Token 定义、亮/暗预设、AntToken → ui.Theme 桥接
+├── widgets/      # 换肤后的控件（包名 ant）
+├── extra/        # 复杂缺口控件：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect
+├── icon/         # 44 个 antd outlined 图标常量 + 渲染函数
+├── samples/      # 真实可编译的示例源码（go:embed 提取片段）+ golden 截图基线
+├── gallery/      # 示例展示应用（本地运行入口）
+├── internal/     # 共享度量、状态映射、样式静态检查
+├── scripts/      # genicons（图标生成）、visualcheck（示例渲染核对）
+└── docs/         # 设计文档、ADR 与截图
 ```
+
+## 文档
+
+| 文档 | 内容 |
+| --- | --- |
+| [01 可行性分析](docs/01-feasibility.md) | 技术契合度、架构分层、工作量与风险 |
+| [02 控件换肤映射](docs/02-widget-mapping.md) | MyGo v0.10.0 原生控件 → antd 皮肤的逐项映射与状态 |
+| [03 缺口控件](docs/03-gap-widgets.md) | antd 有而 MyGo 无的控件：已交付与不移植项 |
+| [04 主题系统](docs/04-theme-system.md) | Token 映射、运行时切换、全局/局部主题 |
+| [05 紧凑密度](docs/05-compact-density.md) | 标准/紧凑密度规范与数值表 |
+| [06 开发计划](docs/06-development-plan.md) | WBS、里程碑、DoD、风险与当前进度 |
+| [07 示例与 Gallery](docs/07-samples-gallery.md) | 示例结构、覆盖矩阵、截图回归、如何新增示例 |
+| [08 迁移指南](docs/08-migration.md) | 从 MyGo 原生控件迁移的对照表与限制 |
+| [CHANGELOG](CHANGELOG.md) | 版本变更记录 |
+
+## 版本与发布
+
+- 遵循 [语义化版本](https://semver.org/lang/zh-CN/)；当前版本 **v0.3.0**。
+- 发布流程：创建 Release → [Release 工作流](.github/workflows/release.yml) 自动为 5 个平台构建 Gallery 安装包并上传到该 Release 附件；也可在 Actions 页面手动触发（`workflow_dispatch`）并填入已存在的 tag。
+- 历史版本与变更见 [CHANGELOG.md](CHANGELOG.md) 与 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases)。
+
+## 贡献
+
+欢迎提交 Issue 与 Pull Request：
+
+1. Fork 并新建分支：`git checkout -b feat/your-feature`。
+2. 遵守 [AGENTS.md](AGENTS.md) 中的样式铁律与 API 约定；新增控件必须同时补示例、单元测试与截图基线。
+3. 提交前运行 `make check`（gofmt / vet / test / 样式检查）与 `go test ./gallery ./samples -count=1`。
+4. 使用中文提交信息，格式 `feat(widgets): ...` / `fix(theme): ...` / `docs: ...`。
+5. 提交 PR 并描述动机与验证方式。
 
 ## License
 

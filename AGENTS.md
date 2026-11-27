@@ -45,14 +45,17 @@
 ## 3. 常用命令
 
 ```bash
-# 开发（Gallery 预览）
-go tool mygo dev
+# 运行 Gallery 示例应用（开发预览）
+go run ./gallery
 
-# 构建
-go tool mygo build
+# 构建 Gallery 可执行文件
+go build -trimpath -ldflags "-X main.version=dev" -o bin/gallery ./gallery
 
-# 测试
-go test ./...
+# 构建全部包
+go build ./...
+
+# 测试（含 Gallery 与逐示例截图基线）
+go test -count=1 ./...
 
 # 静态一致性检查（CI 门禁）
 go run ./internal/check
@@ -61,6 +64,8 @@ go run ./internal/check
 go generate ./icon
 ```
 
+> 可选：仓库根目录提供 `Makefile`（`make run` / `make build` / `make check` / `make baselines`）；Windows 可用 Git Bash/WSL 或直接执行上面的 go 命令。
+>
 > 前置：Go 1.27.4+；MyGo 版本在 `go.mod` 中锁定（当前 v0.10.0），勿随意升级，升级需跑全量视觉回归。
 
 ## 4. 开发工作流

@@ -175,7 +175,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | B8 | 数据展示-辅助 | Avatar、Badge、Tag、Progress、Timeline、Empty、Result、Skeleton | 5 | ✅ | 全部完成（Timeline/Empty/Result/Skeleton 在 v0.3） |
 | B9 | 导航 | Tabs、Segmented、Steps、Breadcrumb、Dropdown、Sidebar | 5 | ✅ | Sidebar 已包装；Menu 复用 Dropdown |
 | B10 | 折叠/浮层 | Collapse/Accordion、Popover、Tooltip | 3 | ✅ | v0.3 全部完成 |
-| B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ◐ | 仅 Watermark 未做 |
+| B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ✅ | v0.3 全部完成 |
 | B12 | 其他 | Splitter、Affix、Drawer | 2 | ✅ | 全部完成（v0.3） |
 | | **小计** | | **44** | | |
 
@@ -206,7 +206,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | E1 | README、迁移指南 | 2 | ✅ | README + docs/08 |
 | E2 | 主题与密度使用文档、API 参考 | 3 | ✅ | docs/04、05 已对齐实现 |
 | E3 | IDE / 上位机风格示例应用 | 4 | ✅ | `samples/ide` 紧凑型 IDE 布局（侧栏/标签页/代码区/状态栏） |
-| E4 | v0.1.0 发布（CHANGELOG、tag、release） | 2 | ◐ | v0.1.0 tag 已有；v0.2 未发 |
+| E4 | v0.1.0 发布（CHANGELOG、tag、release） | 2 | ✅ | v0.1.0/v0.2.0/v0.3.0 tag 已推送，Release 工作流自动构建安装包 |
 | | **小计** | **11** | | |
 
 ### WS-F · 控件示例与 Gallery
@@ -231,7 +231,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | **M1 主题闭环** | W2–W5 | A + B1–B6 + F1–F5 | ✅ | Button/录入/选择/日期与 11 组示例卡片；主题/密度/品牌色可切换 |
 | **M2 常用控件** | W6–W10 | B7–B12 | ✅ | v0.3 补齐 Form/Collapse/Tooltip/Sidebar/Drawer/List 等 |
 | **M3 密度适配** | W11–W12 | 全控件紧凑审计 + F2/F6 + E3 | ✅ | 3 组合基线 + IDE 风格示例 + 密度并排对比 |
-| **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | 缺口控件与 Gallery/IDE 示例完成；v0.2/v0.3 tag 待推送 |
+| **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ✅ | 缺口控件、Gallery/IDE 示例、CHANGELOG 与三个 tag 全部完成 |
 
 ## 7. 时间线（历史基线）
 
@@ -269,14 +269,15 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | 单人周期长 | 高/中 | 优先高频控件；里程碑交付可用版本；社区认领 |
 | 文档与实现漂移 | 高/中 | 每个任务收尾同步状态列与路径；核对日期写在文首 |
 
-## 10. 下一步（按优先级）
+## 10. 后续（v0.x 范围外）
 
-1. **发布 v0.2/v0.3**：CHANGELOG + tag + Release 附件（流水线已就绪）。
-2. **文档嵌图**：把逐示例截图嵌入文档/README（截图与基线已就绪）。
-3. **Gallery 增强**：侧栏分类/搜索/每组数量与代码复制已完成；剩余全局尺寸切换（控件尺寸无统一注入点，暂缓）与 `ui/editor` 代码视图。
-4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。
-5. **文档定稿**：README 状态、02 覆盖度、07 覆盖矩阵与截图。
-6. **主题增强**：`WithFollowSystem`（跟随系统强调色/高对比/文字缩放）已实现；系统亮暗自动跟随仍为 TODO（ADR 0002）。
+WBS A–F 全部完成（见 §11），v0.3.0 已发布。以下为后续可选增强，不阻塞 v0.x：
+
+1. **系统亮暗自动跟随**：MyGo `ui` 暂未暴露系统外观 API（ADR 0002 记录为上游限制）。
+2. **Gallery 全局尺寸切换**：各控件尺寸选项无统一注入点，需要 Gallery 层包装（暂缓）。
+3. **`ui/editor` 代码视图**：当前代码为只读纯文本 + 复制按钮。
+4. **文档嵌图流水线**：README 已手工嵌入 Gallery/快速开始截图，逐示例图像可按需继续引用。
+5. **Pro 组件与更多 antd 高级组件**：超出 v0.x 范围。
 
 ## 11. 当前进度（2026-11-27）
 

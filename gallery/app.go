@@ -85,6 +85,7 @@ type Gallery struct {
 	fontSize float32 // 0 表示跟随密度（标准 14 / 紧凑 13）
 	size     gallerySize
 	selected string // 当前展示的控件名
+	codeTab  int    // 代码区当前展示的示例下标
 	query    string // 侧栏搜索词
 }
 
@@ -376,6 +377,7 @@ func (g *Gallery) navItem(c *ui.Context, name string, selected bool, samples int
 	})
 	if item.Clicked() {
 		g.selected = name
+		g.codeTab = 0
 	}
 }
 
@@ -515,7 +517,10 @@ func (g *Gallery) tools(c *ui.Context) {
 	})
 }
 
-// content 右侧内容区：示例卡片流（可滚动）。
+// content 右侧内容区：单控件单页、上下撑满的分栏布局——
+// 上方集中摆放该控件全部状态/示例的实时预览（两列网格、行高均分），
+// 下方集中展示全部示例代码（antd Tabs 切换 + 代码编辑器撑满），
+// 中间用可拖拽的垂直分隔面板分配比例，整页无空白。
 func (g *Gallery) content(c *ui.Context) {
 	d, ok := g.current()
 	if !ok {
@@ -524,14 +529,142 @@ func (g *Gallery) content(c *ui.Context) {
 		})
 		return
 	}
-	t := c.Theme()
 
-	ui.Scroll(c).Fill().Children(func() {
-		col := ui.Column(c).FillWidth().Padding(t.Space(6)).Gap(t.Space(6))
-		col.Children(func() {
-			for i, s := range d.Samples {
-				g.sampleCard(c, i, s)
+	root := ui.Column(c).Fill()
+	percent := ui.Local(root, "gallery.split", func() float32 { return 58 })
+	root.Children(func() {
+		widgets.SplitterVerticalPercent(c, percent, func() {
+			g.previews(c, d)
+		}, func() {
+			g.codePanel(c, d)
+		}).Fill()
+	})
+}
+
+// previews 上方预览区：该控件全部示例（状态）的实时预览，
+// 两列一行、行高均分，撑满整个预览面板，不留空白。
+func (g *Gallery) previews(c *ui.Context, d samples.ControlPage) {
+	grid := ui.Column(c).Fill().Gap(c.Theme().Space(2))
+	n := len(d.Samples)
+	if n == 0 {
+		grid.Children(func() {
+			ui.Column(c).Fill().Center().Children(func() {
+				widgets.Empty(c, widgets.EmptyDescription("该控件暂无示例"))
+			})
+		})
+		return
+	}
+	grid.Children(func() {
+		rows := (n + 1) / 2
+		for i := 0; i < n; i += 2 {
+			end := i + 2
+			if end > n {
+				end = n
 			}
+			row := ui.Row(c).FillWidth().Gap(c.Theme().Space(2)).AlignItems(ui.Stretch)
+			if rows == 1 {
+				// 仅一行时撑满整个预览区，避免上下留白。
+				row.Fill()
+			} else {
+				row.Grow(1)
+			}
+			row.Children(func() {
+				for j := i; j < end; j++ {
+					g.statePanel(c, j, d.Samples[j])
+				}
+			})
+		}
+	})
+}
+
+// statePanel 预览网格中的一格：状态标题 + 居中的实时预览，
+// 随网格行列拉伸撑满，无需滚动。
+func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
+	t := c.Theme()
+	panel := ui.Column(c).Grow(1).
+		Background(t.Surface).
+		Radius(t.Radius + t.Space(0.5)).
+		Border(1, t.Border).
+		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
+	panel.Children(func() {
+		head := ui.Row(c).FillWidth().
+			Padding(t.Space(2), t.Space(4)).
+			AlignItems(ui.Center).
+			Gap(t.Space(2)).
+			Border(1, t.Border).BorderWidth(0, 0, 1, 0)
+		head.Children(func() {
+			ui.Textf(c, "%02d", index+1).TextColor(t.Accent).FontSize(t.Rem(0.86)).FontWeight(600)
+			ui.Text(c, s.Title).FontSize(t.Rem(1.0)).FontWeight(600).TextColor(t.Text).SingleLine()
+			ui.Text(c, s.Description).TextColor(t.TextMuted).FontSize(t.Rem(0.78)).
+				SingleLine().Grow(1)
+		})
+		body := ui.Column(c).Fill().Grow(1).
+			Padding(t.Space(5)).
+			Center()
+		body.Children(func() {
+			switch g.compare {
+			case compareTheme:
+				row := ui.Row(c).FillWidth().FillHeight().Gap(t.Space(4)).AlignItems(ui.Stretch)
+				row.Children(func() {
+					g.comparePane(c, "亮色", false, g.density, s.View)
+					g.comparePane(c, "暗色", true, g.density, s.View)
+				})
+			case compareDensity:
+				row := ui.Row(c).FillWidth().FillHeight().Gap(t.Space(4)).AlignItems(ui.Stretch)
+				row.Children(func() {
+					g.comparePane(c, "标准密度", g.dark, theme.Comfortable, s.View)
+					g.comparePane(c, "紧凑密度", g.dark, theme.Compact, s.View)
+				})
+			default:
+				s.View(c)
+			}
+		})
+	})
+}
+
+// codePanel 下方代码区：antd Tabs 切换该控件的全部示例，选中示例的
+// 完整代码在编辑器中展示，编辑器撑满剩余高度（内部滚动）。
+func (g *Gallery) codePanel(c *ui.Context, d samples.ControlPage) {
+	t := c.Theme()
+	panel := ui.Column(c).Fill().
+		Background(t.Surface).
+		Radius(t.Radius + t.Space(0.5)).
+		Border(1, t.Border).
+		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
+	panel.Children(func() {
+		// 页头：示例标签页 + 复制按钮。
+		if g.codeTab >= len(d.Samples) {
+			g.codeTab = 0
+		}
+		head := ui.Row(c).FillWidth().
+			Padding(t.Space(1), t.Space(4), 0, t.Space(4)).
+			AlignItems(ui.Center).
+			Justify(ui.SpaceBetween).
+			Border(1, t.Border).BorderWidth(0, 0, 1, 0)
+		head.Children(func() {
+			titles := make([]string, len(d.Samples))
+			for i, s := range d.Samples {
+				titles[i] = s.Title
+			}
+			widgets.Tabs(c, &g.codeTab, titles...)
+			if widgets.Button(c, "复制代码", widgets.Size(widgets.Small), widgets.Text()).Clicked() {
+				c.WriteClipboard(d.Samples[g.codeTab].Code)
+				c.Toast("代码已复制")
+			}
+		})
+
+		// 代码正文：完整代码，编辑器撑满剩余空间（内部滚动）。
+		body := ui.Column(c).Fill().Grow(1).Background(t.Background)
+		body.Children(func() {
+			s := d.Samples[g.codeTab]
+			st := ui.Local(panel, "gallery.codeview."+d.Name+"."+s.Title, func() editor.State {
+				return editor.State{
+					Buffer:       editor.NewBuffer(s.Code),
+					ReadOnly:     true,
+					NoActiveLine: true,
+				}
+			})
+			widgets.CodeEditor(c, st).Fill()
 		})
 	})
 }
@@ -678,114 +811,6 @@ func (g *Gallery) homePage(c *ui.Context) {
 	})
 }
 
-// sampleCard 一张示例卡片：标题/描述 + 实时预览（或并排对比）+ 可复制代码。
-func (g *Gallery) sampleCard(c *ui.Context, index int, s samples.Sample) {
-	t := c.Theme()
-	card := ui.Column(c).FillWidth().
-		Background(t.Surface).
-		Radius(t.Radius+t.Space(0.5)).
-		Border(1, t.Border).
-		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
-
-	expanded := ui.Local(card, "gallery.code."+s.Title, func() bool { return false })
-
-	card.Children(func() {
-		// 卡片头：序号 + 标题 + 描述 + 复制。
-		head := ui.Row(c).FillWidth().
-			Padding(t.Space(4), t.Space(6)).
-			Justify(ui.SpaceBetween).
-			AlignItems(ui.Center).
-			Gap(t.Space(4)).
-			Border(1, t.Border).BorderWidth(0, 0, 1, 0)
-		head.Children(func() {
-			left := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(3)).Grow(1)
-			left.Children(func() {
-				ui.Textf(c, "%02d", index+1).TextColor(t.TextMuted).FontSize(t.Rem(0.86)).FontWeight(600)
-				title := ui.Column(c).Gap(t.Space(0.5))
-				title.Children(func() {
-					ui.Text(c, s.Title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
-					ui.Text(c, s.Description).TextColor(t.TextMuted).FontSize(t.Rem(0.84))
-				})
-			})
-			actions := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(1))
-			actions.Children(func() {
-				if widgets.Button(c, "复制代码", widgets.Size(widgets.Small), widgets.Text()).Clicked() {
-					c.WriteClipboard(s.Code)
-					c.Toast("代码已复制")
-				}
-			})
-		})
-
-		// 预览区：白底承托（对齐 antd demo 区块），四周 24px 留白，
-		// 底部 1px 分隔线与代码区分界。
-		preview := ui.Column(c).FillWidth().
-			Padding(t.Space(6)).
-			Background(t.Surface).
-			Border(1, t.Border).BorderWidth(0, 0, 1, 0)
-		preview.Children(func() {
-			switch g.compare {
-			case compareTheme:
-				row := ui.Row(c).FillWidth().Gap(t.Space(4)).AlignItems(ui.Stretch)
-				row.Children(func() {
-					g.comparePane(c, "亮色", false, g.density, s.View)
-					g.comparePane(c, "暗色", true, g.density, s.View)
-				})
-			case compareDensity:
-				row := ui.Row(c).FillWidth().Gap(t.Space(4)).AlignItems(ui.Stretch)
-				row.Children(func() {
-					g.comparePane(c, "标准密度", g.dark, theme.Comfortable, s.View)
-					g.comparePane(c, "紧凑密度", g.dark, theme.Compact, s.View)
-				})
-			default:
-				s.View(c)
-			}
-		})
-
-		// 代码区：可展开/收起，浅灰承托（antd 展开代码区）。
-		code := ui.Column(c).FillWidth().
-			Border(1, t.Border).BorderWidth(1, 0, 0, 0)
-		code.Children(func() {
-			codeHead := ui.Row(c).FillWidth().
-				Padding(t.Space(2), t.Space(6)).
-				Justify(ui.SpaceBetween).
-				AlignItems(ui.Center)
-			codeHead.Children(func() {
-				ui.Text(c, "Go").TextColor(t.TextMuted).FontSize(t.Rem(0.75)).FontWeight(600).
-					Padding(t.Space(0.5), t.Space(2)).
-					Radius(t.Space(2)).
-					Background(t.Background)
-				toggle := widgets.Button(c, map[bool]string{true: "收起代码", false: "展开代码"}[*expanded],
-					widgets.Size(widgets.Small), widgets.Text())
-				if toggle.Clicked() {
-					*expanded = !*expanded
-				}
-			})
-			// 代码正文：ui/editor 只读代码视图（语法高亮 + 行号）。
-			// 收起时只把前 6 行放进 buffer、展开时放全部，
-			// 配合 FitContent 高度与内容行数一致，永不半行截断。
-			body := ui.Column(c).FillWidth().Background(t.Background)
-			body.Children(func() {
-				codeKey := "gallery.codeed." + s.Title
-				if *expanded {
-					codeKey += ".full"
-				}
-				st := ui.Local(card, codeKey, func() editor.State {
-					buf := s.Code
-					if !*expanded {
-						buf = truncateCode(s.Code, 6, fmt.Sprintf("展开查看全部 %d 行", strings.Count(s.Code, "\n")+1))
-					}
-					return editor.State{
-						Buffer:       editor.NewBuffer(buf),
-						ReadOnly:     true,
-						NoActiveLine: true,
-						FitContent:   true,
-					}
-				})
-				widgets.CodeEditor(c, st).FillWidth()
-			})
-		})
-	})
-}
 
 // comparePane 并排对比中的一栏：小标题 + 局部主题容器。
 func (g *Gallery) comparePane(c *ui.Context, label string, dark bool, density theme.Density, view func(*ui.Context)) {

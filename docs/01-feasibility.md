@@ -89,9 +89,9 @@ Ant Design 有而 MyGo 无的控件（分页、级联选择、穿梭框、上传
 | 换肤控件 | ✅ `widgets/`（包 `ant`）99 个构造函数，覆盖 MyGo 绝大多数原生控件与 Base 原语 |
 | 缺口控件 | ✅ `extra/` 7 个（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内自建（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 等） |
 | 图标 | ✅ 44 个 antd outlined 常量 + `icon.Icon` |
-| 示例 | ◐ 11 个示例分组 / 65 个示例片段；未逐控件覆盖 |
+| 示例 | ◐ 12 个示例分组 / 66 个示例片段；未逐控件覆盖 |
 | Gallery | ✅ 侧栏 + 卡片流 + 主题/密度/品牌色切换 + 亮暗并排对比；搜索/分类/全局尺寸为待办 |
-| 视觉回归 | ◐ 4 张 Gallery 级截图基线（`samples/golden/`），尚无逐示例基线 |
+| 视觉回归 | ◐ 3 张 Gallery 级截图基线（`samples/golden/`），尚无逐示例基线 |
 | 静态检查 | ✅ `go run ./internal/check` 禁裸颜色/裸间距 |
 | 版本 | v0.1.0 已打 tag；v0.2 已推送待打 tag；v0.3 开发中 |
 
@@ -128,7 +128,7 @@ Ant Design 有而 MyGo 无的控件（分页、级联选择、穿梭框、上传
 
 - **M1**：主题层 + 基础控件 20 个，Gallery 可预览 → 验证「换肤 + 切换主题」闭环。✅ 已完成
 - **M2**：数据展示与反馈控件，覆盖常见后台/工具类应用 80% 场景。◐ 主体完成，Form/Collapse/Tooltip/Sidebar/Drawer 未做
-- **M3**：紧凑密度全控件适配，出上位机 / IDE 风格示例。◐ 密度可切换、4 组合基线已有；逐控件审计与 IDE 示例待做
+- **M3**：紧凑密度全控件适配，出上位机 / IDE 风格示例。✅ 密度可切换、IDE 风格示例已落地（`samples/ide`）
 - **M4**：缺口控件补齐，发布 v0.1.0。◐ v0.1.0 已发布；P2/P3 缺口控件仍在推进
 
 ## 建议

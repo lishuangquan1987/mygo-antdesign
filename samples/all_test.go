@@ -12,6 +12,7 @@ import (
 	"github.com/lishuangquan1987/mygo-antdesign/samples/divider"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/extrademo"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/feedback"
+	"github.com/lishuangquan1987/mygo-antdesign/samples/ide"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/input"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/layout"
 	"github.com/lishuangquan1987/mygo-antdesign/samples/nav"
@@ -26,7 +27,7 @@ func allDemos() []sample.WidgetDemo {
 	return []sample.WidgetDemo{
 		button.Demo(), typography.Demo(), divider.Demo(), layout.Demo(),
 		input.Demo(), selectdemo.Demo(), display.Demo(), table.Demo(),
-		feedback.Demo(), nav.Demo(), extrademo.Demo(),
+		feedback.Demo(), nav.Demo(), extrademo.Demo(), ide.Demo(),
 	}
 }
 

@@ -11,9 +11,10 @@ import "github.com/egoist/mygo/ui"
 //	    // ... 之后的控件全部拿到 antd 主题
 //	}
 //
-// 默认不跟随桌面强调色与无障碍偏好（见 ADR 0002）。
+// 默认不跟随桌面强调色与无障碍偏好；需要时给 token 加
+// theme.WithFollowSystem()（见 ADR 0002）。
 func Apply(c *ui.Context, t *AntToken) {
-	c.SetTheme(t.toTheme())
+	c.SetTheme(t.build(c))
 }
 
 // Sub 返回一个局部主题容器：Children 内的控件用 t 构建，弹出层、菜单、
@@ -24,5 +25,14 @@ func Apply(c *ui.Context, t *AntToken) {
 //	left := theme.Sub(c, theme.Light())   // 亮色列
 //	right := theme.Sub(c, theme.Dark())   // 暗色列
 func Sub(c *ui.Context, t *AntToken) ui.Element {
-	return ui.Themed(c, t.toTheme())
+	return ui.Themed(c, t.build(c))
+}
+
+// build 把 token 转成 ui.Theme；followSystem 时叠加桌面偏好。
+func (t *AntToken) build(c *ui.Context) *ui.Theme {
+	th := t.toTheme()
+	if t.followSystem {
+		th = th.WithPreferences(c.Preferences())
+	}
+	return th
 }

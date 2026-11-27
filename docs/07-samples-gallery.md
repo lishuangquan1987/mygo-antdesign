@@ -2,7 +2,7 @@
 
 > 对应需求：为**每一个控件**写示例，告诉别人怎么用，并展示不同主题、不同 size 的效果——像 WPF 的 MaterialDesignInXamlToolkit 示例程序那样，让人一眼看到每个控件的全部样子。
 >
-> 本文区分「已实现」与「规划」。当前实现：11 个示例分组、65 个示例片段、Gallery 侧栏 + 卡片流 + 控制条 + 4 张截图基线。
+> 本文区分「已实现」与「规划」。当前实现：12 个示例分组、66 个示例片段、Gallery 侧栏（分类 + 搜索 + 计数）+ 卡片流（代码复制）+ 控制条 + 3 张截图基线。
 
 ## 1. 目标与体验参照
 
@@ -80,7 +80,7 @@ func All() []WidgetDemo
 
 尚未覆盖：文字 + 图标按钮、与 Popconfirm 组合的危险操作确认、标准/紧凑并排（当前只做了亮/暗并排）。
 
-### 4.1 当前示例分组（11 组 / 65 个片段）
+### 4.1 当前示例分组（12 组 / 66 个片段）
 
 | 分组 | 覆盖控件 | 示例数 |
 | --- | --- | --- |
@@ -119,7 +119,7 @@ func All() []WidgetDemo
 
 - **左侧**：可滚动的扁平控件列表（无搜索、无分类折叠、无覆盖率）。
 - **中部**：示例卡片流，每张卡片 = 标题 + 描述 + 实时预览 + 代码文本（`MaxHeight` 截断）。
-- **顶部控制条**：亮/暗、标准/紧凑、4 个品牌色块、亮暗并排对比开关。
+- **顶部控制条**：亮/暗、标准/紧凑、4 个品牌色块、亮暗对比与密度对比开关。
 - **并排对比模式**：`theme.Sub` 左右两栏，左亮右暗，携带当前密度与品牌色。
 
 控制条只改 `Gallery` 的 app state，view 函数是 state 的函数，下一帧全部示例自动重绘——**不需要逐个刷新示例**。
@@ -135,7 +135,7 @@ func All() []WidgetDemo
 | 标准/紧凑并排 | ◻ | 当前只做了亮/暗并排 |
 | 代码复制按钮 | ◻ | 需接剪贴板 API |
 | 代码高亮（`ui/editor` 只读） | ◻ | 当前用 `ui.Text` 等宽展示 |
-| 逐示例截图 | ◻ | 当前仅 4 张 Gallery 级基线 |
+| 逐示例截图 | ◻ | 当前仅 3 张 Gallery 级基线 |
 
 ## 6. 代码片段如何保证「真实不过时」
 
@@ -215,14 +215,14 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 
 ## 8. 截图生成与文档联动（实际）
 
-1. `gallery/app_test.go` 的 `TestGalleryBaselines` 用 `ui.NewTester` 渲染 **4 种组合**：
+1. `gallery/app_test.go` 的 `TestGalleryBaselines` 用 `ui.NewTester` 渲染 **3 种组合**：
    `light-standard`、`dark-standard`、`light-compact`、`dark-compact-compare`（960×640 / 960×900）。
 2. 输出到 `samples/golden/gallery-<组合>.png`，与基线**逐字节**比对；不一致即失败（预期改动需删文件重建）。
 3. **跨平台策略**：`samples/golden/manifest.json` 记录基线生成平台（`goos`/`goarch`）。在其它平台运行时只渲染、断言无空帧，然后跳过逐字节比对——不同系统的字体栈不同，像素必然不同。CI（Linux）因此不会因 Windows 基线而永久红。
 4. 文档引用真实截图：`docs/images/gallery.png`（Gallery 首图）、`docs/images/quickstart.png`（README 最小示例）。
 5. CI 中跑 `go test ./gallery`，示例或主题一变，截图 diff 立即暴露（仅基线平台）。
 
-> 早期文档写的 `docs/screenshots/<widget>-<variant>-<theme>-<density>.png` 与「每个示例 × 4 组合」**尚未实现**；当前只有 Gallery 级 4 张基线，且基线带平台属性。彻底解决需要固定字体（`ui.RegisterFont`）或按平台提交多套基线，是 §5.2 的待办。
+> 早期文档写的 `docs/screenshots/<widget>-<variant>-<theme>-<density>.png` 与「每个示例 × 组合」**尚未实现**；当前只有 Gallery 级 3 张基线，且基线带平台属性。并排对比模式包含加载动画（`ui.Spinner`），逐帧像素不稳定，由交互测试覆盖。彻底解决需要固定字体（`ui.RegisterFont`）或按平台提交多套基线。
 >
 > 重建基线：删除 `samples/golden/*.png` 与 `manifest.json` 后跑 `go test ./gallery -run TestGalleryBaselines`（会在当前平台生成新基线）。
 
@@ -233,7 +233,7 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 3. 覆盖第 4 节矩阵（至少基础 + 主要变体 + 禁用 + 三档尺寸）。
 4. 严守样式铁律（见 `AGENTS.md` 2.1）：示例本身也只读主题、只用 `t.Space` / `t.Rem`。
 5. 在注册表登记，Gallery 侧栏可见。
-6. 生成 4 组合截图并通过 diff。
+6. 生成 3 组合截图并通过 diff。
 7. 示例中的交互要有明确反馈（如点击计数变化），让人看出控件是「活的」。
 
 ## 10. 分阶段交付（状态）
@@ -251,8 +251,8 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 | --- | --- | --- |
 | Gallery 框架（侧栏、控制条、并排对比、代码视图、搜索） | 6 | ✅ 除搜索 |
 | 示例注册表 + `go:embed` 片段提取工具 | 2 | ✅ |
-| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 11 组 / 65 片段 |
-| 截图生成与文档嵌图联动 | 4 | ◐ Gallery 级 4 张 + README 2 图 |
+| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 12 组 / 66 片段 |
+| 截图生成与文档嵌图联动 | 4 | ◐ Gallery 级 3 张 + README 2 图 |
 | **小计** | **约 33 人日** | |
 
 > 这部分工作并入 `06-development-plan.md` 的 WS-F，并计入每个控件的 DoD。示例不必等控件全部完成才写——**每个控件完成时立即配示例**，避免后期补写遗漏。

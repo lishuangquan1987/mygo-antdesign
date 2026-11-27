@@ -41,8 +41,8 @@
 | 换肤 + 缺口控件构造函数 | ≥ 55 | **106**（`widgets/` 99 + `extra/` 7，另有 `icon.Icon`） |
 | 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 65 个示例片段**，尚未逐控件覆盖 |
-| 视觉回归 | 每个示例 × 4 种主题组合 | **4 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **12 个示例分组 / 66 个示例片段**，尚未逐控件覆盖 |
+| 视觉回归 | 每个示例 × 3 种主题组合 | **3 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
 
@@ -91,7 +91,7 @@ mygo-antdesign/
 │   ├── registry.go  extract.go     # 注册表 + // sample: 标记提取
 │   ├── button/ typography/ divider/ layout/ input/ selectdemo/
 │   ├── display/ table/ feedback/ nav/ extrademo/   # 11 个示例分组
-│   └── golden/                     # gallery-*.png 截图基线（4 张）+ manifest.json（生成平台）
+│   └── golden/                     # gallery-*.png 截图基线（3 张）+ manifest.json（生成平台）
 ├── gallery/
 │   ├── main.go                     # 入口 + 显式注册示例
 │   ├── app.go                      # 侧栏 + 卡片流 + 控制条
@@ -139,7 +139,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 - [ ] 键盘可达、有 Role/Label（Base 实现天然满足，纯组合需补）
 - [ ] **示例已编写并注册**（`samples/<分组>/demo.go`，覆盖基础 + 主要变体 + 禁用 + 三档尺寸）
 - [ ] Gallery 侧栏可见该控件
-- [ ] 截图基线通过（当前是 Gallery 级 4 张；逐控件基线为后续目标）
+- [ ] 截图基线通过（当前是 Gallery 级 3 张；逐控件基线为后续目标）
 - [ ] 文档/注释齐全
 
 ## 5. WBS 详细任务分解与状态
@@ -205,7 +205,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | --- | --- | --- | --- | --- |
 | E1 | README、迁移指南 | 2 | ✅ | README + docs/08 |
 | E2 | 主题与密度使用文档、API 参考 | 3 | ✅ | docs/04、05 已对齐实现 |
-| E3 | IDE / 上位机风格示例应用 | 4 | ◻ | 未开始 |
+| E3 | IDE / 上位机风格示例应用 | 4 | ✅ | `samples/ide` 紧凑型 IDE 布局（侧栏/标签页/代码区/状态栏） |
 | E4 | v0.1.0 发布（CHANGELOG、tag、release） | 2 | ◐ | v0.1.0 tag 已有；v0.2 未发 |
 | | **小计** | **11** | | |
 
@@ -213,12 +213,12 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 
 | ID | 任务 | 估算 | 状态 | 备注 |
 | --- | --- | --- | --- | --- |
-| F1 | Gallery 骨架：侧栏 + 示例区 + 顶部控制条 | 4 | ✅ | 无搜索/分类折叠（后续增强） |
+| F1 | Gallery 骨架：侧栏 + 示例区 + 顶部控制条 | 4 | ✅ | 侧栏分类分组 + 搜索 + 每组数量 |
 | F2 | 并排对比模式（亮/暗） | 2 | ✅ | `theme.Sub` + 左右两栏 |
-| F3 | 代码视图（真实源码 + 只读展示） | 2 | ◐ | 只读文本已实现；复制按钮/CodeEditor 未接 |
+| F3 | 代码视图（真实源码 + 只读展示） | 2 | ✅ | 只读源码 + 复制代码按钮（`ui/editor` 未接） |
 | F4 | 示例注册表 + 分类 | 1 | ✅ | `samples/registry.go` |
 | F5 | `go:embed` 片段提取 | 2 | ✅ | `samples/extract.go` |
-| F6 | 截图生成与回归 | 3 | ◐ | 4 张 Gallery 级基线；无逐示例/文档嵌图流水线 |
+| F6 | 截图生成与回归 | 3 | ◐ | 3 张 Gallery 级基线；无逐示例/文档嵌图流水线 |
 | | **小计** | **14** | | |
 
 **总计估算：约 121 人日**（立项估算；示例编写约 21 人日摊入各控件）。单人约 6 个月，2 人并行约 3.5 个月。
@@ -230,8 +230,8 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | **M0 基建** | W1 | A1–A8 | ✅ | 仓库、CI、主题层、Gallery 可渲染 |
 | **M1 主题闭环** | W2–W5 | A + B1–B6 + F1–F5 | ✅ | Button/录入/选择/日期与 11 组示例卡片；主题/密度/品牌色可切换 |
 | **M2 常用控件** | W6–W10 | B7–B12 | ✅ | v0.3 补齐 Form/Collapse/Tooltip/Sidebar/Drawer/List 等 |
-| **M3 密度适配** | W11–W12 | 全控件紧凑审计 + F2/F6 + E3 | ◐ | 4 组合基线有；逐控件审计与 IDE 示例缺 |
-| **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | 缺口控件已全部完成；v0.2/v0.3 发布与 CHANGELOG 待做 |
+| **M3 密度适配** | W11–W12 | 全控件紧凑审计 + F2/F6 + E3 | ✅ | 3 组合基线 + IDE 风格示例 + 密度并排对比 |
+| **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | 缺口控件与 Gallery/IDE 示例完成；v0.2/v0.3 tag 待推送 |
 
 ## 7. 时间线（历史基线）
 
@@ -251,7 +251,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 1. **单元测试**：每个控件文件对应 `_test.go`，覆盖变体渲染、点击/键入、禁用、主题与密度组合。
 2. **静态一致性检查**：`go run ./internal/check` 扫描 `widgets/`、`extra/`，禁止裸 `ui.Hex/RGB/RGBA/Oklch` 与裸间距字面量（0 与 1px 豁免）。
-3. **视觉回归**：`gallery` 包用 `ui.NewTester` 渲染 **4 种组合**（亮/暗标准、亮紧凑、暗紧凑+并排对比），与 `samples/golden/gallery-*.png` 逐字节比对；基线带平台清单（`manifest.json`），跨平台只渲染不比对（字体栈不同），详见 [07 §8](07-samples-gallery.md#8-截图生成与文档联动实际)。
+3. **视觉回归**：`gallery` 包用 `ui.NewTester` 渲染 **3 种组合**（亮标准、暗标准、亮紧凑），与 `samples/golden/gallery-*.png` 逐字节比对；基线带平台清单（`manifest.json`），跨平台只渲染不比对（字体栈不同），详见 [07 §8](07-samples-gallery.md#8-截图生成与文档联动实际)。
 4. **交互测试**：`TestGalleryInteractions` / `TestGallerySampleInteraction` 验证切换与点击反馈。
 5. **CI 门禁**：`gofmt` + `go vet` + `go test ./...` + 静态检查全部通过才允许合并。
 
@@ -263,7 +263,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | --- | --- | --- |
 | MyGo API 变动 | 中/高 | 锁 `v0.10.0`；换肤层做薄；升级时跑全量回归 |
 | Token 无法 1:1 映射 | 高/中 | 语义收敛的 `AntToken` 子集；细节用 Element 局部样式表达（见 04） |
-| 紧凑档遗漏硬编码间距 | 中/中 | 静态检查 + 4 组合截图 + DoD 检查表 |
+| 紧凑档遗漏硬编码间距 | 中/中 | 静态检查 + 3 组合截图 + DoD 检查表 |
 | 缺口控件工作量超估 | 中/中 | 按 P1→P3 分批评审，必要时推迟 P3 到 v0.3 |
 | 图标版权/一致性 | 低/中 | 用 antd 官方 MIT 许可 SVG，`scripts/genicons` 可追溯来源 |
 | 单人周期长 | 高/中 | 优先高频控件；里程碑交付可用版本；社区认领 |
@@ -273,10 +273,10 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 1. **发布 v0.2/v0.3**：CHANGELOG + tag + Release 附件（流水线已就绪）。
 2. **示例覆盖**：为每个控件补独立示例页与逐控件截图基线（当前 11 组 / 65 片段）。
-3. **Gallery 增强**：侧栏分类与搜索、覆盖率显示、全局尺寸切换、代码复制按钮、`ui/editor` 代码视图。
+3. **Gallery 增强**：侧栏分类/搜索/每组数量与代码复制已完成；剩余全局尺寸切换（控件尺寸无统一注入点，暂缓）与 `ui/editor` 代码视图。
 4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。
 5. **文档定稿**：README 状态、02 覆盖度、07 覆盖矩阵与截图。
-6. **主题增强**：`WithFollowSystem`（跟随系统强调色/高对比）与系统亮暗自动跟随（ADR 0002 的 TODO）。
+6. **主题增强**：`WithFollowSystem`（跟随系统强调色/高对比/文字缩放）已实现；系统亮暗自动跟随仍为 TODO（ADR 0002）。
 
 ## 11. 当前进度（2026-11-27）
 
@@ -293,7 +293,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | D 图标 | `icon/`：44 个 antd outlined 常量 + 生成器 | 4 主题组合 + 颜色核查 |
 | E 文档 | README、docs/08 迁移指南 | 人工核对 |
 | F Gallery | 侧栏 + 卡片流 + 控制条（主题/密度/品牌色/亮暗对比）+ 代码视图 | 交互测试 + 截图基线 |
-| 基线 | `samples/golden/`：亮/暗标准 + 亮紧凑 + 暗紧凑并排，共 4 张 PNG | 二次运行比对稳定 |
+| 基线 | `samples/golden/`：亮标准、暗标准、亮紧凑，共 3 张 PNG | 二次运行比对稳定 |
 
 ### 11.2 v0.2（已推送、待打 tag）
 
@@ -313,6 +313,9 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | Drawer / Image / ColorPicker / 环形 Progress / Toggle / Affix | `widgets/drawer.go`、`media.go`、`feedback.go`、`select.go`、`layout.go` | feedback / display / input / selectdemo 新增示例 | 单测（抽屉开关、预览、进度环）+ 主题组合 |
 | 原生控件补全包装 | `widgets/native.go`（Hyperlink/DecimalInput/SearchField/Stepper/Calendar/TokenField/EditableText/Meter/Collapsible/Accordion）、`overlay.go`（Popover/ContextMenu） | input / display / feedback 各新增 1 个示例 | 单测（渲染/气泡/右键菜单）+ 主题组合 |
 | P3 缺口收尾 | `widgets/gaps2.go`：Watermark/Mentions/Tour/Notification/FloatButton/Anchor/BorderBeam/Masonry | feedback/display/layout/input 各新增 1 个示例 | 单测（水印/提及插入/引导步骤/通知/锚点/流光）+ 人工图像核对 |
+| Gallery 增强 | `gallery/app.go` | 侧栏分类 + 搜索 + 每组数量、代码复制、亮暗/密度对比 | gallery 单测（搜索/密度对比/复制）+ 3 张截图基线 |
+| IDE 风格示例 | `samples/ide` | `gallery/main.go` 注册 | gallery 集成测试 + `scripts/visualcheck` 截图核对 |
+| 主题跟随系统 | `theme/theme.go`（`WithFollowSystem`） | — | 单测（高对比/文字缩放、默认不跟随） |
 | 工具 | `scripts/visualcheck` | 把示例按主题渲染成 PNG，人工核对控件效果 | 无窗口 `ui.NewTester` |
 | 质量门禁 | `samples/all_test.go` | 校验全部示例分组的代码片段提取与亮/暗渲染 | 新增测试 |
 
@@ -333,8 +336,8 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - `ant.Table` 单元格为字符串比较排序（数字列请先格式化定宽文本）。
 - `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
-- Gallery 暂无侧栏搜索、分类折叠、覆盖率显示与全局尺寸切换（文档 07 的规划项）。
-- 逐控件示例与逐控件截图基线尚未建立（当前为 11 个示例分组 + 4 张 Gallery 级基线）。
+- Gallery 暂无全局尺寸切换（各控件尺寸选项无统一注入点）与 `ui/editor` 代码视图；代码以只读纯文本展示。
+- 逐控件示例与逐控件截图基线尚未建立（当前为 12 个示例分组 + 3 张 Gallery 级基线）。
 - `ant.Skeleton` 为静态骨架，暂未做呼吸动画；`ant.Descriptions` 的 `bordered` 是「外框 + 内边距」简化版，无内部网格线。
 - `ant.Collapse` 用自建头部（无展开/收起动画）；`ant.FormItem` 的必填标记是纯文本「*」，未单独着色。
 - `ant.Drawer` 无滑入动画（直接显示/隐藏）；`ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。

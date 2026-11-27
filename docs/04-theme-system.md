@@ -12,7 +12,7 @@
 4. **可扩展**：允许业务通过 `Option` 追加/覆盖 token，而不破坏内建控件。
 5. **可回归**：主题映射有单测、静态检查与截图基线兜底。
 
-> ⚠️ **默认不跟随系统强调色/高对比度/文字缩放**（决策见 [ADR 0002](decisions/0002-apply-does-not-follow-system-accent-by-default.md)）。早期草案里「默认叠加 `WithPreferences`」与「`WithFollowSystem()` Option」在当前实现中**都不存在**，属于未实现计划。
+> **默认不跟随系统强调色/高对比度/文字缩放**（决策见 [ADR 0002](decisions/0002-apply-does-not-follow-system-accent-by-default.md)）；需要时给 token 加 `theme.WithFollowSystem()`，`Apply`/`Sub` 会叠加 `c.Preferences()`（强调色、高对比、文字缩放）。
 
 ## 与 MyGo Theme 的关系
 
@@ -149,7 +149,7 @@ theme.Sub(c *ui.Context, t *AntToken) ui.Element // 内部 ui.Themed(c, t.toThem
 | **切换品牌色** | `WithPrimary(ui.Hex("#7c3aed"))` 重新生成色阶 → `Apply` | 主按钮、选中态、焦点环同步变色 |
 | **切换密度** | `WithDensity(theme.Compact)` → `Apply` | `Spacing` / `Radius` / `FontSize` 变化，全部控件 padding/gap/行高同步 |
 | **单个子树换主题** | `theme.Sub(c, t)`（内部 `ui.Themed`） | 只影响该子树，弹层/菜单/Tooltip 同样跟随；可做亮暗并排预览 |
-| **跟随系统外观** | ❌ 未实现 | `Apply` 总是显式选择亮/暗基底；系统亮暗切换不会自动跟随（TODO） |
+| **跟随系统强调色/高对比/文字缩放** | ✅ `theme.WithFollowSystem()` | 默认关闭以保证 antd 品牌色忠实；开启后 `Apply`/`Sub` 叠加 `c.Preferences()` |
 
 > 注意：MyGo 的 `SetTheme` 改变的是「调用之后构建的控件」，因此主题切换按钮本身若想立刻变外观，应把主题选择放在 app state，由下一帧统一重建。这是即时模式的正常心智，不是限制。
 
@@ -169,7 +169,7 @@ theme.Sub(c *ui.Context, t *AntToken) ui.Element // 内部 ui.Themed(c, t.toThem
 
 1. **单测**：`theme/theme_test.go` 验证 Token→Theme 各字段映射、密度数值与 `Apply`/`Sub` 行为。
 2. **静态检查**：`go run ./internal/check` 扫描 `widgets/`、`extra/` 的非测试代码，禁止裸 `ui.Hex` / `ui.RGB` / `ui.RGBA` / `ui.Oklch` 与裸间距字面量（0 与 1px 描边豁免）；`theme/`、`icon/`、测试文件不扫描。
-3. **视觉回归**：`gallery` 包用 `ui.NewTester` 无窗口渲染 4 种组合（亮/暗 × 标准/紧凑 + 亮暗并排），与 `samples/golden/gallery-*.png` 逐字节比对。
+3. **视觉回归**：`gallery` 包用 `ui.NewTester` 无窗口渲染 3 种组合（亮/暗标准 + 亮紧凑），与 `samples/golden/gallery-*.png` 逐字节比对；并排对比含加载动画，由交互测试覆盖。
 4. **切换测试**：`TestGalleryInteractions` 运行时切换主题/密度，断言无 panic、示例区不丢失。
 
 ## 未实现 / TODO

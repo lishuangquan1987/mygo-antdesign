@@ -93,7 +93,7 @@ theme.Apply(c, theme.Light(theme.WithDensity(theme.Compact)))
 当前可用以下检查；完整清单是后续目标。
 
 - [x] 标准与紧凑两档下，全部已实现控件切换密度后外观变化（Gallery 控制条可切换）。
-- [x] 亮/暗 × 标准/紧凑 4 种组合的 Gallery 截图基线通过（`samples/golden/`）。
+- [x] 亮/暗 × 标准/紧凑 3 种组合的 Gallery 截图基线通过（`samples/golden/`）。
 - [ ] 表格、树、弹层、表单在紧凑档下逐控件人工核对（当前只有 Gallery 级基线，缺逐控件截图）。
 - [ ] 运行时切换密度无闪烁、无需重启（即时模式已满足，仍缺自动化断言）。
 - [ ] IDE 风格示例应用（侧栏 / 标签页 / 窄滚动条）落地（E3 任务，未开始）。

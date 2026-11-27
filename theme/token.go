@@ -57,6 +57,9 @@ type AntToken struct {
 
 	// isDark 标记来自哪个工厂，桥接时选择 ui 基底主题。
 	isDark bool
+	// followSystem 为 true 时，Apply/Sub 会叠加桌面的强调色、高对比与
+	// 文字缩放（见 ADR 0002）。
+	followSystem bool
 }
 
 // Option 定制 AntToken。
@@ -94,6 +97,10 @@ func WithFontSize(px float32) Option {
 func WithRadius(px float32) Option {
 	return func(t *AntToken) { t.Radius = px }
 }
+
+// WithFollowSystem 让 Apply/Sub 叠加桌面偏好（强调色、高对比、文字缩放）。
+// 默认关闭，以保证 Ant Design 品牌色忠实呈现（见 ADR 0002）。
+func WithFollowSystem() Option { return func(t *AntToken) { t.followSystem = true } }
 
 // WithSpacing 直接覆盖 Spacing 单位（高级用法；常规请用 WithDensity）。
 func WithSpacing(px float32) Option {

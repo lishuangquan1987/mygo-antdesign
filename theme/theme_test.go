@@ -126,3 +126,39 @@ func TestSubThemeSwitchesInside(t *testing.T) {
 		t.Errorf("Sub 外部应保持亮色主题")
 	}
 }
+func TestWithFollowSystem(t *testing.T) {
+	var got *ui.Theme
+	view := func(c *ui.Context) {
+		Apply(c, Light(WithFollowSystem()))
+		got = c.Theme()
+	}
+	tt := ui.NewTester(view, 320, 200)
+	tt.SetPreferences(ui.Preferences{HighContrast: true, TextScale: 1.5})
+	tt.Frame()
+	if got == nil {
+		t.Fatal("未渲染")
+	}
+	if got.FontSize <= 14 {
+		t.Errorf("followSystem 下 FontSize = %v, want > 14（文字缩放未生效）", got.FontSize)
+	}
+}
+
+func TestDefaultDoesNotFollowSystem(t *testing.T) {
+	var got *ui.Theme
+	view := func(c *ui.Context) {
+		Apply(c, Light())
+		got = c.Theme()
+	}
+	tt := ui.NewTester(view, 320, 200)
+	tt.SetPreferences(ui.Preferences{TextScale: 1.5, Accent: ui.RGB(255, 0, 255)})
+	tt.Frame()
+	if got == nil {
+		t.Fatal("未渲染")
+	}
+	if got.FontSize != 14 {
+		t.Errorf("默认 FontSize = %v, want 14（不应跟随系统文字缩放）", got.FontSize)
+	}
+	if got.Accent != ui.Hex("#1677ff") {
+		t.Errorf("默认 Accent = %v, want #1677ff（不应被系统强调色覆盖）", got.Accent)
+	}
+}

@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml/badge.svg)
-![v0.1.0](https://img.shields.io/badge/version-v0.1.0-1677ff)
+![v0.3.0](https://img.shields.io/badge/version-v0.3.0-1677ff)
 
 > Ant Design 设计风格的 [MyGo](https://github.com/egoist/mygo) 原生 UI 控件库
 
@@ -17,7 +17,7 @@
 **安装**（Go 1.27.4+，MyGo v0.10.0）：
 
 ```bash
-go get github.com/lishuangquan1987/mygo-antdesign@v0.1.0
+go get github.com/lishuangquan1987/mygo-antdesign@v0.3.0
 ```
 
 **最小示例**（完整可编译）：
@@ -80,9 +80,9 @@ go run ./gallery
 
 > **当前状态**
 > - **v0.1.0**（已打 tag）：主题层 + 9 组换肤控件 + 首批缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标 + Gallery + 全部文档。
-> - **v0.2**（已推送、待打 tag）：README 快速开始重写、Release 安装包流水线、Cascader / TreeSelect，截图基线按平台生效。
-> - **v0.3**（开发中）：P1 缺口控件 Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin。
-> - 当前共 **106 个控件构造函数**（`widgets/` 99 + `extra/` 7）、**11 个示例分组 / 65 个示例片段**、**4 张 Gallery 截图基线**；尚未覆盖的控件与逐示例基线见 [docs/03](docs/03-gap-widgets.md) 与 [docs/06](docs/06-development-plan.md)。
+> - **v0.2.0**（已打 tag）：README 快速开始重写、Release 安装包流水线、Cascader / TreeSelect，截图基线按平台生效。
+> - **v0.3.0**（当前）：antd 缺口控件全部落地（P1–P3）、原生控件补全包装、Gallery 分类/搜索/复制/密度对比、IDE 紧凑示例、`WithFollowSystem`。
+> - 当前共 **106 个控件构造函数**（`widgets/` 99 + `extra/` 7）、**12 个示例分组 / 66 个示例片段**、**3 张 Gallery 截图基线**；尚未覆盖的控件与逐示例基线见 [docs/03](docs/03-gap-widgets.md) 与 [docs/06](docs/06-development-plan.md)。
 
 ## 一句话结论
 

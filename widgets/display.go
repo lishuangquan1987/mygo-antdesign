@@ -4,6 +4,8 @@ import (
 	"strconv"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // TagColor 标签预设色系（antd Tag 的 color 属性常用子集）。
@@ -64,22 +66,22 @@ func Tag(c *ui.Context, text string, opts ...TagOption) ui.Element {
 	t := c.Theme()
 	pal := tagPal(t, cfg.color)
 
-	el := ui.Box(c).Height(t.Space(5.5)).
+	// Row：文字与关闭按钮横向排列（ui.Box 是纵向容器，会把关闭按钮堆到下一行）。
+	el := ui.Row(c).Height(t.Space(5.5)).
 		Padding(0, t.Space(1.75)).
 		Radius(t.Radius*0.67). // antd tag 圆角略小于全局
 		Background(pal.Bg).
-		Border(1, pal.Border).
-		AlignItems(ui.Center)
+		Border(1, pal.Border)
 	el.Children(func() {
 		ui.Text(c, text).TextColor(pal.Fg).FontSize(t.Rem(0.86)).SingleLine()
 		if cfg.closable {
 			x := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).
-				Radius(t.Space(2)).Center().MarginStart(t.Space(1))
+				Radius(t.Space(2)).Center().MarginStart(t.Space(1)).Label("关闭")
 			if x.Hovered() {
 				x.Background(pal.Fg.Alpha(0.12))
 			}
 			x.Children(func() {
-				ui.Text(c, "✕").TextColor(pal.Fg).FontSize(t.Rem(0.7))
+				icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(pal.Fg))
 			})
 			if x.Clicked() && cfg.onClose != nil {
 				cfg.onClose()

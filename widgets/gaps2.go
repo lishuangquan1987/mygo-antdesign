@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // ---------- Watermark ----------
@@ -220,8 +222,8 @@ func Notification(c *ui.Context, open *bool, title, description string, opts ...
 			row := ui.Row(c).FillWidth().Justify(ui.SpaceBetween).AlignItems(ui.Start)
 			row.Children(func() {
 				ui.Text(c, title).TextColor(t.Text).FontSize(t.Rem(0.95)).FontWeight(600)
-				closeBtn := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center()
-				closeBtn.Children(func() { ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.8)) })
+				closeBtn := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center().Label("关闭")
+				closeBtn.Children(func() { icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted)) })
 				if closeBtn.Clicked() {
 					*open = false
 				}

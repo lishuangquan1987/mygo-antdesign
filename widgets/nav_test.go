@@ -105,7 +105,7 @@ func TestStepsStates(t *testing.T) {
 			t.Errorf("步骤 %q 未渲染", want)
 		}
 	}
-	if !tt.HasText("✓") {
+	if !tt.HasText("已完成") {
 		t.Error("完成步骤的对勾未渲染")
 	}
 }

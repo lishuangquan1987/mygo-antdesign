@@ -280,9 +280,9 @@ func (g *Gallery) sidebar(c *ui.Context) {
 				if g.query == "" {
 					return
 				}
-				clr := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).Center().Radius(t.Space(2))
+				clr := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).Center().Radius(t.Space(2)).Label("清空搜索")
 				clr.Children(func() {
-					ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.7))
+					icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted))
 				})
 				if clr.Clicked() {
 					g.query = ""
@@ -473,7 +473,8 @@ func (g *Gallery) tools(c *ui.Context) {
 							Size(t.Space(5), t.Space(5)).
 							Radius(t.Space(2.5)).
 							Background(ui.Hex(bc.hex)).
-							Center()
+							Center().
+							Label("品牌色·" + bc.name)
 						on := g.brand == bc.hex
 						if on {
 							// 选中态对齐 antd ColorPicker：白色对勾 + 1px 描边环。
@@ -481,7 +482,7 @@ func (g *Gallery) tools(c *ui.Context) {
 						}
 						sw.Children(func() {
 							if on {
-								ui.Text(c, "✓").TextColor(ui.Hex("#fff")).FontSize(t.Rem(0.7)).FontWeight(700)
+								icon.Icon(c, icon.Check, t.Space(2.5), icon.WithColor(ui.Hex("#fff")))
 							}
 						})
 						if sw.Clicked() {

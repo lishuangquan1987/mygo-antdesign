@@ -2,6 +2,8 @@ package extra
 
 import (
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // TransferItem 穿梭框的一项。
@@ -133,7 +135,7 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 						box.Background(t.Accent)
 						box.Border(1, t.Accent)
 						box.Children(func() {
-							ui.Text(c, "✓").TextColor(t.AccentText).FontSize(t.Rem(0.7))
+							icon.Icon(c, icon.Check, t.Space(2.5), icon.WithColor(t.AccentText))
 						})
 					} else {
 						box.Children(func() {})
@@ -168,10 +170,15 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 		mid := ui.Column(c).Gap(t.Space(2)).AlignItems(ui.Center)
 		mid.Children(func() {
 			// antd Transfer 中间操作：32×32 描边按钮 + 箭头。
-			arrow := func(glyph string, toRight bool) {
+			arrow := func(svg string, toRight bool) {
 				btn := ui.ButtonBase(c).Size(t.Space(8), t.Space(8)).
 					Radius(t.Radius).Border(1, t.Border).
 					Background(t.Surface).Center()
+				if toRight {
+					btn.Label("移到右侧")
+				} else {
+					btn.Label("移回左侧")
+				}
 				if btn.Hovered() {
 					btn.Border(1, t.Accent)
 				}
@@ -180,14 +187,14 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 					if btn.Hovered() {
 						color = t.Accent
 					}
-					ui.Text(c, glyph).TextColor(color).FontSize(t.Rem(1.14))
+					icon.Icon(c, svg, t.Space(3), icon.WithColor(color))
 				})
 				if btn.Clicked() {
 					move(toRight)
 				}
 			}
-			arrow("›", true)
-			arrow("‹", false)
+			arrow(icon.Right, true)
+			arrow(icon.Left, false)
 		})
 		panel(cfg.rightTitle, rightItems)
 	})

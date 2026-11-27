@@ -104,12 +104,12 @@ func Upload(c *ui.Context, opts ...UploadOption) ui.Element {
 			row.Children(func() {
 				icon.Icon(c, icon.File, t.Space(4), icon.WithColor(t.TextMuted))
 				ui.Text(c, f.Name).TextColor(t.Text).FontSize(t.FontSize)
-				x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Radius(t.Radius * 0.67).Center()
+				x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Radius(t.Radius * 0.67).Center().Label("移除文件")
 				if x.Hovered() {
 					x.Background(t.Danger.Mix(t.Surface, 0.86))
 				}
 				x.Children(func() {
-					ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
+					icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted))
 				})
 				if x.Clicked() {
 					removeFile(files, i)

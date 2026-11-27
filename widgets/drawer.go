@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // DrawerOption 定制 Drawer。
@@ -76,9 +78,9 @@ func Drawer(c *ui.Context, open *bool, title string, body func(), opts ...Drawer
 				head.Children(func() {
 					ui.Text(c, title).TextColor(t.Text).FontSize(t.Rem(1.14)).FontWeight(600)
 					if cfg.closable {
-						closeBtn := ui.ButtonBase(c).Size(t.Space(6), t.Space(6)).Radius(t.Radius).Center()
+						closeBtn := ui.ButtonBase(c).Size(t.Space(6), t.Space(6)).Radius(t.Radius).Center().Label("关闭")
 						closeBtn.Children(func() {
-							ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.9))
+							icon.Icon(c, icon.Close, t.Space(3), icon.WithColor(t.TextMuted))
 						})
 						if closeBtn.Clicked() {
 							*open = false

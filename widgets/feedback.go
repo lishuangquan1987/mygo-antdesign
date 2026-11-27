@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // AlertType 提示条级别（antd Alert 的 type）。
@@ -105,9 +107,9 @@ func Alert(c *ui.Context, title string, opts ...AlertOption) ui.Element {
 				}
 			})
 			if cfg.closable {
-				x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center()
+				x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center().Label("关闭")
 				x.Children(func() {
-					ui.Text(c, "×").TextColor(t.TextMuted).FontSize(t.Rem(0.9))
+					icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted))
 				})
 				if x.Clicked() {
 					*closed = true
@@ -189,9 +191,9 @@ func Modal(c *ui.Context, open *bool, title string, body func(), opts ...ModalOp
 					Justify(ui.SpaceBetween).AlignItems(ui.Center)
 				head.Children(func() {
 					ui.Text(c, title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
-					x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center()
+					x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center().Label("关闭")
 					x.Children(func() {
-						ui.Text(c, "×").TextColor(t.TextMuted)
+						icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted))
 					})
 					if x.Clicked() {
 						*open = false

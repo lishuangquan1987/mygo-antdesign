@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // Breadcrumb 面包屑（antd Breadcrumb）。chosen 为当前层级下标：
@@ -173,10 +175,32 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 		return btn
 	}
 
+	// 箭头页（‹ ›）：用 SVG 图标替代字符，保证在方形按钮内居中。
+	itemIcon := func(svg string, disabled bool, onClick func()) {
+		btn := ui.ButtonBase(c).Size(t.Space(8), t.Space(8)).
+			Padding(0, t.Space(2)).
+			Radius(t.Radius).
+			Center()
+		fg := t.Text
+		if btn.Hovered() && !disabled {
+			btn.Border(1, t.Accent)
+			fg = t.Accent
+		}
+		if disabled {
+			fg = t.TextMuted
+		}
+		btn.Children(func() {
+			icon.Icon(c, svg, t.Space(3), icon.WithColor(fg))
+		})
+		if !disabled && btn.Clicked() && onClick != nil {
+			onClick()
+		}
+	}
+
 	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
 	row.Children(func() {
 		row.Children(func() {
-			item("‹", false, *current <= 1, func() {
+			itemIcon(icon.Left, *current <= 1, func() {
 				*current--
 				fire()
 			})
@@ -196,7 +220,7 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 				fire()
 			})
 		}
-		item("›", false, *current >= total, func() {
+		itemIcon(icon.Right, *current >= total, func() {
 			*current++
 			fire()
 		})
@@ -233,12 +257,16 @@ func pageWindow(cur, total int) []int {
 func Steps(c *ui.Context, current *int, labels []string) ui.Element {
 	t := c.Theme()
 
-	row := ui.Row(c).FillWidth().Padding(0, t.Space(4)).AlignItems(ui.Center)
+	// AlignItems(Start) + 连接线 MarginTop：让线落在圆心高度
+	//（圆 Size(Space(8))，圆心距顶 Space(4)，线高 Space(0.5)）。
+	row := ui.Row(c).FillWidth().Padding(0, t.Space(4)).AlignItems(ui.Start)
 	row.Children(func() {
 		for i, label := range labels {
 			if i > 0 {
 				// 连接线：完成的实心，未完成的描边。
-				line := ui.Box(c).Grow(1).Height(t.Space(0.5)).Border(1, t.Border)
+				line := ui.Box(c).Grow(1).Height(t.Space(0.5)).
+					Margin(t.Space(3.75), 0, 0, 0).
+					Border(1, t.Border)
 				if i <= *current {
 					line.BorderStyle(ui.BorderSolid)
 					line.Border(1, t.Accent)
@@ -255,8 +283,9 @@ func Steps(c *ui.Context, current *int, labels []string) ui.Element {
 				switch {
 				case done:
 					circle.Background(t.Accent)
+					circle.Label("已完成")
 					circle.Children(func() {
-						ui.Text(c, "✓").TextColor(t.AccentText).FontSize(t.Rem(0.8))
+						icon.Icon(c, icon.Check, t.Space(3.5), icon.WithColor(t.AccentText))
 					})
 				case now:
 					circle.Background(t.Accent.Mix(t.Background, 0.85))

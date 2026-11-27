@@ -30,7 +30,7 @@ func TestTagVariants(t *testing.T) {
 			t.Errorf("标签 %q 未渲染", want)
 		}
 	}
-	if err := tt.Click("✕"); err != nil {
+	if err := tt.Click("关闭"); err != nil {
 		t.Fatalf("点击关闭失败: %v", err)
 	}
 	if closed != 1 {

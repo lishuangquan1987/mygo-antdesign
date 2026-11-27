@@ -37,7 +37,7 @@ func TestDrawerOpensAndCloses(t *testing.T) {
 	// 等滑入动画结束再点关闭按钮（动画期间面板仍在窗口右缘外）。
 	tt.Advance(300 * time.Millisecond)
 	tt.Frame()
-	if err := tt.Click("✕"); err != nil {
+	if err := tt.Click("关闭"); err != nil {
 		t.Fatalf("点击关闭失败: %v", err)
 	}
 	tt.Frame()

@@ -248,15 +248,22 @@ func (g *Gallery) sidebar(c *ui.Context) {
 		Border(1, t.Border).BorderWidth(0, 1, 0, 0)
 
 	side.Children(func() {
-		// 品牌区。
+		// 品牌区：Logo 标 + 双色字标 + 副标语。
 		brand := ui.Column(c).FillWidth().
-			Padding(t.Space(5), t.Space(5), t.Space(4), t.Space(5)).
-			Gap(t.Space(1))
+			Padding(t.Space(5), t.Space(4), t.Space(4), t.Space(4)).
+			Gap(t.Space(2))
 		brand.Children(func() {
-			row := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(1))
+			row := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
 			row.Children(func() {
-				ui.Text(c, "mygo").FontWeight(700).FontSize(t.Rem(1.29)).TextColor(t.Text)
-				ui.Text(c, "antdesign").FontWeight(700).FontSize(t.Rem(1.29)).TextColor(t.Accent)
+				logo := ui.Column(c).Size(t.Space(7), t.Space(7)).
+					Radius(t.Radius + t.Space(0.5)).
+					Background(t.Accent).
+					Center()
+				logo.Children(func() {
+					icon.Icon(c, icon.Appstore, t.Space(4), icon.WithColor(ui.Hex("#fff")))
+				})
+				ui.Text(c, "mygo").FontWeight(700).FontSize(t.Rem(1.21)).TextColor(t.Text)
+				ui.Text(c, "antdesign").FontWeight(700).FontSize(t.Rem(1.21)).TextColor(t.Accent)
 			})
 			ui.Text(c, "Ant Design · MyGo 原生 UI").TextColor(t.TextMuted).FontSize(t.Rem(0.72))
 		})
@@ -521,10 +528,19 @@ func (g *Gallery) homePage(c *ui.Context) {
 	ui.Scroll(c).Fill().Children(func() {
 		col := ui.Column(c).FillWidth().Padding(t.Space(10), t.Space(14)).Gap(t.Space(8))
 
-		// 主视觉。
+		// 主视觉：品牌色浅底 Hero 横幅（对齐 antd 首页 hero 形制）。
 		col.Children(func() {
-			hero := ui.Column(c).FillWidth().Gap(t.Space(2))
+			hero := ui.Column(c).FillWidth().
+				Padding(t.Space(10), t.Space(9)).
+				Radius(t.Radius+t.Space(0.5)).
+				Background(t.Accent.Alpha(0.05)).
+				Border(1, t.Accent.Alpha(0.14)).
+				Gap(t.Space(3))
 			hero.Children(func() {
+				meta := ui.Row(c)
+				meta.Children(func() {
+					widgets.Tag(c, "v"+version+" · MIT · 开箱即用", widgets.TagPrimary())
+				})
 				row := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
 				row.Children(func() {
 					ui.Text(c, "mygo").FontWeight(700).FontSize(t.Rem(2.86)).TextColor(t.Text)
@@ -533,7 +549,7 @@ func (g *Gallery) homePage(c *ui.Context) {
 				ui.Text(c, "Ant Design 风格的 MyGo 原生控件库").FontSize(t.Rem(1.29)).TextColor(t.TextMuted)
 				ui.Text(c, "为 MyGo 原生 UI 提供 antd v5 视觉与交互，补齐 antd 有而 MyGo 没有的控件；亮暗双主题、标准/紧凑双密度，全部控件配真实代码示例与截图基线。").
 					TextColor(t.TextMuted).FontSize(t.Rem(1.0))
-				actions := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(3)).Margin(t.Space(3), 0, 0, 0)
+				actions := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(3)).Margin(t.Space(2), 0, 0, 0)
 				actions.Children(func() {
 					if widgets.Button(c, "浏览控件", widgets.Primary(), widgets.Size(widgets.Large)).Clicked() {
 						g.selected = "Button"
@@ -544,7 +560,7 @@ func (g *Gallery) homePage(c *ui.Context) {
 			})
 		})
 
-		// 统计数值。
+		// 统计数值：antd Statistic 左对齐形制。
 		col.Children(func() {
 			row := ui.Row(c).FillWidth().Gap(t.Space(4))
 			row.Children(func() {
@@ -558,12 +574,11 @@ func (g *Gallery) homePage(c *ui.Context) {
 					{"截图基线", 324},
 				} {
 					card := ui.Column(c).Grow(1).
-						Padding(t.Space(6), t.Space(4)).
-						Radius(t.Radius+t.Space(1)).
+						Padding(t.Space(6), t.Space(5)).
+						Radius(t.Radius+t.Space(0.5)).
 						Background(t.Surface).
 						Border(1, t.Border).
-						AlignItems(ui.Center).
-						Gap(t.Space(2))
+						Gap(t.Space(1))
 					card.Children(func() {
 						widgets.Statistic(c, st.title, st.value)
 					})
@@ -571,27 +586,38 @@ func (g *Gallery) homePage(c *ui.Context) {
 			})
 		})
 
-		// 特性卡片：2×2 等宽网格。
+		// 特性卡片：图标色块 + 2×2 等宽网格。
 		col.Children(func() {
 			row := ui.Row(c).FillWidth().Gap(t.Space(4)).Wrap()
 			row.Children(func() {
 				for _, f := range []struct {
+					icon  string
 					title string
 					desc  string
 				}{
-					{"主题切换", "亮/暗、品牌色、字号运行时切换，所有控件同步生效。"},
-					{"双密度", "标准 32px / 紧凑 28px 控件高度，适配上位机与 IDE 场景。"},
-					{"缺口补齐", "antd 有而 MyGo 没有的 35 个控件全部自建实现。"},
-					{"视觉回归", "3 张 Gallery + 324 张逐示例截图基线，CI 逐字节比对。"},
+					{icon.Eye, "主题切换", "亮/暗、品牌色、字号运行时切换，所有控件同步生效。"},
+					{icon.Menu, "双密度", "标准 32px / 紧凑 28px 控件高度，适配上位机与 IDE 场景。"},
+					{icon.Appstore, "缺口补齐", "antd 有而 MyGo 没有的 35 个控件全部自建实现。"},
+					{icon.Copy, "视觉回归", "3 张 Gallery + 324 张逐示例截图基线，CI 逐字节比对。"},
 				} {
 					card := ui.Column(c).Grow(1).Width(t.Space(96)).
 						Padding(t.Space(6)).
-						Radius(t.Radius+t.Space(1)).
+						Radius(t.Radius+t.Space(0.5)).
 						Background(t.Surface).
 						Border(1, t.Border).
 						Gap(t.Space(2))
 					card.Children(func() {
-						ui.Text(c, f.title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
+						head := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
+						head.Children(func() {
+							tile := ui.Column(c).Size(t.Space(7), t.Space(7)).
+								Radius(t.Radius).
+								Background(t.Accent.Alpha(0.1)).
+								Center()
+							tile.Children(func() {
+								icon.Icon(c, f.icon, t.Space(4), icon.WithColor(t.Accent))
+							})
+							ui.Text(c, f.title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
+						})
 						ui.Text(c, f.desc).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
 					})
 				}
@@ -601,7 +627,7 @@ func (g *Gallery) homePage(c *ui.Context) {
 		// 快速开始：语法高亮的只读代码视图。
 		col.Children(func() {
 			code := ui.Column(c).FillWidth().
-				Radius(t.Radius+t.Space(1)).
+				Radius(t.Radius+t.Space(0.5)).
 				Background(t.Surface).
 				Border(1, t.Border).
 				Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))

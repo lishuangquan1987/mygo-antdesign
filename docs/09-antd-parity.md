@@ -98,6 +98,16 @@ README 截图已重新生成。
 | 品牌色圆点 | 选中态 2px 黑圈，生硬 | antd ColorPicker 形制：白色对勾 + 1px 描边环 |
 | Button 等控件配色 | 复审 ButtonColors：primary/default/dashed/text/link 五型与 hover/pressed 色阶均对齐 antd v5（default hover 文字与描边变主色、text hover 浅填充、link 主色文字），未发现违背 | 无需改动 |
 
+### 3.3 第四轮：首页专业化（设计体系对齐）
+
+| 区域 | 打磨前 | 打磨后 |
+| --- | --- | --- |
+| 侧栏品牌区 | 纯文字双色字标 | 28px 主色圆角 Logo 标（Appstore 图标反白）+ 字标 |
+| 首页主视觉 | 平铺文字直排 | 品牌色浅底 Hero 横幅（8% 主色底 + 14% 主色描边、borderRadiusLG），内含版本/协议 Tag、双色字标、主行动按钮 |
+| 统计卡 | 居中对齐（违背 antd Statistic 左对齐形制） | 左对齐、统一 8px 圆角与 20/24px 内边距 |
+| 特性卡 | 纯文字 | 20px 主色圆角图标色块（8% 主色底 + 主色图标）+ 标题行 |
+| 卡片圆角 | 统一为 borderRadiusLG（8px） | Hero/统计/特性/快速开始/示例卡全部一致 |
+
 ## 4. 仍存在的差异（有意保留 / 后续）
 
 | 项 | 说明 |

@@ -89,6 +89,15 @@
 Gallery 外壳（`gallery/app.go`），逐示例基线不受影响，Gallery 级基线与
 README 截图已重新生成。
 
+### 3.2 第三轮：侧栏与工具条细节（用户复审反馈）
+
+| 区域 | 打磨前 | 打磨后 |
+| --- | --- | --- |
+| 侧栏搜索框 | 手搓 Row 承托 + 裸 ui.TextInput（原语默认边框未清空，灰底药丸里嵌套带边框输入框，双重框） | 复用库自身 Input：正规 antd 框架（容器底描边、聚焦主色描边 + 2px 焦点环），前缀搜索图标、后缀 allowClear 清除按钮 |
+| 导航项 | 32px 高 + 左侧主色竖条（非 antd Menu 形制） | 对齐 antd Menu：40px 项高、8px 圆角、16px 文字缩进、去掉竖条，补 hover 浅填充态 |
+| 品牌色圆点 | 选中态 2px 黑圈，生硬 | antd ColorPicker 形制：白色对勾 + 1px 描边环 |
+| Button 等控件配色 | 复审 ButtonColors：primary/default/dashed/text/link 五型与 hover/pressed 色阶均对齐 antd v5（default hover 文字与描边变主色、text hover 浅填充、link 主色文字），未发现违背 | 无需改动 |
+
 ## 4. 仍存在的差异（有意保留 / 后续）
 
 | 项 | 说明 |

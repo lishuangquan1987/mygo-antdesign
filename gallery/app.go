@@ -261,38 +261,34 @@ func (g *Gallery) sidebar(c *ui.Context) {
 			ui.Text(c, "Ant Design · MyGo 原生 UI").TextColor(t.TextMuted).FontSize(t.Rem(0.72))
 		})
 
-		// 搜索框：浅灰底、无边框（对齐 antd 文档站侧栏搜索）。
-		search := ui.Row(c).FillWidth().
-			Height(t.Space(8)).
-			Margin(0, t.Space(4)).
-			Padding(0, t.Space(2)).
-			Radius(t.Radius).
-			Background(t.Background).
-			AlignItems(ui.Center).
-			Gap(t.Space(1))
-		search.Children(func() {
-			icon.Icon(c, icon.Search, t.Space(4), icon.WithColor(t.TextMuted))
-			ui.TextInput(c, &g.query).
-				Grow(1).
-				Background(t.Background).
-				Placeholder("搜索控件 / 分类").
-				PlaceholderColor(t.TextMuted).
-				FontSize(t.Rem(0.86))
-			if g.query != "" {
-				clear := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center()
-				clear.Children(func() {
+		// 搜索框：复用库自身的 Input（antd Input 规范：容器底描边、
+		// 聚焦主色描边 + 2px 焦点环），前缀搜索图标，后缀 allowClear。
+		widgets.Input(c, &g.query,
+			widgets.InputPrefix(func(c *ui.Context) {
+				icon.Icon(c, icon.Search, t.Space(4), icon.WithColor(t.TextMuted))
+				pad := ui.Box(c).Width(t.Space(1))
+				pad.Children(func() {})
+			}),
+			widgets.InputSuffix(func(c *ui.Context) {
+				if g.query == "" {
+					return
+				}
+				clr := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).Center().Radius(t.Space(2))
+				clr.Children(func() {
 					ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.7))
 				})
-				if clear.Clicked() {
+				if clr.Clicked() {
 					g.query = ""
 				}
-			}
-		})
+			}),
+			widgets.PlaceholderText("搜索控件 / 分类"),
+			widgets.InputLabel("搜索控件"),
+		).FillWidth().Margin(0, t.Space(4))
 
 		// 目录。
 		ui.Scroll(c).Fill().Grow(1).Children(func() {
 			nav := ui.Column(c).FillWidth().
-				Padding(0, t.Space(2)).
+				Padding(0, t.Space(1)).
 				Gap(t.Space(0.5))
 			nav.Children(func() {
 				filtered := g.filtered()
@@ -320,7 +316,7 @@ func (g *Gallery) sidebar(c *ui.Context) {
 					}
 					head := ui.Row(c).FillWidth().
 						Justify(ui.SpaceBetween).
-						Padding(t.Space(2), t.Space(2), t.Space(1), t.Space(2))
+						Padding(t.Space(2), t.Space(3), t.Space(1), t.Space(3))
 					head.Children(func() {
 						ui.Text(c, string(cat)).TextColor(t.TextMuted).FontSize(t.Rem(0.75)).FontWeight(600)
 						ui.Textf(c, "%d 控件", len(group)).TextColor(t.TextMuted).FontSize(t.Rem(0.72))
@@ -345,27 +341,21 @@ func (g *Gallery) sidebar(c *ui.Context) {
 	})
 }
 
-// navItem 侧栏目录里的一项（「开始」入口或控件页）。
+// navItem 侧栏目录里的一项（对齐 antd Menu：40px 项高、8px 圆角、
+// 选中浅主色底 + 主色文字，hover 出浅填充；无左侧指示条）。
 func (g *Gallery) navItem(c *ui.Context, name string, selected bool, samples int) {
 	t := c.Theme()
 	item := ui.ButtonBase(c).FillWidth().
-		Height(t.Space(8)).
-		Padding(0, t.Space(2)).
-		Radius(t.Radius * 0.67).
-		AlignItems(ui.Center).
-		Gap(t.Space(2))
+		Height(t.Space(10)).
+		Padding(0, t.Space(3)).
+		Radius(t.Radius + t.Space(0.5)).
+		AlignItems(ui.Center)
 	if selected {
 		item.Background(t.Selection)
+	} else if item.Hovered() {
+		item.Background(t.SurfaceHover)
 	}
 	item.Children(func() {
-		bar := ui.Box(c).Width(t.Space(0.5)).Height(t.Space(4)).
-			Radius(t.Space(0.25))
-		if selected {
-			bar.Background(t.Accent)
-		} else {
-			bar.Background(ui.Transparent)
-		}
-		bar.Children(func() {})
 		ui.Text(c, name).
 			TextColor(map[bool]ui.Color{true: t.Accent, false: t.Text}[selected]).
 			FontSize(t.Rem(0.9)).
@@ -460,11 +450,18 @@ func (g *Gallery) tools(c *ui.Context) {
 					sw := ui.ButtonBase(c).
 						Size(t.Space(5), t.Space(5)).
 						Radius(t.Space(2.5)).
-						Background(ui.Hex(bc.hex))
-					if g.brand == bc.hex {
-						sw.Border(2, t.Text)
+						Background(ui.Hex(bc.hex)).
+						Center()
+					on := g.brand == bc.hex
+					if on {
+						// 选中态对齐 antd ColorPicker：白色对勾 + 1px 描边环。
+						sw.Shadow(0, 0, 0, 1, t.Border)
 					}
-					sw.Children(func() {})
+					sw.Children(func() {
+						if on {
+							ui.Text(c, "✓").TextColor(ui.Hex("#fff")).FontSize(t.Rem(0.7)).FontWeight(700)
+						}
+					})
 					if sw.Clicked() {
 						g.brand = bc.hex
 					}

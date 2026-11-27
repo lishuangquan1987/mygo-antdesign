@@ -75,7 +75,7 @@ jobs:
           echo "### Release $tag" >> "$GITHUB_STEP_SUMMARY"
 
       - name: 检出代码
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.meta.outputs.tag }}
 

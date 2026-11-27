@@ -147,6 +147,7 @@ git push origin main
 | `docs/05-compact-density.md` | 双密度规范与数值表 |
 | `docs/06-development-plan.md` | WBS、里程碑、时间线、DoD |
 | `docs/07-samples-gallery.md` | 每控件示例的四维覆盖、Gallery 结构、代码片段与截图联动 |
+| `docs/10-checklist.md` | MyGo 原生控件 + antd 缺口控件的双清单打勾总览（新增控件先加 `[ ]` 再打勾） |
 
 ## 8. 代码风格
 

@@ -236,6 +236,7 @@ go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
 | [07 示例与 Gallery](docs/07-samples-gallery.md) | 示例结构、覆盖矩阵、截图回归、如何新增示例 |
 | [08 迁移指南](docs/08-migration.md) | 从 MyGo 原生控件迁移的对照表与限制 |
 | [09 antd 细节对齐](docs/09-antd-parity.md) | 尺寸/间距/状态/交互的逐项审计与仍存在的差异 |
+| [10 控件改造清单](docs/10-checklist.md) | MyGo 原生控件 + antd 缺口控件的双清单打勾总览 |
 | [CHANGELOG](CHANGELOG.md) | 版本变更记录 |
 
 ## 版本与发布

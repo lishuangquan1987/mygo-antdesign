@@ -16,3 +16,6 @@ dist/
 
 # MyGo build output
 .build/
+
+# 本地视觉核对输出（scripts/visualcheck）
+.visualcheck/

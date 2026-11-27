@@ -48,7 +48,7 @@ func (app *App) view(c *ui.Context) {
 | MyGo 原生 | antd 风格 | 说明 |
 | --- | --- | --- |
 | `ui.TextInput` / `ui.TextArea` | `ant.Input(c, *string, opts...)` / `ant.TextArea(c, *string, opts...)` | `PlaceholderText` / `InputLabel` / `PasswordInput` / `InputDisabled` / `InputReadOnly` / `MaxLengthText` / `Rows` / `InputPrefix` / `InputSuffix` / `InputSize` / `OnChanged` / `OnSubmit` |
-| `ui.TextInput` 组合 | `ant.SearchInput(c, *string, opts...)` | 回车提交（antd Input.Search）；**不是** `ui.SearchField` |
+| `ui.TextInput` 组合 | `ant.SearchInput(c, *string, opts...)` | 回车提交（antd Input.Search） |
 | `ui.NumberInput` | `ant.NumberInputV(c, *float64, lo, hi, step, opts...)` | v0.10.0 原语要求 `*float64` |
 | `ui.Select` | `ant.Select(c, *string, options []string, opts ...ant.ControlOption)` | 高度/字号/圆角对齐 antd |
 | `ui.Combobox` | `ant.Combobox(c, *string, options []string, opts ...)` | 输入过滤 + 候选 |
@@ -78,7 +78,7 @@ func (app *App) view(c *ui.Context) {
 | `ui.Image` + 自绘 | `extra.QRCode(c, content string, opts...)` | 码色随主题；`extra.QRCodeSize(px)` |
 | `ui.Image` | `ant.ImageEl(c, src, ant.ImageWidth(units), ant.ImagePreview(b))` | 圆角显示 + 点击模态预览 |
 | `ui.List` | `ant.List(c, *ui.ListState, n, row, opts...)` | `ListSelected` / `ListSelection` 绑定选中态 |
-| `ui.Collapsible` / `ui.Accordion` / `ui.Outline` | — | 未包装，直接用原生（Collapse 用 `ant.Collapse`） |
+| `ui.Collapsible` / `ui.Accordion` | `ant.Collapsible(c, label, *bool, fn)` / `ant.Accordion` / `ant.AccordionItem` | 原生折叠动画；antd 风格面板用 `ant.Collapse` |
 
 ### 反馈
 
@@ -89,7 +89,9 @@ func (app *App) view(c *ui.Context) {
 | `c.Toast` / `c.AddToast` | `ant.Message(c, text)` / `ant.MessageTypeTyped(c, typ, text)` / `ant.Notify(c, title, description, action, onAction)` | 复用 MyGo 底部 toast viewport |
 | `ui.Progress` | `ant.ProgressLine(c, value float64, opts...)` / `ant.ProgressCircle(c, value, opts...)` | 线形/环形；`ProgressHideText()`、`ProgressStatusOpt(ProgressSuccess/Error)` |
 | `ui.DialogBase` + 右侧锚定 | `ant.Drawer(c, *bool, title, body, opts...)` | `DrawerWidth(units)` / `DrawerClosable(b)` |
-| `ui.Spinner` | — | Button 的 Loading 内部已使用；未单独暴露 `ant.Spin` |
+| `ui.Spinner` | `ant.Spin(c, opts...)` | 指示器 + 提示文字；Button 的 Loading 内部也使用它 |
+| `ui.Popover` | `ant.Popover(c, anchor, *bool, body)` | 通用锚定气泡（调用方控制开关） |
+| `el.ContextMenu(fn)` | `ant.ContextMenu(c, target, items, onSelect)` | 右键/菜单键触发；`ContextMenuItem{Danger}` 危险项 |
 | — | `extra.Upload(c, opts...)` | 系统文件对话框 + 原生拖放 + 列表；选项：`UploadMultiple` / `UploadAccept` / `UploadHint` / `UploadOnChange` |
 
 ### 导航与布局
@@ -133,7 +135,7 @@ MyGo 原语是帧内查询（`el.Clicked()` / `el.Changed()`）；antd 包装层
 - `ant.Confirm` 基于 `ui.AlertDialog`，**返回被点按钮下标（0 起），`ant.Confirm` 本身不返回值**，只回调 `onOk`。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
 - 颜色/间距铁律：包装层所有取值来自 `c.Theme()` 与 `t.Space/Rem`，运行时换肤自动生效；应用侧不要对 antd 控件硬编码颜色。
-- 未实现（见 03）：Drawer / Watermark / Tour / Mentions / Image 预览 / ColorPicker / 环形 Progress / Toggle / SplitButton / Affix / Anchor / Notification / FloatButton / BorderBeam / Masonry，以及 Collapsible / Accordion / Outline / GridView / TokenField / EditableText / DecimalInput / StepSlider / Calendar / Meter 等原生包装。
+- 未实现（见 03）：Watermark / Tour / Mentions / Anchor / Notification / FloatButton / BorderBeam / Masonry；`Outline` / `GridView` / `StepSlider` / `SplitButton` 维持原生或由 Dropdown 组合。
 
 ## 5. 迁移步骤建议
 

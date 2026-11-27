@@ -82,6 +82,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "image"),
 				View:        ImageDemo,
 			},
+			{
+				Title:       "折叠块与电平条",
+				Description: "Collapsible / Accordion 原生折叠动画；Meter 按阈值变色。",
+				Code:        samples.Extract(demoSrc, "accordion"),
+				View:        AccordionDemo,
+			},
 		},
 	}
 }
@@ -244,6 +250,29 @@ func ImageDemo(c *ui.Context) {
 	row.Children(func() {
 		widgets.ImageEl(c, svg, widgets.ImageWidth(6))
 		widgets.ImageEl(c, svg, widgets.ImageWidth(10), widgets.ImagePreview(false))
+	})
+}
+
+// /sample
+
+// sample:accordion
+func AccordionDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	open := ui.Local(host, "ant.sample.display.collapsible", func() bool { return true })
+	general := ui.Local(host, "ant.sample.display.accordion", func() bool { return false })
+	host.Children(func() {
+		widgets.Collapsible(c, "高级设置（单个折叠块）", open, func() {
+			widgets.Paragraph(c, "带展开/收起动画，状态由调用方持有。")
+		})
+		widgets.Accordion(c, func() {
+			widgets.AccordionItem(c, "常规", general, func() {
+				widgets.Paragraph(c, "常规设置内容")
+			})
+			widgets.AccordionItem(c, "隐私", new(bool), func() {
+				widgets.Paragraph(c, "隐私设置内容")
+			})
+		})
+		widgets.Meter(c, 72, 0, 100, &ui.MeterLevels{Warning: 60, Critical: 85})
 	})
 }
 

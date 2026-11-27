@@ -70,6 +70,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "color"),
 				View:        ColorDemo,
 			},
+			{
+				Title:       "更多录入控件",
+				Description: "Hyperlink / DecimalInput / SearchField / Stepper / TokenField / EditableText / Calendar。",
+				Code:        samples.Extract(demoSrc, "moreinput"),
+				View:        MoreInputDemo,
+			},
 		},
 	}
 }
@@ -186,6 +192,30 @@ func ColorDemo(c *ui.Context) {
 		widgets.ColorPicker(c, col)
 		widgets.Paragraph(c, "色块可展开取色面板；也可直接使用常驻面板：", widgets.Secondary())
 		widgets.ColorPanel(c, col)
+	})
+}
+
+// /sample
+
+// sample:moreinput
+func MoreInputDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
+	amount := ui.Local(host, "ant.sample.input.amount", func() string { return "12.30" })
+	query := ui.Local(host, "ant.sample.input.searchfield", func() string { return "" })
+	count := ui.Local(host, "ant.sample.input.count", func() float64 { return 3 })
+	name := ui.Local(host, "ant.sample.input.editable", func() string { return "重命名我" })
+	tags := ui.Local(host, "ant.sample.input.tags", func() []string { return []string{"Go"} })
+	date := ui.Local(host, "ant.sample.input.calendar", func() time.Time {
+		return time.Date(2026, 11, 27, 0, 0, 0, 0, time.Local)
+	})
+	host.Children(func() {
+		widgets.Hyperlink(c, "查看文档", "https://example.com")
+		widgets.DecimalInput(c, amount, "0", "1000000", "0.01")
+		widgets.SearchField(c, query)
+		widgets.Stepper(c, count, 0, 100, 1)
+		widgets.TokenField(c, tags, []string{"Go", "GUI", "Ant Design"})
+		widgets.EditableText(c, name)
+		widgets.Calendar(c, date)
 	})
 }
 

@@ -125,3 +125,88 @@ func Popconfirm(c *ui.Context, trigger func(*ui.Context) ui.Element,
 	})
 	return host
 }
+
+// Popover 通用气泡卡片（antd Popover）：点击/由调用方控制 open 的锚定浮层，
+// 内容与触发器都可由调用方构建：
+//
+//	var open bool
+//	ant.Popover(c, func(c *ui.Context) {
+//	    if ant.Button(c, "详情").Clicked() { open = true }
+//	}, &open, func() {
+//	    ant.Paragraph(c, "气泡内容")
+//	})
+func Popover(c *ui.Context, anchor func(*ui.Context), open *bool, body func()) ui.Element {
+	t := c.Theme()
+	host := ui.Row(c)
+	var anchorEl ui.Element
+	host.Children(func() {
+		anchorEl = ui.Row(c)
+		anchorEl.Children(func() { anchor(c) })
+	})
+	ui.Popover(c, anchorEl, open, func() {
+		panel := ui.Column(c).Width(t.Space(56)).Gap(t.Space(2)).
+			Padding(t.Space(3)).
+			Radius(t.Radius).
+			Background(t.Surface).
+			Border(1, t.Border)
+		panel.Children(body)
+	})
+	return host
+}
+
+// ContextMenuItem 右键菜单项。
+type ContextMenuItem struct {
+	// ID 选择回调的标识（留空用 Label）。
+	ID string
+	// Label 显示文字。
+	Label string
+	// Danger 危险项（红色文字，如删除）。
+	Danger bool
+}
+
+// ContextMenu 右键菜单（antd Dropdown trigger="contextMenu"）：在目标元素上
+// 右键或按菜单键弹出，选择后回调：
+//
+//	ant.ContextMenu(c, func(c *ui.Context) {
+//	    ant.Paragraph(c, "右键这一行")
+//	}, []ant.ContextMenuItem{
+//	    {ID: "rename", Label: "重命名"},
+//	    {ID: "delete", Label: "删除", Danger: true},
+//	}, app.handleMenu)
+func ContextMenu(c *ui.Context, target func(*ui.Context),
+	items []ContextMenuItem, onSelect func(id string)) ui.Element {
+	t := c.Theme()
+	host := ui.Row(c)
+	var targetEl ui.Element
+	host.Children(func() {
+		targetEl = ui.Row(c)
+		targetEl.Children(func() { target(c) })
+	})
+	open := ui.Local(host, "ant.contextmenu.open", func() bool { return false })
+	m := ui.ContextMenuBase(c, targetEl, open)
+	m.Popup(func(panel ui.Element) {
+		panel.Padding(t.Space(1)).Radius(t.Radius).
+			Background(t.Surface).Border(1, t.Border)
+		for _, it := range items {
+			fg := t.Text
+			if it.Danger {
+				fg = t.Danger
+			}
+			item := m.Item().Padding(t.Space(1), t.Space(2)).Radius(t.Radius * 0.67)
+			item.Children(func() {
+				ui.Text(c, it.Label).TextColor(fg).FontSize(t.Rem(0.9)).SingleLine()
+			})
+			if item.Clicked() {
+				*open = false
+				if onSelect != nil {
+					id := it.ID
+					if id == "" {
+						id = it.Label
+					}
+					onSelect(id)
+				}
+			}
+		}
+	})
+	return host
+}

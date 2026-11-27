@@ -38,10 +38,10 @@
 
 | 指标 | 目标 | 现状（2026-11-27） |
 | --- | --- | --- |
-| 换肤 + 缺口控件构造函数 | ≥ 55 | **85**（`widgets/` 78 + `extra/` 7，另有 `icon.Icon`） |
+| 换肤 + 缺口控件构造函数 | ≥ 55 | **98**（`widgets/` 91 + `extra/` 7，另有 `icon.Icon`） |
 | 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 58 个示例片段**，尚未逐控件覆盖 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 61 个示例片段**，尚未逐控件覆盖 |
 | 视觉回归 | 每个示例 × 4 种主题组合 | **4 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
@@ -166,15 +166,15 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | ID | 任务包 | 覆盖控件 | 估算 | 状态 | 备注 |
 | --- | --- | --- | --- | --- | --- |
 | B1 | 按钮与排版 | Button、Typography、Divider、Space/Flex/Grid | 4 | ✅ | 五型 × danger × 三档尺寸 |
-| B2 | 文本录入 | Input、TextArea、SearchInput、NumberInputV | 4 | ◐ | DecimalInput、Mentions 未做 |
+| B2 | 文本录入 | Input、TextArea、SearchInput、NumberInputV、DecimalInput、SearchField、TokenField、EditableText | 4 | ✅ | Mentions 归 P2（C5） |
 | B3 | 选择类 | Select、Combobox、AutoComplete | 5 | ✅ | Cascader/TreeSelect 在 extra |
 | B4 | 选择控件 | Checkbox、CheckboxAll、RadioGroup、Switch、Slider、RangeSlider、Rate、Segmented | 4 | ✅ | `Toggle` 未包装 |
-| B5 | 日期时间 | DatePicker、TimePicker | 4 | ✅ | 基于 `ui.DateInput` / `ui.TimeInput` |
+| B5 | 日期时间 | DatePicker、TimePicker、Calendar | 4 | ✅ | 基于 `ui.DateInput` / `ui.TimeInput` / `ui.Calendar` |
 | B6 | 表单 | Form（标签/必填/校验） | 2 | ✅ | `ant.Form` / `FormItem` / `FormGroup`（v0.3） |
 | B7 | 数据展示-基础 | Table、Tree、Card、List、Descriptions、Statistic | 6 | ✅ | List 已包装（v0.3） |
 | B8 | 数据展示-辅助 | Avatar、Badge、Tag、Progress、Timeline、Empty、Result、Skeleton | 5 | ✅ | 全部完成（Timeline/Empty/Result/Skeleton 在 v0.3） |
 | B9 | 导航 | Tabs、Segmented、Steps、Breadcrumb、Dropdown、Sidebar | 5 | ✅ | Sidebar 已包装；Menu 复用 Dropdown |
-| B10 | 折叠/浮层 | Collapse/Accordion、Popover、Tooltip | 3 | ◐ | Collapse/Tooltip 完成；公开的 `ant.Popover` 未做 |
+| B10 | 折叠/浮层 | Collapse/Accordion、Popover、Tooltip | 3 | ✅ | v0.3 全部完成 |
 | B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ◐ | 仅 Watermark 未做 |
 | B12 | 其他 | Splitter、Affix、Drawer | 2 | ✅ | 全部完成（v0.3） |
 | | **小计** | | **44** | | |
@@ -229,7 +229,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | --- | --- | --- | --- | --- |
 | **M0 基建** | W1 | A1–A8 | ✅ | 仓库、CI、主题层、Gallery 可渲染 |
 | **M1 主题闭环** | W2–W5 | A + B1–B6 + F1–F5 | ✅ | Button/录入/选择/日期与 11 组示例卡片；主题/密度/品牌色可切换 |
-| **M2 常用控件** | W6–W10 | B7–B12 | ◐ | 表格/导航/反馈/表单主体完成；Sidebar/Drawer/List/Tooltip 公开包装未做 |
+| **M2 常用控件** | W6–W10 | B7–B12 | ✅ | v0.3 补齐 Form/Collapse/Tooltip/Sidebar/Drawer/List 等 |
 | **M3 密度适配** | W11–W12 | 全控件紧凑审计 + F2/F6 + E3 | ◐ | 4 组合基线有；逐控件审计与 IDE 示例缺 |
 | **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | v0.1.0 已发；C 余项与 v0.2 发布待做 |
 
@@ -271,7 +271,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 ## 10. 下一步（按优先级）
 
-1. **P2/P3 剩余**：Watermark、Tour、Mentions、Anchor、Notification、FloatButton、BorderBeam、Masonry（见 03）；SplitButton 由 `ant.Dropdown` 覆盖，不再单独提供（见 03 §三）。
+1. **P2/P3 剩余**：Watermark、Tour、Mentions、Anchor、Notification、FloatButton、BorderBeam、Masonry（见 03）；Outline/GridView 为原生高级用法，维持不包装；SplitButton 由 `ant.Dropdown` 覆盖。
 2. **示例覆盖**：为 `widgets/` 与 `extra/` 每个控件补独立示例页，逐控件截图基线。
 3. **Gallery 增强**：侧栏分类与搜索、覆盖率显示、全局尺寸切换、代码复制按钮、`ui/editor` 代码视图。
 4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。

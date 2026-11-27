@@ -63,6 +63,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "drawer"),
 				View:        DrawerDemo,
 			},
+			{
+				Title:       "气泡与右键菜单",
+				Description: "Popover 锚定气泡；ContextMenu 右键/菜单键弹出菜单。",
+				Code:        samples.Extract(demoSrc, "popover"),
+				View:        PopoverDemo,
+			},
 		},
 	}
 }
@@ -190,6 +196,35 @@ func DrawerDemo(c *ui.Context) {
 			widgets.Paragraph(c, "抽屉内容：可以放任意控件。")
 			widgets.Paragraph(c, "点遮罩、Esc 或右上角 ✕ 关闭。", widgets.Secondary())
 		}, widgets.DrawerWidth(80))
+	})
+}
+
+// /sample
+
+// sample:popover
+func PopoverDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	open := ui.Local(host, "ant.sample.feedback.popover", func() bool { return false })
+	chosen := ui.Local(host, "ant.sample.feedback.menu", func() string { return "" })
+	host.Children(func() {
+		widgets.Popover(c, func(c *ui.Context) {
+			if widgets.Button(c, "显示气泡").Clicked() {
+				*open = true
+			}
+		}, open, func() {
+			widgets.Paragraph(c, "这是 Popover 的气泡内容。")
+		})
+		widgets.ContextMenu(c, func(c *ui.Context) {
+			box := ui.Box(c).Padding(c.Theme().Space(3)).Radius(c.Theme().Radius).
+				Background(c.Theme().SurfaceHover)
+			box.Children(func() { ui.Text(c, "右键这一行打开菜单") })
+		}, []widgets.ContextMenuItem{
+			{ID: "rename", Label: "重命名"},
+			{ID: "delete", Label: "删除", Danger: true},
+		}, func(id string) { *chosen = id })
+		if *chosen != "" {
+			widgets.Tag(c, "菜单选择："+*chosen, widgets.TagPrimary())
+		}
 	})
 }
 

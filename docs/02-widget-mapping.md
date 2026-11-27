@@ -23,15 +23,15 @@
 | `ui.Icon`（SVG） | Icon | 组合 | `icon.Icon` | ✅ | 44 个 antd outlined 常量，颜色跟随文本色 |
 | `ui.Row` / `ui.Column` / `ui.Grid` | Flex / Grid / Space | 链式 | `ant.Space` / `Flex` / `Grid` | ✅ | `Gap` 走 `t.Space(n)`，实现 antd gutter |
 | `ui.Divider` | Divider | 组合 | `ant.Divider` / `VerticalDivider` / `DashedVerticalDivider` | ✅ | 原生 `ui.Divider` 只有实线；虚线/带文字/对齐用 `Box` + `BorderWidth` 组合 |
-| `ui.Split` / `SplitPercent` / `SplitVertical` | Splitter | 链式 | — | ◻ | 分隔条颜色对齐 `t.Border` 即可 |
+| `ui.Split` / `SplitPercent` / `SplitVertical` / `SplitVerticalPercent` | Splitter | 链式 | `ant.Splitter` 系列 | ✅ | 分隔条可拖拽，尺寸/百分比两种模式 |
 | `ui.Breadcrumbs` | Breadcrumb | 链式 | `ant.Breadcrumb` | ✅ | `chosen=-1` 表示未选择，最后一项为当前页 |
 | `ui.MenuButton` | Dropdown / Menu | 组合 | `ant.Dropdown` | ✅ | `MenuItemData` 声明菜单项、分隔线、危险项 |
-| `el.ContextMenu(fn)` | Dropdown（右键触发） | 组合 | — | ◻ | 元素方法，不是 `ui.ContextMenu` 函数 |
-| `ui.Sidebar` / `SidebarSection` / `SidebarItem` | Menu / Layout.Sider | 链式 | — | ◻ | 选中项 → `t.Selection` |
-| `ui.Link` | Typography.Link | 链式 | — | ◻ | 外观即主色文字，可直接用原生 |
+| `el.ContextMenu(fn)` | Dropdown（右键触发） | 组合 | `ant.ContextMenu` | ✅ | 右键/菜单键触发，菜单项可设危险色 |
+| `ui.Sidebar` / `SidebarSection` / `SidebarItem` | Menu / Layout.Sider | 链式 | `ant.Sidebar` / `SidebarItem` / `SidebarItemWithIcon` / `SidebarSection` | ✅ | 选中项 `t.Selection`，键盘可导航 |
+| `ui.Link` | Typography.Link | 链式 | `ant.Hyperlink` | ✅ | 主色文字（`Link()` 已被按钮类型占用，故命名 Hyperlink） |
 | `ui.Toolbar` | Space（紧凑工具条） | 原生 | — | — | MyGo 特有溢出逻辑，保留原生 |
-| `ui.Toggle` / `ui.ToggleGroup` | Radio.Button / Segmented | 链式 | — | ◻ | 与 `ant.Segmented` 语义重叠，优先级低 |
-| `ui.SplitButton` / `ui.PrimarySplitButton` | Dropdown.Button | 链式 | — | ◻ | 主按钮 + 下拉箭头两段 |
+| `ui.Toggle` / `ui.ToggleGroup` | Radio.Button / Segmented | 链式 | `ant.Toggle` / `ToggleGroup` | ✅ | 保持按下的按钮 |
+| `ui.SplitButton` / `ui.PrimarySplitButton` | Dropdown.Button | 链式 | — | — | 由 `ant.Dropdown` + 按钮组合表达，不单独提供同名控件 |
 | `ui.PopoverMenuButton` | Dropdown | 组合 | — | ◻ | 可选，`ant.Dropdown` 已覆盖主场景 |
 
 ## 二、数据录入
@@ -41,25 +41,25 @@
 | `ui.TextInput` / `ui.TextArea` | Input / Input.TextArea | `TextInputBase` | `ant.Input` / `TextArea` | ✅ | 描边 `t.Border`、聚焦环 `t.Focus`、占位符 `t.TextMuted`、前后缀、密码、字数 |
 | `ui.TextInput` + 搜索图标 | Input.Search | 组合 | `ant.SearchInput` | ✅ | 回车提交，`OnSubmit` 回调 |
 | `ui.NumberInput` | InputNumber | 组合 | `ant.NumberInputV` | ✅ | v0.10.0 原语收 `*float64` + 范围 + 步进 |
-| `ui.DecimalInput` | InputNumber（金额） | 组合 | — | ◻ | 收 `*string`，适合金额/精度场景 |
-| `ui.SearchField` | Input.Search | 原生组合 | — | ◻ | 原生自带放大镜/清除/Esc；当前 `ant.SearchInput` 用的是 `TextInput` 组合 |
+| `ui.DecimalInput` | InputNumber（金额） | 组合 | `ant.DecimalInput` | ✅ | 收 `*string`，金额/精度场景不被浮点舍入 |
+| `ui.SearchField` | Input.Search | 原生组合 | `ant.SearchField` | ✅ | 原生放大镜/清除/Esc；`ant.SearchInput` 是换肤版 |
 | `ui.Select` | Select | 链式 | `ant.Select` | ✅ | 高度/字号/圆角对齐 antd |
 | `ui.Combobox` | Select（showSearch） | 链式 | `ant.Combobox` | ✅ | 输入过滤 + 候选 |
-| `ui.Autocomplete` | AutoComplete | `ComboboxBase` | — | ◻ | 与 Combobox 的差别是保留用户输入 |
+| `ui.Autocomplete` | AutoComplete | 链式 | `ant.AutoComplete` | ✅ | 保留用户输入 + 候选 |
 | `ui.Checkbox` / `CheckboxGroup` | Checkbox | `CheckboxBase` | `ant.Checkbox` | ✅ | `CheckboxGroup` 容器未单独包装 |
 | `ui.CheckboxState` | Checkbox（indeterminate） | `CheckboxStateBase` | `ant.CheckboxAll` | ✅ | 全选/半选三态 |
 | `ui.Radio` / `ui.RadioGroup` | Radio / Radio.Group | `RadioBase` | `ant.Radio` / `ant.RadioGroup` | ✅ | 单项 `ant.Radio[T]` 与容器 `RadioGroup` 均已包装 |
 | `ui.Switch` | Switch | 链式 | `ant.Switch` / `SwitchWithLabel` | ✅ | 轨道色 `t.Accent` |
 | `ui.Slider` / `RangeSlider` | Slider | 链式 | `ant.Slider` / `RangeSliderDouble` | ✅ | 双端区间；`StepSlider` 未包装 |
-| `ui.Stepper` | InputNumber（步进器） | 链式 | — | ◻ | ⚠️ 它是数字步进器，**不是** antd Steps，勿与 `ant.Steps` 混淆 |
+| `ui.Stepper` | InputNumber（步进器） | 链式 | `ant.Stepper` | ✅ | ⚠️ 只有上下箭头（AppKit 风格），数值请配 `ant.NumberInputV`；**不是** antd Steps |
 | `ui.Rating` | Rate | 链式 | `ant.Rate` | ✅ | 选中色 `t.Warning`（antd 星色） |
-| `ui.ColorWell` / `ui.ColorPicker` | ColorPicker | 链式 | — | ◻ | 面板圆角/阴影统一后即可用 |
-| `ui.Calendar` | Calendar | 组合 | — | ◻ | 日期面板 + 触发器 + 快捷栏；`ant.DatePicker` 已覆盖字段场景 |
+| `ui.ColorWell` / `ui.ColorPicker` | ColorPicker | 链式 | `ant.ColorPicker` / `ColorPanel` | ✅ | 色块展开面板 / 常驻面板 |
+| `ui.Calendar` | Calendar | 组合 | `ant.Calendar` | ✅ | 月历浏览/选择；`ant.DatePicker` 覆盖字段场景 |
 | `ui.DateInput` | DatePicker | 组合 | `ant.DatePicker` | ✅ | `*time.Time` 受控 |
 | `ui.TimeInput` | TimePicker | 组合 | `ant.TimePicker` | ✅ | 分段输入，12/24h 随区域 |
-| `ui.Form` / `Field` / `Fieldset` | Form | 链式 | — | ◻ | 标签对齐、必填星号 `t.Danger`、校验信息色 |
-| `ui.TokenField` | Select（tags）/ Mentions 近似 | 组合 | — | ◻ | 标签圆角色块 + 关闭按钮 |
-| `ui.EditableText` | Typography（editable） | 链式 | — | ◻ | 原位重命名 |
+| `ui.Form` / `Field` / `Fieldset` | Form | 链式 | `ant.Form` / `FormItem` / `FormGroup` | ✅ | 标签对齐、必填标记、帮助/错误文字 |
+| `ui.TokenField` | Select（tags）/ Mentions 近似 | 组合 | `ant.TokenField` | ✅ | 标签输入 + 候选建议 |
+| `ui.EditableText` | Typography（editable） | 链式 | `ant.EditableText` | ✅ | 原位重命名 |
 | `ui.Segmented` | Segmented | 链式 | `ant.Segmented` | ✅ | 支持 `ControlOption`（Disabled/OnChange） |
 | `ui.FindBar` | 无直接对应 | 原生 | — | — | 编辑器内查找栏，antd 无同类，保留原生 |
 
@@ -68,22 +68,23 @@
 | MyGo v0.10.0 控件 | Ant Design 对应 | 换肤方式 | 本库 API | 状态 | 要点 |
 | --- | --- | --- | --- | --- | --- |
 | `ui.Table` | Table | 链式 | `ant.Table` | ✅ | 列定义、表头排序、行多选；单元格为字符串比较排序 |
-| `ui.List` | List（虚拟列表） | 链式 | — | ◻ | 虚拟滚动由 MyGo 原生提供，换肤价值主要是行 hover/选中色 |
+| `ui.List` | List（虚拟列表） | 链式 | `ant.List` | ✅ | 虚拟滚动 + 行分隔线 + 选中/多选 |
 | `ui.Tree` / `TreeItem` | Tree | 链式/组合 | `extra.Tree` | ✅ | 声明式节点树 + 展开状态 |
 | `ui.Outline` / `OutlineTable` | Tree / Anchor（近似） | 链式 | — | ◻ | 大树的列表/表格形态 |
 | `ui.GridView` | List（grid）/ Image.Preview | 链式 | — | ◻ | 网格视图 |
 | `ui.Avatar` | Avatar | 组合 | `ant.AvatarEl` | ✅ | 圆形/姓名首字母；`image` 可选 |
 | `ui.Badge` | Badge（计数/红点） | 组合 | `ant.Badge` / `BadgeDot` | ✅ | ⚠️ 原生 `ui.Badge` 是文本胶囊；计数与右上角骑角是自建（`ui.Overlay` + `AttachTo`） |
 | `ui.Progress` | Progress（线形） | 链式 | `ant.ProgressLine` | ✅ | 百分比文字可隐藏；环形/仪表盘未做 |
-| `ui.Meter` | Progress（仪表/电平） | 链式 | — | ◻ | 按阈值变色 |
-| `ui.Image` | Image（圆角/预览） | 链式 | — | ◻ | 预览用 `DialogBase` |
-| `ui.Collapsible` | Collapse（单项） | 链式 | — | ◻ | 头部背景 `t.Surface` |
-| `ui.Accordion` / `AccordionItem` | Collapse | 链式 | — | ◻ | 手风琴分区 |
+| `ui.Meter` | Progress（仪表/电平） | 链式 | `ant.Meter` | ✅ | 按阈值变色（`ui.MeterLevels`） |
+| `ui.Image` | Image（圆角/预览） | 链式 | `ant.ImageEl` | ✅ | 宽度可调 + 点击模态预览 |
+| `ui.Collapsible` | Collapse（单项） | 链式 | `ant.Collapsible` | ✅ | 原生展开/收起动画 |
+| `ui.Accordion` / `AccordionItem` | Collapse | 链式 | `ant.Accordion` / `AccordionItem` | ✅ | 手风琴分区 |
 | `ui.Tabs` | Tabs | 链式 | `ant.Tabs` | ✅ | 下划线/卡片风格，选中线 `t.Accent` |
 | `ui.Stepper`（数字） | — | — | — | — | 见 §二；antd Steps 对应的是 `ant.Steps`（自建缺口控件） |
 | `ui.Timeline`（**动画类型**） | — | — | — | — | ⚠️ 这是动效时间轴类型，不是 antd Timeline；antd 时间轴尚未实现 |
-| `ui.Popover` | Popover | 组合 | 内部使用 | ◻ | `extra.Cascader` / `extra.TreeSelect` 已用 `ui.Popover`，但未对外提供 `ant.Popover` |
-| `ui.TooltipBase` | Tooltip | Base | — | ◻ | Tooltip 是元素方法 `el.Tooltip(...)`，**没有** `ui.Tooltip` 函数 |
+| `ui.Popover` | Popover | 组合 | `ant.Popover` / `ant.Popconfirm` | ✅ | 通用锚定气泡 + 气泡确认 |
+
+| `ui.TooltipBase`（元素方法 `el.Tooltip(...)`） | Tooltip | Base | `ant.Tooltip` | ✅ | 反色气泡 + 悬停/聚焦触发 |
 | `ui.RichText` | Typography（富文本） | 原生 | — | — | span 级富文本，保留原生 |
 | `ui/chart.Plot` 等 | 图表 | 原生 | — | — | 子包 `ui/chart`，保留原生 |
 | `ui/editor.View` / `editor.DiffView` | 代码编辑器 / Diff | 原生 | — | — | 子包 `ui/editor`；Gallery 的代码视图后续可换用它 |
@@ -97,9 +98,9 @@
 | `ui.Modal` | Modal | `DialogBase` | `ant.Modal` | ✅ | 遮罩、居中卡片、页脚按钮顺序 |
 | `ui.AlertDialog` | Modal.confirm / Popconfirm | `DialogBase` | `ant.Confirm` | ✅ | 返回被点按钮下标；`Confirm` 无返回值，只回调 `onOk` |
 | `c.Toast` / `c.AddToast` / `Toast{Type}` | Message / Notification | `ToastViewportBase` | `ant.Message` / `MessageTypeTyped` / `Notify` | ✅ | 复用 MyGo 底部 toast viewport；**不是**顶部居中/右上角独立浮层 |
-| `ui.Spinner` | Spin | 链式 | — | ◻ | `ant.Button` 的 Loading 内部已用 `ui.Spinner` |
-| `ui.Overlay` + 绝对定位 | Drawer | 组合 | — | ◻ | 从边缘滑入的面板，需 `Modal`/`DialogBase` + `Motion` |
-| `el.Sticky()` / `Top()`（元素方法） | Affix | 原生 | — | ◻ | 没有 `ui.Sticky` 函数；粘性由元素方法提供 |
+| `ui.Spinner` | Spin | 链式 | `ant.Spin` | ✅ | 指示器 + 提示文字 |
+| `ui.Overlay` + 绝对定位 | Drawer | 组合 | `ant.Drawer` | ✅ | `DialogBase` 右侧锚定 + 遮罩/标题栏 |
+| `el.Sticky()` / `Top()`（元素方法） | Affix | 原生 | `ant.Affix` | ✅ | 吸顶包装 |
 | `ui.DialogBase` | Modal / Drawer 底座 | Base | `ant.Modal` 内部 | ✅ | `DialogBase(c, open, fn(backdrop, panel))` |
 | `ui.Alert`（不存在） | Alert | 组合 | `ant.Alert` | ✅ | 四级别 + 可关闭 + 描述，纯组合，不是原生控件 |
 | `ui.FindBar` | 无 | 原生 | — | — | 保留 |
@@ -154,8 +155,8 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 ## 七、覆盖度小结（2026-11-27）
 
 - MyGo v0.10.0 的 `ui` 包共 **102 个返回 `Element` 的构造函数**（含 `Base` 与布局原语），`docs/ui/` 下 **88 篇** 组件/主题文档。
-- 本库当前**已包装 35 个原生原语**，提供 **85 个控件构造函数**：
-  - `widgets/`（包 `ant`）78 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline·List·Drawer·ImageEl·ColorPicker·ColorPanel / Breadcrumb·Tabs·Dropdown·Pagination·Steps·Sidebar·SidebarItem·SidebarItemWithIcon·SidebarSection / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup·Splitter·SplitterVertical·SplitterPercent·SplitterVerticalPercent·AutoComplete·ProgressCircle·Toggle·ToggleGroup·Affix；
+- 本库当前**已包装 35 个原生原语**，提供 **98 个控件构造函数**：
+  - `widgets/`（包 `ant`）91 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline·List·Drawer·ImageEl·ColorPicker·ColorPanel / Breadcrumb·Tabs·Dropdown·Pagination·Steps·Sidebar·SidebarItem·SidebarItemWithIcon·SidebarSection / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup·Splitter·SplitterVertical·SplitterPercent·SplitterVerticalPercent·AutoComplete·ProgressCircle·Toggle·ToggleGroup·Affix·Hyperlink·DecimalInput·SearchField·Stepper·Calendar·TokenField·EditableText·Meter·Collapsible·Accordion·AccordionItem·Popover·ContextMenu；
   - `extra/` 7 个：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect；
   - 另有 `icon.Icon` + 44 个图标常量。
 - 仍**未覆盖**的原生控件（约 60 个）与 antd 缺口控件（约 25 个）统一列在 [03 缺口控件](03-gap-widgets.md)，按优先级推进。

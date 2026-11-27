@@ -1,6 +1,6 @@
 # 01 · 可行性分析
 
-> **核对基线**：MyGo **v0.10.0**（`go.mod` 锁定）、Go **1.27.4**、本库 v0.1.0（v0.2 开发中），核对日期 2026-11-27。
+> **核对基线**：MyGo **v0.10.0**（`go.mod` 锁定）、Go **1.27.4**、本库 v0.1.0 已发布（v0.3 开发中），核对日期 2026-11-27。
 > 本文是立项时的可行性论证；早期的 `v0.7` 版本引用、以及「约 0.7 API 可能变动」等描述已按当前基线修正。落地进度见 [06 开发计划](06-development-plan.md)。
 
 ## 结论
@@ -86,14 +86,14 @@ Ant Design 有而 MyGo 无的控件（分页、级联选择、穿梭框、上传
 | 维度 | 现状 |
 | --- | --- |
 | 主题层 | ✅ `AntToken` + `Light()` / `Dark()` + `Apply` / `Sub`，单测覆盖映射与密度 |
-| 换肤控件 | ✅ `widgets/`（包 `ant`）46 个构造函数，覆盖 35 个原生原语 |
-| 缺口控件 | ✅ `extra/` 7 个（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内自建（Pagination / Steps / Alert / Card / Tag / Badge 等） |
+| 换肤控件 | ✅ `widgets/`（包 `ant`）53 个构造函数，覆盖 35 个原生原语 |
+| 缺口控件 | ✅ `extra/` 7 个（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内自建（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 等） |
 | 图标 | ✅ 44 个 antd outlined 常量 + `icon.Icon` |
-| 示例 | ◐ 11 个示例分组 / 46 个示例片段；未逐控件覆盖 |
+| 示例 | ◐ 11 个示例分组 / 53 个示例片段；未逐控件覆盖 |
 | Gallery | ✅ 侧栏 + 卡片流 + 主题/密度/品牌色切换 + 亮暗并排对比；搜索/分类/全局尺寸为待办 |
 | 视觉回归 | ◐ 4 张 Gallery 级截图基线（`samples/golden/`），尚无逐示例基线 |
 | 静态检查 | ✅ `go run ./internal/check` 禁裸颜色/裸间距 |
-| 版本 | v0.1.0 已打 tag；v0.2 代码已提交未发版 |
+| 版本 | v0.1.0 已打 tag；v0.2 已推送待打 tag；v0.3 开发中 |
 
 > 详细任务状态见 [06 开发计划 §5](06-development-plan.md#5-wbs-详细任务分解与状态)。
 

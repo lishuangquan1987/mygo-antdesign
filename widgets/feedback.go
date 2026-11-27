@@ -277,3 +277,41 @@ func Confirm(c *ui.Context, open *bool, title, message string, onOk func()) {
 		onOk()
 	}
 }
+
+// SpinOption 定制 Spin。
+type SpinOption func(*spinConfig)
+
+type spinConfig struct {
+	tip    string
+	center bool
+}
+
+// SpinTip 加载提示文字（antd tip）。
+func SpinTip(s string) SpinOption { return func(c *spinConfig) { c.tip = s } }
+
+// SpinCenter 在容器内居中（antd 的居中加载态）。
+func SpinCenter() SpinOption { return func(c *spinConfig) { c.center = true } }
+
+// Spin 加载中（antd Spin）：旋转指示器 + 可选提示文字。
+//
+//	ant.Spin(c, ant.SpinTip("加载中…"))
+//	ant.Spin(c, ant.SpinCenter(), ant.SpinTip("正在保存"))
+func Spin(c *ui.Context, opts ...SpinOption) ui.Element {
+	cfg := &spinConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+
+	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
+	if cfg.center {
+		row.FillWidth().Justify(ui.Center)
+	}
+	row.Children(func() {
+		ui.Spinner(c).TextColor(t.Accent)
+		if cfg.tip != "" {
+			ui.Text(c, cfg.tip).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
+		}
+	})
+	return row
+}

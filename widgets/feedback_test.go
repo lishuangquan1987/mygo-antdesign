@@ -102,6 +102,23 @@ func TestProgressLine(t *testing.T) {
 	}
 }
 
+func TestSpinRenders(t *testing.T) {
+	view := func(c *ui.Context) {
+		theme.Apply(c, theme.Light())
+		col := ui.Column(c).Gap(12).Padding(16)
+		col.Children(func() {
+			widgets.Spin(c, widgets.SpinTip("加载中…"))
+			widgets.Spin(c, widgets.SpinCenter(), widgets.SpinTip("正在保存"))
+			widgets.Spin(c)
+		})
+	}
+	tt := ui.NewTester(view, 360, 220)
+	tt.Frame()
+	if !tt.HasText("加载中…") || !tt.HasText("正在保存") {
+		t.Error("Spin tip 未渲染")
+	}
+}
+
 func TestFeedbackFollowsThemeAndDensity(t *testing.T) {
 	for _, tk := range []*theme.AntToken{
 		theme.Light(),
@@ -117,6 +134,7 @@ func TestFeedbackFollowsThemeAndDensity(t *testing.T) {
 			col.Children(func() {
 				widgets.Alert(c, "提示", widgets.AlertTypeOpt(widgets.AlertWarning))
 				widgets.ProgressLine(c, 42)
+				widgets.Spin(c, widgets.SpinTip("加载中"))
 				widgets.Modal(c, &open, "弹窗", func() { widgets.Paragraph(c, "内容") })
 			})
 		}

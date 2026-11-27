@@ -19,7 +19,7 @@ func Demo() samples.WidgetDemo {
 		Name:     "数据展示",
 		Package:  "widgets",
 		Category: samples.CatDisplay,
-		Summary:  "Tag 多彩标签、Badge 徽标、Avatar 头像、Card 卡片。",
+		Summary:  "Tag/Badge/Avatar/Card、Empty/Result/Skeleton、Statistic/Descriptions/Timeline 等数据展示控件。",
 		Samples: []samples.Sample{
 			{
 				Title:       "标签",
@@ -44,6 +44,24 @@ func Demo() samples.WidgetDemo {
 				Description: "标题 + 内容 + 头部附加 + 底部操作区。",
 				Code:        samples.Extract(demoSrc, "card"),
 				View:        CardDemo,
+			},
+			{
+				Title:       "空状态与结果页",
+				Description: "Empty 插画 + 描述 + 操作区；Result 四种状态图标 + 标题 + 副标题。",
+				Code:        samples.Extract(demoSrc, "emptyresult"),
+				View:        EmptyResultDemo,
+			},
+			{
+				Title:       "骨架屏与统计数值",
+				Description: "Skeleton 静态占位（头像/标题/段落）；Statistic 大字号数值 + 前缀后缀 + 涨跌趋势。",
+				Code:        samples.Extract(demoSrc, "skeletonstat"),
+				View:        SkeletonStatDemo,
+			},
+			{
+				Title:       "描述列表与时间轴",
+				Description: "Descriptions 标签/值成对布局（可带外框）；Timeline 节点与连接线。",
+				Code:        samples.Extract(demoSrc, "desctimeline"),
+				View:        DescTimelineDemo,
 			},
 		},
 	}
@@ -104,6 +122,66 @@ func CardDemo(c *ui.Context) {
 			widgets.Button(c, "取消")
 			widgets.Button(c, "确定", widgets.Primary())
 		}))
+}
+
+// /sample
+
+// sample:emptyresult
+func EmptyResultDemo(c *ui.Context) {
+	t := c.Theme()
+	row := ui.Row(c).Gap(t.Space(6)).AlignItems(ui.Start)
+	row.Children(func() {
+		widgets.Empty(c, widgets.EmptyFooter(func(c *ui.Context) {
+			widgets.Button(c, "新建", widgets.Primary())
+		}))
+		widgets.Result(c, widgets.ResultSuccess, "操作成功",
+			widgets.ResultSubTitle("订单已提交"))
+		widgets.Result(c, widgets.ResultError, "提交失败",
+			widgets.ResultExtra(func(c *ui.Context) {
+				widgets.Button(c, "重试", widgets.Primary())
+			}))
+	})
+}
+
+// /sample
+
+// sample:skeletonstat
+func SkeletonStatDemo(c *ui.Context) {
+	t := c.Theme()
+	col := ui.Column(c).Gap(t.Space(4))
+	col.Children(func() {
+		widgets.Skeleton(c, widgets.SkeletonAvatar(true), widgets.SkeletonRows(3))
+		row := ui.Row(c).Gap(t.Space(6))
+		row.Children(func() {
+			widgets.Statistic(c, "销售额", 126560,
+				widgets.StatisticPrefix("¥"), widgets.StatisticTrendUp())
+			widgets.Statistic(c, "转化率", 12.3,
+				widgets.StatisticSuffix("%"), widgets.StatisticPrecision(1),
+				widgets.StatisticTrendDown())
+		})
+	})
+}
+
+// /sample
+
+// sample:desctimeline
+func DescTimelineDemo(c *ui.Context) {
+	t := c.Theme()
+	col := ui.Column(c).Gap(t.Space(4))
+	col.Children(func() {
+		widgets.Descriptions(c, []widgets.DescriptionItem{
+			{Label: "用户名", Value: "张三"},
+			{Label: "手机号", Value: "13800000000"},
+			{Label: "状态", Value: "已启用"},
+		}, widgets.DescriptionsColumns(2), widgets.DescriptionsTitle("账号信息"),
+			widgets.DescriptionsBordered(true))
+		widgets.Timeline(c, []widgets.TimelineItem{
+			{Title: "创建订单", Description: "2026-11-27 09:00"},
+			{Title: "已支付", Description: "2026-11-27 09:05", Color: widgets.TimelineGreen},
+			{Title: "已发货", Description: "2026-11-27 12:30", Color: widgets.TimelineRed},
+			{Title: "已完成", Color: widgets.TimelineGray},
+		})
+	})
 }
 
 // /sample

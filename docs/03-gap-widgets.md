@@ -18,7 +18,7 @@
 > - `Timeline`：`ui.Timeline` 是**动效时间轴类型**，不是控件；antd Timeline 仍是待实现缺口。
 > - `Spin` / `Affix`：MyGo 有 `ui.Spinner` 与元素方法 `el.Sticky().Top(...)`，只需薄包装，不属于「需要从零实现」。
 
-## 一、已交付的缺口控件（v0.1.0 / v0.2）
+## 一、已交付的缺口控件（v0.1.0 – v0.3 开发中）
 
 | antd 组件 | 本库 API | 位置 | 组合方式 | 复杂度 | 备注 |
 | --- | --- | --- | --- | --- | --- |
@@ -38,6 +38,13 @@
 | QRCode | `extra.QRCode` | extra | `skip2/go-qrcode` → `ui.NewBitmap` → `ui.Image` | 中 | 码色随主题（前景=Text，背景=Surface） |
 | Cascader | `extra.Cascader` | extra | `ui.Popover` + 多列 `Column` | 高 | 逐级下钻，叶子写回路径 |
 | TreeSelect | `extra.TreeSelect` | extra | `ui.Popover` + `extra.Tree` | 高 | 选中后收起 |
+| Empty | `ant.Empty` | widgets | `Column` + 虚线框 + 图标 + 描述 + 操作区 | 低 | 默认插画由图标 + 主题色生成，支持自定义 image/footer |
+| Result | `ant.Result` | widgets | 状态图标 + 标题 + 副标题 + 操作区 | 低 | success/info/warning/error 四态 |
+| Skeleton | `ant.Skeleton` | widgets | `Box` + `SurfaceHover` + `Radius` | 低 | 静态骨架（头像/标题/段落行数可配），暂无呼吸动画 |
+| Statistic | `ant.Statistic` | widgets | `Text` 大字号 + 趋势色 | 低 | 前缀/后缀/精度/涨跌（红涨绿跌） |
+| Descriptions | `ant.Descriptions` | widgets | `Grid` 键值成对布局 | 低 | 列数/标题/外框（简化：外框 + 内边距） |
+| Timeline（antd） | `ant.Timeline` | widgets | `Column` + 圆点 + 连接线 | 中 | 节点色（蓝/绿/红/灰）、标题 + 描述 |
+| Spin | `ant.Spin` | widgets | `ui.Spinner` + 提示文字 | 低 | 可容器内居中；复用 MyGo 原生指示器 |
 
 > 说明：`ant.AvatarEl`、`ant.Breadcrumb`、`ant.Tabs`、`ant.Dropdown`、`ant.Space` / `Flex` / `Grid` 等是**原生控件换肤**，不是缺口控件，见 [02 映射](02-widget-mapping.md)。
 
@@ -45,19 +52,13 @@
 
 > 复杂度是 1 名熟悉 Go 的开发者的粗估，不含示例与截图回归。
 
-### P1 · 纯组合、低风险
+### P1 · 纯组合、低风险（✅ 已完成，见 §一）
 
-| antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
-| --- | --- | --- | --- |
-| **Empty 空状态** | `Column` + `Text` + 可选 SVG | 居中 + `t.TextMuted` 描述 + 操作区 | 低 |
-| **Result 结果页** | 状态图标 + `Title` + `Paragraph` + `Row` | success/error/warning/info 四态 + 操作按钮 | 低 |
-| **Skeleton 骨架屏** | `Box` + `t.SurfaceHover` + `Radius` | 呼吸动画用 `el.AnimateTo` 或 `ui.Motion` | 低 |
-| **Statistic 统计数值** | `Text` + `t.Rem` | 大字号 + 趋势色（涨红跌绿，中文习惯） | 低 |
-| **Descriptions 描述列表** | `Grid` 或 `Row` | 标签 `t.TextMuted` / 值 `t.Text` 成对布局，支持列数 | 低 |
-| **Timeline 时间轴** | `Column` + `Box` 圆点 + `Border` 竖线 | 节点状态色 + 可自定义图标 | 中 |
-| **Spin 加载中** | `ui.Spinner` | 薄包装 + 文案 + `t.Accent` | 低 |
+Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
+已在 `widgets/data.go` 与 `widgets/feedback.go` 实现，并配单元测试与
+`samples/` 示例（`samples/display`、`samples/feedback`）。
 
-### P2 · 需要浮层 / 状态
+### P2 · 需要浮层 / 状态（下一步）
 
 | antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
@@ -112,10 +113,12 @@
 ```
 已完成  Card → Tag → Badge → Pagination → Steps → Alert → Message/Notify → Confirm
         → Tree → Upload → Transfer → Carousel → QRCode → Cascader → TreeSelect
-下一步  Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
-        → Popconfirm → Drawer → Collapse/AutoComplete/Form/Tooltip/List/Sidebar 包装
+        → Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
+下一步  Popconfirm → Drawer → Collapse/AutoComplete/Form/Tooltip/List/Sidebar 包装
 再后    Mentions → Tour → Watermark → Anchor → Notification → 环形 Progress
 按需    FloatButton → BorderBeam → Masonry → Splitter → Image 预览 → ColorPicker
 ```
 
 每完成一个控件，同步在 `samples/` 添加示例、在 `gallery/main.go` 注册，并生成/更新截图基线。
+可用 `go run ./scripts/visualcheck -group 数据展示 -theme light` 把某个示例分组的
+每个示例渲染成 PNG（`ui.NewTester` 无窗口渲染），人工核对效果。

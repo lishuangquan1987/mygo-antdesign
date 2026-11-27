@@ -19,7 +19,7 @@ func Demo() samples.WidgetDemo {
 		Name:     "反馈",
 		Package:  "widgets",
 		Category: samples.CatFeedback,
-		Summary:  "Alert 提示条、Modal 模态框、Message 轻提示、Progress 进度条。",
+		Summary:  "Alert 提示条、Modal 模态框、Message 轻提示、Progress 进度条、Spin 加载中。",
 		Samples: []samples.Sample{
 			{
 				Title:       "提示条",
@@ -44,6 +44,12 @@ func Demo() samples.WidgetDemo {
 				Description: "线形进度条，百分比文本，颜色随品牌色。",
 				Code:        samples.Extract(demoSrc, "progress"),
 				View:        ProgressDemo,
+			},
+			{
+				Title:       "加载中",
+				Description: "Spin 旋转指示器 + 提示文字，可选容器内居中。",
+				Code:        samples.Extract(demoSrc, "spin"),
+				View:        SpinDemo,
 			},
 		},
 	}
@@ -114,6 +120,22 @@ func ProgressDemo(c *ui.Context) {
 		widgets.Slider(c, value, 0, 100).FillWidth()
 		widgets.ProgressLine(c, 100, widgets.ProgressHideText()).FillWidth()
 		widgets.ProgressLine(c, 0).FillWidth()
+	})
+}
+
+// /sample
+
+// sample:spin
+func SpinDemo(c *ui.Context) {
+	t := c.Theme()
+	col := ui.Column(c).Gap(t.Space(4))
+	col.Children(func() {
+		widgets.Spin(c, widgets.SpinTip("加载中…"))
+		box := ui.Box(c).FillWidth().Height(t.Space(20)).
+			Radius(t.Radius).Background(t.SurfaceHover)
+		box.Children(func() {
+			widgets.Spin(c, widgets.SpinCenter(), widgets.SpinTip("正在保存"))
+		})
 	})
 }
 

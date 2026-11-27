@@ -2,7 +2,7 @@
 
 > 对应需求：为**每一个控件**写示例，告诉别人怎么用，并展示不同主题、不同 size 的效果——像 WPF 的 MaterialDesignInXamlToolkit 示例程序那样，让人一眼看到每个控件的全部样子。
 >
-> 本文区分「已实现」与「规划」。当前实现：11 个示例分组、46 个示例片段、Gallery 侧栏 + 卡片流 + 控制条 + 4 张截图基线。
+> 本文区分「已实现」与「规划」。当前实现：11 个示例分组、53 个示例片段、Gallery 侧栏 + 卡片流 + 控制条 + 4 张截图基线。
 
 ## 1. 目标与体验参照
 
@@ -80,7 +80,7 @@ func All() []WidgetDemo
 
 尚未覆盖：文字 + 图标按钮、与 Popconfirm 组合的危险操作确认、标准/紧凑并排（当前只做了亮/暗并排）。
 
-### 4.1 当前示例分组（11 组 / 46 个片段）
+### 4.1 当前示例分组（11 组 / 53 个片段）
 
 | 分组 | 覆盖控件 | 示例数 |
 | --- | --- | --- |
@@ -90,9 +90,9 @@ func All() []WidgetDemo
 | `samples/layout` | Space / Flex / Grid | 3 |
 | `samples/input` | Input / TextArea / SearchInput / NumberInputV | 5 |
 | `samples/selectdemo` | Checkbox / RadioGroup / Switch / Slider / RangeSlider / Rate / Segmented / Select / Combobox | 6 |
-| `samples/display` | Tag / Badge / Avatar / Card | 4 |
+| `samples/display` | Tag / Badge / Avatar / Card / Empty / Result / Skeleton / Statistic / Descriptions / Timeline | 10 |
 | `samples/table` | Table | 4 |
-| `samples/feedback` | Alert / Modal / Message / Notify / Progress / Confirm | 4 |
+| `samples/feedback` | Alert / Modal / Message / Notify / Progress / Confirm / Spin | 5 |
 | `samples/nav` | Breadcrumb / Tabs / Dropdown / Pagination / Steps | 4 |
 | `samples/extrademo` | Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect | 6 |
 
@@ -187,7 +187,23 @@ gallery/
 ├── main.go                  # 入口 + 显式注册 11 个 Demo()
 ├── app.go                   # 侧栏 + 卡片流 + 控制条 + 并排对比
 └── app_test.go              # 渲染/交互测试 + 基线生成与比对
+scripts/
+└── visualcheck/main.go      # 把某个示例分组的每个示例按主题渲染成 PNG（人工核对）
 ```
+
+**人工核对控件效果（不依赖 computer use）**：
+
+```bash
+# 渲染「数据展示」分组在亮色下的每个示例，输出到 .visualcheck/
+go run ./scripts/visualcheck -group 数据展示 -theme light
+# 暗色 / 紧凑密度
+go run ./scripts/visualcheck -group 数据展示 -theme dark
+go run ./scripts/visualcheck -group 数据展示 -theme compact
+```
+
+`visualcheck` 直接复用 Gallery 注册的示例 `View`，用 `ui.NewTester` 无窗口
+渲染 PNG，所以看到的与 Gallery 中一致；配合 `samples/all_test.go`（校验全部
+示例的代码片段提取与亮/暗渲染）可覆盖「效果 + 代码」两方面。
 
 **新增示例的步骤**：
 
@@ -235,7 +251,7 @@ gallery/
 | --- | --- | --- |
 | Gallery 框架（侧栏、控制条、并排对比、代码视图、搜索） | 6 | ✅ 除搜索 |
 | 示例注册表 + `go:embed` 片段提取工具 | 2 | ✅ |
-| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 11 组 / 46 片段 |
+| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 11 组 / 53 片段 |
 | 截图生成与文档嵌图联动 | 4 | ◐ Gallery 级 4 张 + README 2 图 |
 | **小计** | **约 33 人日** | |
 

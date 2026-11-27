@@ -193,3 +193,14 @@ func SplitterPercent(c *ui.Context, p *float32, first, second func()) ui.Element
 func SplitterVerticalPercent(c *ui.Context, p *float32, first, second func()) ui.Element {
 	return ui.SplitVerticalPercent(c, p, first, second)
 }
+
+// Affix 固钉（antd Affix）：滚动容器内让内容在距离顶部 top 处吸顶。
+// top 为 DIP；元素方法 el.Sticky().Top 提供能力，无需额外状态：
+//
+//	ant.Affix(c, 8, func() { ant.Title(c, "日志", ant.H4) })
+func Affix(c *ui.Context, top float32, fn func()) ui.Element {
+	el := ui.Row(c).FillWidth()
+	el.Sticky().Top(top)
+	el.Children(fn)
+	return el
+}

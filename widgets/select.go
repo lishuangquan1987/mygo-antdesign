@@ -211,3 +211,29 @@ func AutoComplete(c *ui.Context, value *string, suggestions []string, opts ...Co
 	applyControl(el, cfg)
 	return el
 }
+
+// Toggle 保持按下的按钮（antd 的 Toggle/Radio.Button 场景，例如加粗、斜体）：
+//
+//	ant.Toggle(c, &app.bold, "B", ant.OnChange(app.save))
+func Toggle(c *ui.Context, on *bool, label string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	host := ui.Row(c).AlignItems(ui.Center)
+	host.Children(func() {
+		el := ui.Toggle(c, on, label)
+		applyControl(el, cfg)
+	})
+	return host
+}
+
+// ToggleGroup 连体开关组（antd Radio.Button 组）：内部用 ui.ToggleGroup 组合：
+//
+//	ant.ToggleGroup(c, func() {
+//	    ant.Toggle(c, &app.align, "左")
+//	    ant.Toggle(c, &app.align, "中")
+//	})
+func ToggleGroup(c *ui.Context, fn func()) ui.Element {
+	return ui.ToggleGroup(c, fn)
+}

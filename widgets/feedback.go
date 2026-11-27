@@ -241,6 +241,7 @@ type ProgressOption func(*progressConfig)
 type progressConfig struct {
 	showText bool
 	height   float32
+	status   ProgressStatus
 }
 
 // ProgressShowText 在条尾显示百分比（默认已开启，无需显式传入）。
@@ -314,4 +315,66 @@ func Spin(c *ui.Context, opts ...SpinOption) ui.Element {
 		}
 	})
 	return row
+}
+
+// ProgressStatus 进度条状态（antd status）。
+type ProgressStatus string
+
+const (
+	ProgressNormal  ProgressStatus = "normal"
+	ProgressSuccess ProgressStatus = "success"
+	ProgressError   ProgressStatus = "error"
+)
+
+// ProgressStatusOpt 设置进度条状态（成功/错误使用语义色）。
+func ProgressStatusOpt(s ProgressStatus) ProgressOption {
+	return func(c *progressConfig) { c.status = s }
+}
+
+// ProgressCircle 环形进度条（antd Progress type="circle"）：用 Canvas
+// 风格的 Draw 回调绘制底环 + 进度弧，中心显示百分比：
+//
+//	ant.ProgressCircle(c, 68)
+//	ant.ProgressCircle(c, 100, ant.ProgressStatusOpt(ant.ProgressSuccess))
+func ProgressCircle(c *ui.Context, value float64, opts ...ProgressOption) ui.Element {
+	cfg := &progressConfig{showText: true}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+	col := t.Accent
+	switch cfg.status {
+	case ProgressSuccess:
+		col = t.Success
+	case ProgressError:
+		col = t.Danger
+	}
+	size := t.Space(16)
+	thick := t.Space(1)
+
+	box := ui.Box(c).Size(size, size).Center()
+	box.Draw(func(p *ui.Painter, r ui.Rect) {
+		cx, cy := r.X+r.W/2, r.Y+r.H/2
+		radius := (r.W - thick) / 2
+		bg := (&ui.Path{}).Circle(cx, cy, radius).Cap(ui.RoundCap)
+		p.StrokePath(bg, thick, t.Border)
+		frac := float32(value / 100)
+		if frac < 0 {
+			frac = 0
+		}
+		if frac > 1 {
+			frac = 1
+		}
+		if frac > 0 {
+			fg := (&ui.Path{}).Circle(cx, cy, radius).Trim(0, frac).Cap(ui.RoundCap)
+			p.StrokePath(fg, thick, col)
+		}
+	})
+	box.Children(func() {
+		if cfg.showText {
+			ui.Textf(c, "%d%%", int(value+0.5)).
+				TextColor(t.Text).FontSize(t.Rem(1.0)).FontWeight(600)
+		}
+	})
+	return box
 }

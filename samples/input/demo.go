@@ -64,6 +64,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "autocomplete"),
 				View:        AutoCompleteDemo,
 			},
+			{
+				Title:       "颜色选择",
+				Description: "ColorPicker 色块 + 展开面板，也可直接用常驻 ColorPanel。",
+				Code:        samples.Extract(demoSrc, "color"),
+				View:        ColorDemo,
+			},
 		},
 	}
 }
@@ -167,6 +173,19 @@ func AutoCompleteDemo(c *ui.Context) {
 	host.Children(func() {
 		widgets.AutoComplete(c, city, []string{"北京", "上海", "广州", "深圳"})
 		widgets.Paragraph(c, "当前值："+*city, widgets.Secondary())
+	})
+}
+
+// /sample
+
+// sample:color
+func ColorDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	col := ui.Local(host, "ant.sample.input.color", func() ui.Color { return ui.Hex("#1677ff") })
+	host.Children(func() {
+		widgets.ColorPicker(c, col)
+		widgets.Paragraph(c, "色块可展开取色面板；也可直接使用常驻面板：", widgets.Secondary())
+		widgets.ColorPanel(c, col)
 	})
 }
 

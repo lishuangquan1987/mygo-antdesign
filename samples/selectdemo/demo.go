@@ -57,6 +57,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "selectdemo"),
 				View:        SelectDemo,
 			},
+			{
+				Title:       "开关按钮",
+				Description: "Toggle 保持按下的按钮，适合编辑器工具条。",
+				Code:        samples.Extract(demoSrc, "toggle"),
+				View:        ToggleDemo,
+			},
 		},
 	}
 }
@@ -134,6 +140,23 @@ func SelectDemo(c *ui.Context) {
 	col.Children(func() {
 		widgets.Select(c, city, []string{"北京", "上海", "广州", "深圳"}, widgets.OnChange(func() {}))
 		widgets.Combobox(c, cmd, []string{"重启服务", "重启网关", "重启集群"}, widgets.OnChange(func() {}))
+	})
+}
+
+// /sample
+
+// sample:toggle
+func ToggleDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
+	bold := ui.Local(host, "ant.sample.select.bold", func() bool { return true })
+	italic := ui.Local(host, "ant.sample.select.italic", func() bool { return false })
+	host.Children(func() {
+		row := ui.Row(c).Gap(c.Theme().Space(2)).AlignItems(ui.Center)
+		row.Children(func() {
+			widgets.Toggle(c, bold, "B")
+			widgets.Toggle(c, italic, "I")
+			widgets.Paragraph(c, "Toggle 保持按下的按钮，适合编辑器工具条。", widgets.Secondary())
+		})
 	})
 }
 

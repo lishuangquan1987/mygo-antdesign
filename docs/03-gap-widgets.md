@@ -53,6 +53,12 @@
 | Sidebar / Menu | `ant.Sidebar` / `SidebarItem` / `SidebarItemWithIcon` / `SidebarSection` | widgets | `ui.Sidebar` 系列 | 低 | 分区 + 条目 + 选中态，键盘可导航 |
 | Splitter | `ant.Splitter` / `SplitterVertical` / `SplitterPercent` / `SplitterVerticalPercent` | widgets | `ui.Split` 系列 | 低 | 分隔条可拖拽，尺寸/百分比两种模式 |
 | AutoComplete | `ant.AutoComplete` | widgets | `ui.Autocomplete` | 低 | 保留键入内容 + 候选建议 |
+| Drawer | `ant.Drawer` | widgets | `ui.DialogBase` + 右侧锚定 + `Scroll` 内容区 | 中 | 遮罩/标题栏/关闭按钮，点遮罩或 Esc 关闭 |
+| Image | `ant.ImageEl` | widgets | `ui.Image` + `ButtonBase` + `ui.Modal` | 中 | 可指定宽度，点击放大预览 |
+| ColorPicker | `ant.ColorPicker` / `ColorPanel` | widgets | `ui.ColorWell` / `ui.ColorPicker` | 低 | 色块 + 展开面板 / 常驻面板 |
+| Progress（环形） | `ant.ProgressCircle` | widgets | `ui.Box.Draw` + `ui.Path` 圆弧 | 中 | 中心百分比，成功/错误状态色 |
+| Toggle | `ant.Toggle` / `ToggleGroup` | widgets | `ui.Toggle` / `ui.ToggleGroup` | 低 | 保持按下的按钮 |
+| Affix | `ant.Affix` | widgets | `el.Sticky().Top(...)` | 低 | 吸顶，无需额外状态 |
 
 > 说明：`ant.AvatarEl`、`ant.Breadcrumb`、`ant.Tabs`、`ant.Dropdown`、`ant.Space` / `Flex` / `Grid` 等是**原生控件换肤**，不是缺口控件，见 [02 映射](02-widget-mapping.md)。
 
@@ -68,19 +74,13 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 
 ### P2 · 需要浮层 / 状态（部分完成）
 
-已完成：Popconfirm、Collapse、Form、Tooltip、List、Sidebar、Splitter、AutoComplete（见 §一）。剩余：
+已完成：Popconfirm、Collapse、Form、Tooltip、List、Sidebar、Splitter、AutoComplete、Drawer、Image、ColorPicker、环形 Progress、Toggle、Affix（见 §一）。剩余：
 
 | antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
-| **Drawer 抽屉** | `ui.DialogBase` / `ui.Modal` + `el.AnimateTo` | 边缘锚定 + 滑入；注意 Esc/点外关闭语义 | 中 |
 | **Watermark 水印** | `ui.NewCanvas` + `Painter` + `ui.Overlay` | `el.PassThrough()` 不挡事件 | 中 |
 | **Tour 漫游引导** | `ui.PopoverBase` | 逐步锚定 + 上一步/下一步，步骤状态由调用方持有 | 高 |
 | **Mentions 提及** | `ui.TextInput` + `ui.PopoverBase` | 检测 `@` 触发候选，插入逻辑自管 | 高 |
-| **Image 图片预览** | `ui.Image` + `ui.DialogBase` | 圆角 + 点击放大 + 遮罩 | 中 |
-| **ColorPicker 颜色选择** | `ui.ColorWell` / `ui.ColorPicker` | 面板圆角/阴影统一 | 低 |
-| **Progress 环形/仪表** | `ui.Canvas` + `Painter` 或 `ui.Meter` | 线形已实现（`ant.ProgressLine`） | 中 |
-| **Toggle / SplitButton** | `ui.Toggle` / `ui.SplitButton` | 语义与 Segmented/Dropdown 重叠，按需包装 | 低 |
-| **Affix 固钉** | `el.Sticky().Top(0)` | 元素方法即可，无需新控件 | 低 |
 
 ### P3 · 依赖额外能力或强 Web 语义
 
@@ -100,6 +100,7 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 - **Pro 组件（ProTable / ProForm / ProLayout 等）**：商业组件，超出 v0.x 范围。
 - **移动端专有组件**：MyGo 已原生支持移动端，后续版本再评估。
 - **强 Web 语义的原生能力**：如 SSR、CSS-in-JS、路由级 Code Splitting，不映射到桌面控件。
+- **SplitButton**：antd 的「主按钮 + 下拉箭头」在桌面端可由 `ant.Dropdown` + `ant.Button` 组合表达，不再单独提供同名控件。
 
 ## 四、缺口控件统一开发规范
 
@@ -117,10 +118,11 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
         → Tree → Upload → Transfer → Carousel → QRCode → Cascader → TreeSelect
         → Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
         → Popconfirm → Collapse → Tooltip → Form → List → Sidebar → Splitter → AutoComplete
-下一步  Drawer → Image 预览
-        → ColorPicker → 环形 Progress → Toggle/SplitButton → Affix
-再后    Mentions → Tour → Watermark → Anchor → Notification
+        → Drawer → Image → ColorPicker → 环形 Progress → Toggle → Affix
+下一步  Watermark → Mentions → Tour
+再后    Anchor → Notification
 按需    FloatButton → BorderBeam → Masonry
+不提供  SplitButton（由 ant.Dropdown 覆盖，见 §三）
 ```
 
 每完成一个控件，同步在 `samples/` 添加示例、在 `gallery/main.go` 注册，并生成/更新截图基线。

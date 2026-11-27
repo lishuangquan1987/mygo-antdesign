@@ -57,6 +57,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "overlay"),
 				View:        OverlayDemo,
 			},
+			{
+				Title:       "抽屉",
+				Description: "Drawer 从右侧滑入的面板，带遮罩、标题栏与滚动内容区。",
+				Code:        samples.Extract(demoSrc, "drawer"),
+				View:        DrawerDemo,
+			},
 		},
 	}
 }
@@ -126,6 +132,12 @@ func ProgressDemo(c *ui.Context) {
 		widgets.Slider(c, value, 0, 100).FillWidth()
 		widgets.ProgressLine(c, 100, widgets.ProgressHideText()).FillWidth()
 		widgets.ProgressLine(c, 0).FillWidth()
+		row := ui.Row(c).Gap(c.Theme().Space(4)).AlignItems(ui.Center)
+		row.Children(func() {
+			widgets.ProgressCircle(c, *value)
+			widgets.ProgressCircle(c, 100, widgets.ProgressStatusOpt(widgets.ProgressSuccess))
+			widgets.ProgressCircle(c, 30, widgets.ProgressStatusOpt(widgets.ProgressError))
+		})
 	})
 }
 
@@ -163,6 +175,21 @@ func OverlayDemo(c *ui.Context) {
 		if *removed {
 			widgets.Tag(c, "已删除", widgets.TagError())
 		}
+	})
+}
+
+// /sample
+
+// sample:drawer
+func DrawerDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth()
+	open := ui.Local(host, "ant.sample.feedback.drawer", func() bool { return false })
+	host.Children(func() {
+		widgets.Button(c, "打开抽屉", widgets.Primary(), widgets.OnClick(func() { *open = true }))
+		widgets.Drawer(c, open, "设置", func() {
+			widgets.Paragraph(c, "抽屉内容：可以放任意控件。")
+			widgets.Paragraph(c, "点遮罩、Esc 或右上角 ✕ 关闭。", widgets.Secondary())
+		}, widgets.DrawerWidth(80))
 	})
 }
 

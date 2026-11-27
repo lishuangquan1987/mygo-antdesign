@@ -38,10 +38,10 @@
 
 | 指标 | 目标 | 现状（2026-11-27） |
 | --- | --- | --- |
-| 换肤 + 缺口控件构造函数 | ≥ 55 | **77**（`widgets/` 70 + `extra/` 7，另有 `icon.Icon`） |
-| 缺口控件 | ≥ 12 | `extra/` **7**（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内 **19**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / FormItem） |
+| 换肤 + 缺口控件构造函数 | ≥ 55 | **85**（`widgets/` 78 + `extra/` 7，另有 `icon.Icon`） |
+| 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 54 个示例片段**，尚未逐控件覆盖 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 58 个示例片段**，尚未逐控件覆盖 |
 | 视觉回归 | 每个示例 × 4 种主题组合 | **4 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
@@ -175,8 +175,8 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | B8 | 数据展示-辅助 | Avatar、Badge、Tag、Progress、Timeline、Empty、Result、Skeleton | 5 | ✅ | 全部完成（Timeline/Empty/Result/Skeleton 在 v0.3） |
 | B9 | 导航 | Tabs、Segmented、Steps、Breadcrumb、Dropdown、Sidebar | 5 | ✅ | Sidebar 已包装；Menu 复用 Dropdown |
 | B10 | 折叠/浮层 | Collapse/Accordion、Popover、Tooltip | 3 | ◐ | Collapse/Tooltip 完成；公开的 `ant.Popover` 未做 |
-| B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ◐ | Spin 已完成；Watermark 未做 |
-| B12 | 其他 | Splitter、Affix、Drawer | 2 | ◐ | Splitter 完成；Affix/Drawer 未做 |
+| B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ◐ | 仅 Watermark 未做 |
+| B12 | 其他 | Splitter、Affix、Drawer | 2 | ✅ | 全部完成（v0.3） |
 | | **小计** | | **44** | | |
 
 ### WS-C · 缺口控件（extra/ 与 widgets/ 内的自建控件）
@@ -186,7 +186,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | C1 | P1 简单组合 | Card、Tag、Empty、Result、Divider、Statistic、Timeline | 3 | ✅ | v0.3 补齐 Empty/Result/Statistic/Timeline |
 | C2 | P1 数据展示 | Descriptions、Skeleton | 2 | ✅ | v0.3 完成 |
 | C3 | P2 分页与穿梭 | Pagination、Transfer | 3 | ✅ | Pagination 在 widgets，Transfer 在 extra |
-| C4 | P2 浮层 | Drawer、Popconfirm、Watermark、Tour | 6 | ◐ | Popconfirm 完成；Drawer/Watermark/Tour 未做 |
+| C4 | P2 浮层 | Drawer、Popconfirm、Watermark、Tour | 6 | ◐ | Drawer/Popconfirm 完成；Watermark/Tour 未做 |
 | C5 | P2 复杂选择 | Cascader、TreeSelect、Mentions | 8 | ◐ | 前两项完成 |
 | C6 | P3 依赖能力 | QRCode、Upload、Spin、FloatButton、BorderBeam、Notification、Anchor、Carousel、Masonry | 12 | ◐ | QRCode/Upload/Carousel 完成；Notify 已复用 toast |
 | | **小计** | | **34** | | 实际分批交付，见 §11 |
@@ -271,7 +271,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 ## 10. 下一步（按优先级）
 
-1. **P2 剩余**：Drawer、Image 预览、ColorPicker、环形 Progress、Toggle/SplitButton、Affix（见 03）。
+1. **P2/P3 剩余**：Watermark、Tour、Mentions、Anchor、Notification、FloatButton、BorderBeam、Masonry（见 03）；SplitButton 由 `ant.Dropdown` 覆盖，不再单独提供（见 03 §三）。
 2. **示例覆盖**：为 `widgets/` 与 `extra/` 每个控件补独立示例页，逐控件截图基线。
 3. **Gallery 增强**：侧栏分类与搜索、覆盖率显示、全局尺寸切换、代码复制按钮、`ui/editor` 代码视图。
 4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。
@@ -310,6 +310,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | Spin / Tooltip / Popconfirm | `widgets/feedback.go`、`widgets/overlay.go` | `samples/feedback`（新增 2 个示例） | 单测（含气泡确认/取消交互）+ 主题组合 |
 | Form / FormItem / FormGroup | `widgets/form.go` | `samples/input`（新增 1 个示例） | 单测 + 主题组合 |
 | List / Sidebar / Splitter / AutoComplete | `widgets/list.go`、`nav.go`、`layout.go`、`select.go` | display / nav / layout / input 各新增 1 个示例 | 单测（选中/键盘/拖拽/补全）+ 主题组合 |
+| Drawer / Image / ColorPicker / 环形 Progress / Toggle / Affix | `widgets/drawer.go`、`media.go`、`feedback.go`、`select.go`、`layout.go` | feedback / display / input / selectdemo 新增示例 | 单测（抽屉开关、预览、进度环）+ 主题组合 |
 | 工具 | `scripts/visualcheck` | 把示例按主题渲染成 PNG，人工核对控件效果 | 无窗口 `ui.NewTester` |
 | 质量门禁 | `samples/all_test.go` | 校验全部示例分组的代码片段提取与亮/暗渲染 | 新增测试 |
 
@@ -334,6 +335,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - 逐控件示例与逐控件截图基线尚未建立（当前为 11 个示例分组 + 4 张 Gallery 级基线）。
 - `ant.Skeleton` 为静态骨架，暂未做呼吸动画；`ant.Descriptions` 的 `bordered` 是「外框 + 内边距」简化版，无内部网格线。
 - `ant.Collapse` 用自建头部（无展开/收起动画）；`ant.FormItem` 的必填标记是纯文本「*」，未单独着色。
+- `ant.Drawer` 无滑入动画（直接显示/隐藏）；`ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。
 
 ## 13. 变更记录
 

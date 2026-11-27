@@ -60,7 +60,8 @@ func (app *App) view(c *ui.Context) {
 | `ui.Slider` / `ui.RangeSlider` | `ant.Slider(c, *float64, lo, hi, opts...)` / `ant.RangeSliderDouble(c, low, high *float64, lo, hi, step, opts...)` | — |
 | `ui.Rating` | `ant.Rate(c, *int, max int, opts...)` | — |
 | `ui.Segmented` | `ant.Segmented(c, *int, labels []string, opts ...ant.ControlOption)` | 支持 `ControlDisabled` / `OnChange` |
-| `ui.ColorWell` / `ui.ColorPicker` | — | 未包装，直接用原生 |
+| `ui.Toggle` / `ui.ToggleGroup` | `ant.Toggle(c, *bool, label, opts...)` / `ant.ToggleGroup(c, fn)` | 保持按下的按钮，共用 `ControlOption` |
+| `ui.ColorWell` / `ui.ColorPicker` | `ant.ColorPicker(c, *ui.Color, opts...)` / `ant.ColorPanel(c, *ui.Color, opts...)` | 色块展开面板 / 常驻面板 |
 | `ui.Calendar` / `ui.Form` / `ui.TokenField` | — | 未包装，直接用原生 |
 
 > `ant.ControlOption` 提供 `ControlDisabled(bool)` 与 `OnChange(func())`，供 Checkbox/Switch/Slider/Rate/Segmented/Select/Combobox 等共用。
@@ -75,6 +76,7 @@ func (app *App) view(c *ui.Context) {
 | `ui.Avatar` | `ant.AvatarEl(c, name string, image ...*ui.Bitmap)` | 未传图片时显示姓名首字母 |
 | `Row` / `Column` 组合 | `ant.Card(c, title string, body func(), opts...)` | 选项：`CardExtra(func(*ui.Context))` / `CardActions(func(*ui.Context))` |
 | `ui.Image` + 自绘 | `extra.QRCode(c, content string, opts...)` | 码色随主题；`extra.QRCodeSize(px)` |
+| `ui.Image` | `ant.ImageEl(c, src, ant.ImageWidth(units), ant.ImagePreview(b))` | 圆角显示 + 点击模态预览 |
 | `ui.List` | `ant.List(c, *ui.ListState, n, row, opts...)` | `ListSelected` / `ListSelection` 绑定选中态 |
 | `ui.Collapsible` / `ui.Accordion` / `ui.Outline` | — | 未包装，直接用原生（Collapse 用 `ant.Collapse`） |
 
@@ -85,7 +87,8 @@ func (app *App) view(c *ui.Context) {
 | `Row` 组合 | `ant.Alert(c, title string, opts...)` | `AlertTypeOpt(typ)` / `AlertDescription(s)` / `AlertClosable(fn)`；四级别 |
 | `ui.Modal` / `ui.AlertDialog` | `ant.Modal(c, open *bool, title string, body func(), opts...)` / `ant.Confirm(c, open *bool, title, message string, onOk func())` | Modal 选项：`OkText` / `CancelText` / `OnOk` / `OnCancel` / `HideCancel`；**Confirm 无返回值**，只回调 `onOk` |
 | `c.Toast` / `c.AddToast` | `ant.Message(c, text)` / `ant.MessageTypeTyped(c, typ, text)` / `ant.Notify(c, title, description, action, onAction)` | 复用 MyGo 底部 toast viewport |
-| `ui.Progress` | `ant.ProgressLine(c, value float64, opts...)` | `ProgressShowText()` / `ProgressHideText()` 隐藏百分比 |
+| `ui.Progress` | `ant.ProgressLine(c, value float64, opts...)` / `ant.ProgressCircle(c, value, opts...)` | 线形/环形；`ProgressHideText()`、`ProgressStatusOpt(ProgressSuccess/Error)` |
+| `ui.DialogBase` + 右侧锚定 | `ant.Drawer(c, *bool, title, body, opts...)` | `DrawerWidth(units)` / `DrawerClosable(b)` |
 | `ui.Spinner` | — | Button 的 Loading 内部已使用；未单独暴露 `ant.Spin` |
 | — | `extra.Upload(c, opts...)` | 系统文件对话框 + 原生拖放 + 列表；选项：`UploadMultiple` / `UploadAccept` / `UploadHint` / `UploadOnChange` |
 

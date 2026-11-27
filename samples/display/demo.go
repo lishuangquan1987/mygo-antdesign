@@ -6,6 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
 )
@@ -74,6 +75,12 @@ func Demo() samples.WidgetDemo {
 				Description: "List 虚拟滚动列表，行选中态由调用方持有。",
 				Code:        samples.Extract(demoSrc, "list"),
 				View:        ListDemo,
+			},
+			{
+				Title:       "图片",
+				Description: "ImageEl 可指定宽度，点击后在模态框中放大预览。",
+				Code:        samples.Extract(demoSrc, "image"),
+				View:        ImageDemo,
 			},
 		},
 	}
@@ -222,6 +229,21 @@ func ListDemo(c *ui.Context) {
 		widgets.List(c, state, len(items), func(i int) {
 			widgets.Paragraph(c, items[i])
 		}, widgets.ListSelected(chosen))
+	})
+}
+
+// /sample
+
+// sample:image
+func ImageDemo(c *ui.Context) {
+	svg, err := ui.ParseSVG([]byte(icon.Search))
+	if err != nil {
+		return
+	}
+	row := ui.Row(c).Gap(c.Theme().Space(4)).AlignItems(ui.Center)
+	row.Children(func() {
+		widgets.ImageEl(c, svg, widgets.ImageWidth(6))
+		widgets.ImageEl(c, svg, widgets.ImageWidth(10), widgets.ImagePreview(false))
 	})
 }
 

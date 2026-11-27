@@ -15,6 +15,7 @@ const (
 	CatNav      Category = "导航"
 	CatFeedback Category = "反馈"
 	CatExtra    Category = "缺口控件"
+	CatNative   Category = "原生补全"
 )
 
 // Sample 一个示例单元：标题 + 说明 + 可复制的真实代码 + 实时预览。

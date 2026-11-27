@@ -2,7 +2,7 @@
 
 > 对应需求：为**每一个控件**写示例，告诉别人怎么用，并展示不同主题、不同 size 的效果——像 WPF 的 MaterialDesignInXamlToolkit 示例程序那样，让人一眼看到每个控件的全部样子。
 >
-> 本文区分「已实现」与「规划」。当前实现：12 个示例分组、74 个示例片段、Gallery 侧栏（分类 + 搜索 + 计数）+ 卡片流（代码复制）+ 控制条 + 3 张 Gallery 级基线 + 288 张逐示例基线（4 组合）。
+> 本文区分「已实现」与「规划」。当前实现：13 个示例分组、79 个示例片段、Gallery 侧栏（分类 + 搜索 + 计数）+ 卡片流（代码复制）+ 控制条 + 3 张 Gallery 级基线 + 308 张逐示例基线（4 组合）。
 
 ## 1. 目标与体验参照
 
@@ -80,7 +80,7 @@ func All() []WidgetDemo
 
 尚未覆盖：文字 + 图标按钮、与 Popconfirm 组合的危险操作确认、标准/紧凑并排（当前只做了亮/暗并排）。
 
-### 4.1 当前示例分组（12 组 / 74 个片段）
+### 4.1 当前示例分组（13 组 / 79 个片段）
 
 | 分组 | 覆盖控件 | 示例数 |
 | --- | --- | --- |
@@ -95,6 +95,7 @@ func All() []WidgetDemo
 | `samples/feedback` | Alert / Modal / Message / Notify / Progress / Confirm / Spin / Tooltip / Popconfirm / Drawer / Popover / ContextMenu / Watermark·Tour·Notification / 确认对话 | 10 |
 | `samples/nav` | Breadcrumb / Tabs / Dropdown / Pagination / Steps / Sidebar / SidebarItemWithIcon | 6 |
 | `samples/extrademo` | Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect | 6 |
+| `samples/native` | 原生补全：Toolbar / SplitButton / GridView / CheckboxGroup / ColorWell | 5 |
 | `samples/ide` | 紧凑型 IDE 布局（Sidebar / Tabs / 代码区 / 状态栏） | 1 |
 
 ## 5. Gallery 应用的界面结构
@@ -137,7 +138,7 @@ func All() []WidgetDemo
 | 亮/暗并排 | ✅ | 顶部「亮暗对比」 |
 | 代码复制按钮 | ✅ | `c.WriteClipboard` |
 | 代码高亮（`ui/editor` 只读） | ◻ | 当前用 `ui.Text` 等宽展示 |
-| 逐示例截图 | ✅ | 288 张（4 组合 × 72 示例，`samples/golden/controls/`，含平台 manifest） |
+| 逐示例截图 | ✅ | 308 张（4 组合 × 77 示例，`samples/golden/controls/`，含平台 manifest） |
 
 ### 5.3 本地构建与运行
 
@@ -277,7 +278,7 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 | --- | --- | --- |
 | Gallery 框架（侧栏、控制条、并排对比、代码视图、搜索） | 6 | ✅ 除搜索 |
 | 示例注册表 + `go:embed` 片段提取工具 | 2 | ✅ |
-| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 12 组 / 74 片段 |
+| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 13 组 / 79 片段（按 docs/02 §九 继续补齐） |
 | 截图生成与文档嵌图联动 | 4 | ◐ Gallery 级 3 张 + README 2 图 |
 | **小计** | **约 33 人日** | |
 

@@ -13,7 +13,7 @@
 4. 提供标准与紧凑两套密度（上位机 / IDE 场景）。
 5. 每个控件配可运行示例（不同主题/尺寸/密度/状态），由 Gallery 展示。
 
-当前状态：**实现进行中**——theme/、widgets/（包 ant）、samples/、gallery/ 均已落地并持续扩展。先读 `AGENTS.md` 本文件、`docs/06-development-plan.md`（含进度章节）与现有控件实现风格再动手。
+当前状态：**v0.1.0 已发布，v0.2 开发中**——theme/、widgets/（包 ant）、extra/、icon/、samples/、gallery/ 均已落地并持续扩展（53 个控件构造函数、11 个示例分组）。先读 `AGENTS.md` 本文件、`docs/06-development-plan.md`（含 WBS 状态与进度章节）与现有控件实现风格再动手；文档中的「状态」列必须与代码一致，不要写成已完成。
 
 ## 2. 必须遵守的硬规则
 
@@ -31,7 +31,7 @@
 - `theme/`：`AntToken` → `ui.Theme` 的唯一桥接层，含 `Apply`（全局）/`Sub`（局部 `ui.Themed`）。
 - `internal/`：共享私有 helper（状态映射、度量、静态检查）。
 - `icon/`：从 antd SVG 生成的 Go 路径常量，带 `go:generate`。
-- `samples/`：每个控件的示例源码（真实可编译代码，`go:embed` 提取片段），在 `registry.go` 注册。
+- `samples/`：按分类分组的示例源码（真实可编译代码，`go:embed` 提取片段），在 `registry.go` 定义、由 `gallery/main.go` 显式注册。
 - `gallery/`：示例展示应用，遍历注册表渲染；**不硬编码任何控件示例清单**。
 - **禁止**跨控件硬编码颜色/间距，禁止控件之间循环依赖。
 
@@ -61,13 +61,13 @@ go run ./internal/check
 go generate ./icon
 ```
 
-> 前置：Go 1.27.3+；MyGo 版本在 `go.mod` 中锁定，勿随意升级，升级需跑全量视觉回归。
+> 前置：Go 1.27.4+；MyGo 版本在 `go.mod` 中锁定（当前 v0.10.0），勿随意升级，升级需跑全量视觉回归。
 
 ## 4. 开发工作流
 
 1. 对照 `docs/02-widget-mapping.md` 或 `docs/03-gap-widgets.md` 确认控件归属与复杂度。
 2. 按 `docs/06-development-plan.md` 第 4.3 节 DoD 检查表逐项实现。
-3. **立即为该控件写示例**：在 `samples/<widget>/` 下写真实可编译示例（基础 + 主要变体 + 禁用 + 三档尺寸，见 `docs/07-samples-gallery.md` 第 4 节矩阵），并在 `samples/registry.go` 注册；不要等到后期补写。
+3. **立即为该控件写示例**：在 `samples/<分组>/demo.go` 下写真实可编译示例（基础 + 主要变体 + 禁用 + 三档尺寸，见 `docs/07-samples-gallery.md` 第 4 节矩阵），并在 `gallery/main.go` 调用 `samples.Register(...)` 注册；不要等到后期补写。
 4. 示例本身也遵守样式铁律（2.1），代码片段用 `// sample:xxx` 标记包起来供 `go:embed` 提取。
 5. 生成或更新截图基线 `samples/golden/`，确保 4 种主题组合（亮/暗 × 标准/紧凑）通过。
 6. **按第 5 节完成自测 → 提交 → 推送**；未通过自测不得提交，提交后必须推送。
@@ -86,14 +86,14 @@ gofmt -l .                    # 输出为空，否则先 gofmt -w
 go vet ./...                  # 无报错
 go test ./...                 # 全部通过
 go run ./internal/check       # 样式铁律静态检查通过
-go test ./gallery -run Render # 示例截图 diff 通过（改控件/主题/示例时必跑）
+go test ./gallery -run TestGalleryBaselines # 示例截图 diff 通过（改控件/主题/示例时必跑）
 ```
 
 补充人工确认（按需）：
 
 - [ ] 改了控件：在 Gallery 里目视该控件，确认侧栏可见、示例可切换主题/密度/尺寸。
 - [ ] 改了主题或度量：跑一遍 4 种主题组合（亮/暗 × 标准/紧凑）截图，确认无遗漏旧色。
-- [ ] 新增控件：确认 `samples/<widget>/` 示例已写并在 `samples/registry.go` 注册。
+- [ ] 新增控件：确认 `samples/<分组>/demo.go` 示例已写，并在 `gallery/main.go` 注册。
 - [ ] 新增依赖：确认为纯 Go、无 cgo，`go.sum` 已更新。
 
 ### 5.2 提交

@@ -1,80 +1,121 @@
-# 03 · 缺口控件实现方案
+# 03 · 缺口控件与待补控件
 
 > 对应需求 4：用 MyGo 实现 Ant Design 有而 MyGo 没有的控件。
+>
+> **核对基线**：MyGo v0.10.0（`go.mod` 锁定）、本库当前代码，核对日期 2026-11-27。
+> 本文同时是**「还剩什么」的清单**：§一 已交付，§二 待实现，§三 明确不移植。
 
-## 判定方法
+## 判定方法（已修正）
 
-以 Ant Design 官方组件总览（通用 4 / 布局 7 / 导航 7 / 数据录入 18 / 数据展示 21 / 反馈 11）为清单，逐项与 MyGo `docs/ui` 的 70+ 组件比对。下表只列 **MyGo 无直接对应** 的控件；有对应的见 [02 映射](02-widget-mapping.md)。
+1. 以 Ant Design 组件总览（通用 / 布局 / 导航 / 数据录入 / 数据展示 / 反馈）为清单。
+2. 与 MyGo v0.10.0 `package ui` 的**实际导出名**逐项比对（不是凭印象写控件名）。
+3. 只有「MyGo 既没有同名控件、也没有等价组合原语」才归为缺口；有等价原语的（如 `ui.Divider`、`el.Sticky()`）不算缺口。
+4. 缺口控件可以放在 `widgets/`（与原生控件语义同族，如 `ant.Pagination`、`ant.Steps`）或 `extra/`（跨原语的复杂组合，如 Tree/Upload/Transfer）。
 
-MyGo 可复用的关键底座（来自 `custom-widgets.md`）：`ButtonBase`、`CheckboxBase/StateBase`、`RadioBase`、`SliderBase`、`TabsBase`、`SegmentedBase`、`CollapsibleBase`、`AccordionBase`、`TreeBase`、`SelectBase`、`ComboboxBase`、`PopoverBase`、`DialogBase`、`MenuBase/ContextMenuBase`、`TooltipBase`、`ToastViewportBase/ToastBase`、`TextInputBase/TextAreaBase`。浮层可用 `AttachTo` / `PressedOutside` / `OverlayShortcut` / `Modal` 定位与关闭。
+> **早期草案的四处误判**（已在本版修正）：
+> - `Divider`：v0.10.0 已有 `ui.Divider`，不是缺口；虚线/带文字由 `ant.Divider` 在原生基础上组合。
+> - `Pagination`：已实现于 `widgets/nav.go`（`ant.Pagination`），不在 `extra/`。
+> - `Timeline`：`ui.Timeline` 是**动效时间轴类型**，不是控件；antd Timeline 仍是待实现缺口。
+> - `Spin` / `Affix`：MyGo 有 `ui.Spinner` 与元素方法 `el.Sticky().Top(...)`，只需薄包装，不属于「需要从零实现」。
 
-## 一、优先级 P1 — 高频、易实现（建议 M1–M2 完成）
+## 一、已交付的缺口控件（v0.1.0 / v0.2）
 
-| 缺口控件 | antd 组件 | 实现路径（MyGo 原语） | 复杂度 |
+| antd 组件 | 本库 API | 位置 | 组合方式 | 复杂度 | 备注 |
+| --- | --- | --- | --- | --- | --- |
+| Alert | `ant.Alert` | widgets | `Row` + `Box` + `Text` + SVG 图标 | 低 | 四级别（success/info/warning/error）+ 描述 + 可关闭 |
+| Card | `ant.Card` | widgets | `Column` + `Radius` + `Surface` + 头/体/操作区 | 低 | 头部 extra、底部 actions |
+| Tag | `ant.Tag` | widgets | `Box` + 小圆角 + 语义色派生（7 色系） | 低 | 可关闭；暗色由 `Mix` 自动成立 |
+| Badge（计数/红点） | `ant.Badge` / `BadgeDot` | widgets | `ui.Overlay` + `AttachTo` 骑角 | 低 | 原生 `ui.Badge` 只是文本胶囊 |
+| Pagination | `ant.Pagination` | widgets | `Row` + `ButtonBase` 页码 + 窗口折叠 | 中 | `OnPageChange`；当前固定每页 10 条 |
+| Steps | `ant.Steps` | widgets | `Row` + 圆点 + 连接线 | 中 | 完成/进行/等待三态 |
+| Message / Notification | `ant.Message` / `MessageTypeTyped` / `Notify` | widgets | `c.Toast` / `c.AddToast` | 低 | 复用 MyGo 底部 toast viewport，不是独立浮层 |
+| Modal.confirm / Popconfirm | `ant.Confirm` | widgets | `ui.AlertDialog` | 低 | 无返回值，只回调 `onOk`；Popconfirm 仍未实现 |
+| Divider（虚线/带文字/竖线） | `ant.Divider` / `VerticalDivider` / `DashedVerticalDivider` | widgets | `Box` + `BorderWidth` | 低 | 实线可直接用原生 `ui.Divider` |
+| Tree | `extra.Tree` | extra | `ui.Tree` + `TreeItem` 递归 | 中 | 声明式节点 + 展开状态 + `OnTreeNodeSelect` |
+| Upload | `extra.Upload` | extra | 系统文件对话框 + `ui.Drop` / `DragOver` + 列表 | 高 | 桌面语义；Tester 无窗口环境不能点 |
+| Transfer | `extra.Transfer` | extra | 两列 `Column` + 行 `ButtonBase` + 中间移动按钮 | 中 | 右列选中 Key 由调用方持有 |
+| Carousel | `extra.Carousel` | extra | 当前页容器 + `ButtonBase` 指示点 | 中 | 直接切页，暂无滑入动画；`el.AnimateTo` 可后补 |
+| QRCode | `extra.QRCode` | extra | `skip2/go-qrcode` → `ui.NewBitmap` → `ui.Image` | 中 | 码色随主题（前景=Text，背景=Surface） |
+| Cascader | `extra.Cascader` | extra | `ui.Popover` + 多列 `Column` | 高 | 逐级下钻，叶子写回路径 |
+| TreeSelect | `extra.TreeSelect` | extra | `ui.Popover` + `extra.Tree` | 高 | 选中后收起 |
+
+> 说明：`ant.AvatarEl`、`ant.Breadcrumb`、`ant.Tabs`、`ant.Dropdown`、`ant.Space` / `Flex` / `Grid` 等是**原生控件换肤**，不是缺口控件，见 [02 映射](02-widget-mapping.md)。
+
+## 二、待实现清单（按优先级）
+
+> 复杂度是 1 名熟悉 Go 的开发者的粗估，不含示例与截图回归。
+
+### P1 · 纯组合、低风险
+
+| antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
-| **Pagination 分页** | Pagination | `Row` + `ButtonBase` 页码 + `SelectBase` 每页条数；页码状态存 `ui.Local`/app state | 低 |
-| **Card 卡片** | Card | `ui.Box` + `Radius` + `Background(t.Surface)` + `Shadow` + 标题/内容分区。MyGo 无 Card 控件，纯组合 | 低 |
-| **Tag 标签** | Tag | `Box` + 小 `Radius` + `t.Surface` 背景 + 可选 `ButtonBase` 关闭图标；可关闭/可选中态 | 低 |
-| **Empty 空状态** | Empty | 居中 `Column` + SVG 插画 + `ui.Text(t.TextMuted)` | 低 |
-| **Result 结果** | Result | 状态图标（success/error/warning/info）+ 标题 + 描述 + 操作区，纯组合 | 低 |
-| **Skeleton 骨架屏** | Skeleton | `Box` + `Background(t.SurfaceHover)` + `Radius`，用 `ui.Motion`/`AnimateTo` 做呼吸动画 | 低 |
-| **Divider 分割线** | Divider | `Box` + `BorderWidth(0,0,1,0)` + `BorderStyle(ui.BorderDashed)`，可带文字 | 低 |
-| **Statistic 统计数值** | Statistic | `Text` 大字号 `t.Rem` + 趋势色（涨红跌绿，遵循中文习惯） | 低 |
-| **Descriptions 描述列表** | Descriptions | `Grid`/`Row` + 标签(`t.TextMuted`)/值成对布局 | 低 |
-| **Timeline 时间轴** | Timeline | `Column` + 节点圆点 `Box` + 竖线 `Border`，纯组合 | 中 |
+| **Empty 空状态** | `Column` + `Text` + 可选 SVG | 居中 + `t.TextMuted` 描述 + 操作区 | 低 |
+| **Result 结果页** | 状态图标 + `Title` + `Paragraph` + `Row` | success/error/warning/info 四态 + 操作按钮 | 低 |
+| **Skeleton 骨架屏** | `Box` + `t.SurfaceHover` + `Radius` | 呼吸动画用 `el.AnimateTo` 或 `ui.Motion` | 低 |
+| **Statistic 统计数值** | `Text` + `t.Rem` | 大字号 + 趋势色（涨红跌绿，中文习惯） | 低 |
+| **Descriptions 描述列表** | `Grid` 或 `Row` | 标签 `t.TextMuted` / 值 `t.Text` 成对布局，支持列数 | 低 |
+| **Timeline 时间轴** | `Column` + `Box` 圆点 + `Border` 竖线 | 节点状态色 + 可自定义图标 | 中 |
+| **Spin 加载中** | `ui.Spinner` | 薄包装 + 文案 + `t.Accent` | 低 |
 
-## 二、优先级 P2 — 中频、需浮层或状态（M2–M3）
+### P2 · 需要浮层 / 状态
 
-| 缺口控件 | antd 组件 | 实现路径（MyGo 原语） | 复杂度 |
+| antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
-| **Cascader 级联选择** | Cascader | `SelectBase` 嵌套多级 `Popup`，每级一列 `List`，选项 `*T` 绑定；复用 `TreeBase` 的层级思路 | 高 |
-| **TreeSelect 树选择** | TreeSelect | `SelectBase` 触发器 + `TreeBase` 作为 Popup 内容，勾选态复用 `CheckboxStateBase` | 高 |
-| **Transfer 穿梭框** | Transfer | 两列 `List/Table` + 中间 `ButtonBase` 移动按钮，左右数据源为 app state | 中 |
-| **Mentions 提及** | Mentions | `TextInputBase` + 检测 `@` 触发 `PopoverBase` 候选列表，插入逻辑自管 | 高 |
-| **Drawer 抽屉** | Drawer | `DialogBase` 改为边缘锚定：`AttachTo` + `Modal` + 滑入 transition；关闭同 Dialog | 中 |
-| **Popconfirm 气泡确认** | Popconfirm | `PopoverBase` + 确认/取消 `ButtonBase`，anchored 模式 | 中 |
-| **Watermark 水印** | Watermark | `ui.Draw` / `Painter` 铺满平铺文字，或 `ui.Overlay` + 旋转文本；`PassThrough()` 不挡事件 | 中 |
-| **Tour 漫游式引导** | Tour | `PopoverBase` 依次锚定目标元素 + 上一步/下一步；步骤状态存 app state | 高 |
-| **Carousel 走马灯** | Carousel | `ui.Motion` + 横排 `Row` 位移，指示点用 `ButtonBase` | 中 |
-| **Affix 固钉** | Affix | MyGo 有 `ui.Sticky`/`sticky.go`，语义等价，直接换肤即可 | 低 |
+| **Popconfirm 气泡确认** | `ui.PopoverBase` + `ButtonBase` | 锚定触发器，确认/取消回调 | 中 |
+| **Drawer 抽屉** | `ui.DialogBase` / `ui.Modal` + `el.AnimateTo` | 边缘锚定 + 滑入；注意 Esc/点外关闭语义 | 中 |
+| **Watermark 水印** | `ui.NewCanvas` + `Painter` + `ui.Overlay` | `el.PassThrough()` 不挡事件 | 中 |
+| **Tour 漫游引导** | `ui.PopoverBase` | 逐步锚定 + 上一步/下一步，步骤状态由调用方持有 | 高 |
+| **Mentions 提及** | `ui.TextInput` + `ui.PopoverBase` | 检测 `@` 触发候选，插入逻辑自管 | 高 |
+| **Collapse 折叠面板** | `ui.Collapsible` / `ui.Accordion` | 头部背景 `t.Surface`，箭头/边框对齐 antd | 低 |
+| **AutoComplete 自动补全** | `ui.Autocomplete` | 与 `ant.Combobox` 的差异是保留自由输入 | 低 |
+| **Form 表单** | `ui.Form` / `ui.Field` / `ui.Fieldset` | 标签对齐、必填星号、校验信息配色 | 中 |
+| **Tooltip 文字提示** | `el.Tooltip(...)` / `ui.TooltipBase` | 用 `t.Inverse` / `t.InverseText` 反色 | 低 |
+| **List 列表** | `ui.List` | 行 hover/选中、分隔线、加载更多 | 中 |
+| **Sidebar / Menu 侧栏** | `ui.Sidebar` / `SidebarItem` / `SidebarSection` | 选中项 `t.Selection`、图标色跟随 | 中 |
+| **Splitter 分隔面板** | `ui.Split` / `SplitPercent` / `SplitVertical*` | 分隔条 `t.Border`，拖拽热区加宽 | 低 |
+| **Image 图片预览** | `ui.Image` + `ui.DialogBase` | 圆角 + 点击放大 + 遮罩 | 中 |
+| **ColorPicker 颜色选择** | `ui.ColorWell` / `ui.ColorPicker` | 面板圆角/阴影统一 | 低 |
+| **Progress 环形/仪表** | `ui.Canvas` + `Painter` 或 `ui.Meter` | 线形已实现（`ant.ProgressLine`） | 中 |
+| **Toggle / SplitButton** | `ui.Toggle` / `ui.SplitButton` | 语义与 Segmented/Dropdown 重叠，按需包装 | 低 |
+| **Affix 固钉** | `el.Sticky().Top(0)` | 元素方法即可，无需新控件 | 低 |
 
-## 三、优先级 P3 — 依赖外部能力或平台语义（M3–M4）
+### P3 · 依赖额外能力或强 Web 语义
 
-| 缺口控件 | antd 组件 | 实现路径（MyGo 原语） | 复杂度 |
+| antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
-| **QRCode 二维码** | QRCode | 引入纯 Go 编码库（如 `skip2/go-qrcode`）生成位图，用 `ui.Image`/`ui.Bitmap` 或 `Painter` 逐格绘制 | 中 |
-| **Upload 上传** | Upload | **桌面语义**：本地文件选择走 `mygo` 的 dialog API + `ReadFile`；拖放走 `ui.Drop`/`DragAndDrop`；进度条复用换肤后的 Progress | 高 |
-| **FloatButton 悬浮按钮** | FloatButton | `Box` `Absolute()` 锚定角落 + `ButtonBase`，可选 BackTop 滚动监听 | 低 |
-| **Masonry 瀑布流** | Masonry | `Column` 分桶 + 按高度分配，虚拟滚动复用 `ui.List` 思路 | 高 |
-| **Anchor 锚点** | Anchor | `ui.Outline`/侧栏 + 滚动位置联动高亮 | 中 |
-| **BorderBeam 边框流光** | BorderBeam | `BorderConicGradient` + `AnimateTo` 旋转角度，MyGo 原生支持渐变边框 | 中 |
-| **Notification 通知提醒** | Notification | `ToastViewportBase` 自定义右上角 viewport + 关闭按钮，与 Message 分区 | 中 |
-| **Spin 加载中** | Spin | 用 `ui.Motion` + SVG 旋转；loading 插件已有 29 种指示器可复用 | 低 |
+| **FloatButton 悬浮按钮** | `Box` + `Absolute()` + `ButtonBase` | 角落锚定；BackTop 用 `ScrollState` | 低 |
+| **Anchor 锚点** | `ui.Outline` + `ScrollState` | 滚动位置联动高亮 | 中 |
+| **BorderBeam 边框流光** | `el.BorderConicGradient(...)` + `el.AnimateTo(...)` | 旋转角度动画；MyGo 原生渐变边框 | 中 |
+| **Notification（独立浮层）** | `ui.ToastViewportBase` | 自定义右上角 viewport + 关闭按钮 | 中 |
+| **Masonry 瀑布流** | `Scroll` + 分桶 `Column` | 按高度分配到最短列 | 高 |
 
-## 四、明确不移植的控件
+> QRCode / Upload / Transfer / Carousel / Cascader / TreeSelect 已在 §一 交付，无需再排期。
 
-- **App / ConfigProvider / Util**：这些是 Web 框架层概念。本库中 ConfigProvider 的职责由 `theme/` 包承担，App 包裹由 `ui.View` 承担，无需伪造同名控件。
-- **List（已废弃）/ Grid 语义重复**：MyGo 的 `ui.List`/`ui.Grid` 已覆盖。
-- **强 Web 语义的原生能力**：如 `Affix` 在桌面窗口中意义有限，仅保留等价实现。
+## 三、明确不移植
 
-## 五、缺口控件的统一开发规范
+- **App / ConfigProvider / Util**：Web 框架层概念。ConfigProvider 的职责由 `theme/` 承担，App 包裹由 `ui.View` 承担，不伪造同名控件。
+- **Pro 组件（ProTable / ProForm / ProLayout 等）**：商业组件，超出 v0.x 范围。
+- **移动端专有组件**：MyGo 已原生支持移动端，后续版本再评估。
+- **强 Web 语义的原生能力**：如 SSR、CSS-in-JS、路由级 Code Splitting，不映射到桌面控件。
 
-1. **位置**：全部放在 `extra/` 包，不污染 `widgets/`（一一对应换肤控件）。
-2. **签名**：与新 Ant Design 风格一致的函数式 API，例如 `extra.Pagination(c, &page, total)`。
-3. **主题**：与换肤控件共用同一套 Token，禁止自带硬编码颜色。
-4. **密度**：必须支持标准/紧凑两档（见 [05](05-compact-density.md)）。
-5. **无障碍**：基于 Base 的实现天然带键盘与屏幕阅读器支持；纯组合控件需补 `Role`/`Label`。
-6. **自测**：用 Gallery 的无窗口渲染出 PNG 做视觉回归。
+## 四、缺口控件统一开发规范
 
-## 六、实现顺序建议
+1. **位置**：与原生控件同族的放 `widgets/`（如 Pagination、Steps、Alert）；跨多个原语的复杂组合放 `extra/`（如 Tree、Upload、Transfer）。
+2. **签名**：函数式选项 + 贴近原生，例如 `ant.Pagination(c, &page, total, ant.OnPageChange(fn))`、`extra.Cascader(c, &path, nodes, extra.CascaderOnChange(fn))`。
+3. **主题**：与换肤控件共用同一套 Token，禁止硬编码颜色；`internal/check` 会扫描 `widgets/` 与 `extra/`。
+4. **密度**：必须同时支持标准/紧凑（间距走 `t.Space` / `t.Rem`，见 [05](05-compact-density.md)）。
+5. **无障碍**：基于 Base 的实现天然带键盘与朗读；纯组合控件需补 `Role` / `Label`。
+6. **示例与回归**：在 `samples/<分类>/` 写可编译示例并注册到 `gallery/main.go`，跑 Gallery 截图基线（见 [07](07-samples-gallery.md)）。
+
+## 五、实现顺序（更新）
 
 ```
-P1（低风险、快速见效）
-  Card → Tag → Empty → Result → Divider → Statistic → Skeleton → Timeline
-P2（浮层与状态）
-  Pagination → Drawer → Popconfirm → Descriptions → Transfer → Cascader/TreeSelect → Tour
-P3（依赖能力）
-  Spin → FloatButton → BorderBeam → Notification → QRCode → Upload → Anchor → Carousel → Masonry
+已完成  Card → Tag → Badge → Pagination → Steps → Alert → Message/Notify → Confirm
+        → Tree → Upload → Transfer → Carousel → QRCode → Cascader → TreeSelect
+下一步  Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
+        → Popconfirm → Drawer → Collapse/AutoComplete/Form/Tooltip/List/Sidebar 包装
+再后    Mentions → Tour → Watermark → Anchor → Notification → 环形 Progress
+按需    FloatButton → BorderBeam → Masonry → Splitter → Image 预览 → ColorPicker
 ```
 
-每完成一个控件，同步在 Gallery 中添加预览与紧凑密度对照。
+每完成一个控件，同步在 `samples/` 添加示例、在 `gallery/main.go` 注册，并生成/更新截图基线。

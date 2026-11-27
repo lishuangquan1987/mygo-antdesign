@@ -1,8 +1,11 @@
-# 08 迁移指南：从 MyGo 原生到 mygo-antdesign
+# 08 · 迁移指南：从 MyGo 原生到 mygo-antdesign
 
 本指南面向已使用 MyGo `package ui` 的应用，逐步迁移到 Ant Design 风格的
 `mygo-antdesign`。控件是 `ui` 原语的换肤包装或组合，即时模式语义
 （view = f(state)、`*T` 受控绑定、`ui.Local`）完全一致。
+
+> 基线：MyGo **v0.10.0**、本库 **v0.1.0**（v0.2 开发中）、Go 1.27.4。
+> 文中 API 名均已与代码核对；早期版本里写错的 `ant.Radio[T]`、`ui.Dialog` 等已修正。
 
 ## 1. 安装与主题接入
 
@@ -19,11 +22,14 @@ func (app *App) view(c *ui.Context) {
 }
 ```
 
-- 全局切换：`theme.Apply(c, token)` 每帧调用安全，`token` 换成
+- **全局切换**：`theme.Apply(c, token)` 每帧调用安全，`token` 换成
   `theme.Dark(theme.WithPrimary(ui.Hex("#7c3aed")))` 即整窗变色。
-- 局部切换：`theme.Sub(c, token)` 返回 `ui.Themed` 容器，适合亮暗并排
-  预览、独立主题面板。
-- 紧凑密度（上位机 / IDE）：`theme.WithDensity(theme.Compact)`。
+- **局部切换**：`theme.Sub(c, token)` 返回 `ui.Themed` 容器，适合亮暗并排预览、独立主题面板。
+- **紧凑密度（上位机 / IDE）**：`theme.WithDensity(theme.Compact)`。
+- **主题 API 一览**：
+  `theme.Light(opts...)` / `theme.Dark(opts...)`、`theme.Apply(c, *AntToken)`、`theme.Sub(c, *AntToken) ui.Element`；
+  Option：`WithPrimary(ui.Color)`、`WithDensity(theme.Density)`、`WithFontSize(float32)`、`WithRadius(float32)`、`WithSpacing(float32)`。
+  `WithDensity` 会重置度量，应放在细调 Option **之前**。
 
 ## 2. 控件对照表
 
@@ -31,91 +37,104 @@ func (app *App) view(c *ui.Context) {
 
 | MyGo 原生 | antd 风格 | 说明 |
 | --- | --- | --- |
-| `ui.Button` / `ButtonBase` | `ant.Button(c, label, opts...)` | `ant.Primary()` / `Danger()` / `Size(ant.Large)` / `Loading` / `OnClick` |
-| `ui.Text` 组合 | `ant.Title` / `ant.Paragraph` / `ant.Code` | H1–H5 字级、Secondary/Delete/Strong 等变体 |
-| `ui.Row` + 手画线 | `ant.Divider` / `ant.VerticalDivider` | 虚线、带文字、对齐方向 |
+| `ui.Button` / `ui.PrimaryButton` / `ui.ButtonBase` | `ant.Button(c, label, opts...)` | `ant.Primary()` / `Danger()` / `Dashed()` / `Text()` / `Link()` / `Size(ant.Large)` / `Loading(true)` / `Disabled(true)` / `Block(true)` / `OnClick(fn)` |
+| `ui.Text` / `ui.Textf` | `ant.Title(c, s, ant.H1)` / `ant.Paragraph(c, s, opts...)` / `ant.Code(c, s)` / `ant.TextMuted(c, s)` | `Paragraph` 选项：`Secondary()` / `Delete()` / `Strong()` / `Underline()` / `Italic()` / `Marked()` |
+| `ui.Row` / `ui.Column` / `ui.Grid` | `ant.Space(c, opts...)` / `ant.Flex(c, opts...)` / `ant.Grid(c, cols)` | 间距经 `t.Space` 随密度缩放；`Space` 选项：`Gap` / `GapUnits` / `SpaceVertical` / `SpaceAlign` / `SpaceFillWidth`；`Flex`：`FlexColumn` / `FlexJustify` / `FlexAlign` / `FlexGap` / `FlexWrap` / `FlexGrow` / `FlexFill` |
+| `ui.Divider` | `ant.Divider(c, opts...)` / `ant.VerticalDivider(c)` / `ant.DashedVerticalDivider(c)` | 选项：`DashedDivider()` / `WithText(s)` / `TextLeft()` / `TextCenter()` / `TextRight()` |
+| `ui.Icon`（`ui.ParseSVG` + `ui.Image`） | `icon.Icon(c, icon.Search, 16, icon.WithColor(t.Accent))` | 44 个 outlined 常量；默认跟随文本色 |
 
 ### 数据录入
 
 | MyGo 原生 | antd 风格 | 说明 |
 | --- | --- | --- |
-| `ui.TextInput` / `TextArea` | `ant.Input` / `ant.TextArea` | 聚焦描边、Placeholder、InputLabel、OnChanged/OnSubmit |
-| `ui.TextInput` 组合 | `ant.SearchInput` | 回车提交（antd Input.Search） |
-| `ui.NumberInput` | `ant.NumberInputV(c, *float64, lo, hi, step)` | v0.10.0 原语要求 `*float64` |
-| `ui.Select` | `ant.Select(c, *string, options)` | 高度/字号/圆角对齐 antd |
-| `ui.Combobox` | `ant.Combobox` | 输入过滤 + 候选 |
-| `ui.DateInput` / `TimeInput` | `ant.DatePicker` / `ant.TimePicker` | `*time.Time` 受控 |
-| `ui.Checkbox` / `CheckboxState` | `ant.Checkbox` / `ant.CheckboxAll` | 三态全选框 |
-| `ui.RadioGroup` / `Radio` | `ant.RadioGroup` / `ant.Radio[T]` | 泛型受控值 |
-| `ui.Switch` | `ant.Switch` / `ant.SwitchWithLabel` | |
-| `ui.Slider` / `RangeSlider` | `ant.Slider` / `ant.RangeSliderDouble` | |
-| `ui.Rating` | `ant.Rate` | |
-| `ui.Segmented` | `ant.Segmented(c, *int, labels)` | 支持 `ControlOption`（Disabled/OnChange） |
+| `ui.TextInput` / `ui.TextArea` | `ant.Input(c, *string, opts...)` / `ant.TextArea(c, *string, opts...)` | `PlaceholderText` / `InputLabel` / `PasswordInput` / `InputDisabled` / `InputReadOnly` / `MaxLengthText` / `Rows` / `InputPrefix` / `InputSuffix` / `InputSize` / `OnChanged` / `OnSubmit` |
+| `ui.TextInput` 组合 | `ant.SearchInput(c, *string, opts...)` | 回车提交（antd Input.Search）；**不是** `ui.SearchField` |
+| `ui.NumberInput` | `ant.NumberInputV(c, *float64, lo, hi, step, opts...)` | v0.10.0 原语要求 `*float64` |
+| `ui.Select` | `ant.Select(c, *string, options []string, opts ...ant.ControlOption)` | 高度/字号/圆角对齐 antd |
+| `ui.Combobox` | `ant.Combobox(c, *string, options []string, opts ...)` | 输入过滤 + 候选 |
+| `ui.DateInput` / `ui.TimeInput` | `ant.DatePicker(c, *time.Time, opts...)` / `ant.TimePicker(c, *time.Time, opts...)` | `*time.Time` 受控 |
+| `ui.Checkbox` / `ui.CheckboxState` | `ant.Checkbox(c, *bool, label, opts...)` / `ant.CheckboxAll(c, *ui.CheckState, label, opts...)` | 三态全选框 |
+| `ui.RadioGroup` / `ui.Radio[T]` | `ant.RadioGroup(c, func())` | **单项 `ui.Radio[T]` 没有对应的 `ant.Radio`**，直接在内层用原生 `ui.Radio` |
+| `ui.Switch` | `ant.Switch(c, *bool, opts...)` / `ant.SwitchWithLabel(c, *bool, label, opts...)` | — |
+| `ui.Slider` / `ui.RangeSlider` | `ant.Slider(c, *float64, lo, hi, opts...)` / `ant.RangeSliderDouble(c, low, high *float64, lo, hi, step, opts...)` | — |
+| `ui.Rating` | `ant.Rate(c, *int, max int, opts...)` | — |
+| `ui.Segmented` | `ant.Segmented(c, *int, labels []string, opts ...ant.ControlOption)` | 支持 `ControlDisabled` / `OnChange` |
+| `ui.ColorWell` / `ui.ColorPicker` | — | 未包装，直接用原生 |
+| `ui.Calendar` / `ui.Form` / `ui.TokenField` | — | 未包装，直接用原生 |
+
+> `ant.ControlOption` 提供 `ControlDisabled(bool)` 与 `OnChange(func())`，供 Checkbox/Switch/Slider/Rate/Segmented/Select/Combobox 等共用。
 
 ### 数据展示
 
 | MyGo 原生 | antd 风格 | 说明 |
 | --- | --- | --- |
-| `ui.Table` | `ant.Table(c, columns, rows)` | 列定义、表头排序、`TableSelection` 行多选 |
-| `ui.Tree` / `TreeItem` | `extra.Tree(c, nodes)` | 节点树声明式构建，`OnTreeNodeSelect` |
-| `ui.Badge` 组合 | `ant.Badge` / `ant.BadgeDot` | 右上角骑角定位（Overlay + AttachTo） |
-| `ui.Avatar` | `ant.AvatarEl` | |
-| Row/Column 组合 | `ant.Card` | 头部/内容/操作区 |
-| `ui.Image` + 自绘 | `extra.QRCode` | 码色随主题 |
+| `ui.Table` | `ant.Table(c, columns []ant.TableColumn, rows [][]string, opts...)` | `TableSelection(*ui.Selection[int])` 行多选、`TableOnSort(func())` 表头排序 |
+| `ui.Tree` / `TreeItem` | `extra.Tree(c, nodes []extra.TreeNode, opts...)` | `extra.OnTreeNodeSelect(func(key string))` |
+| `ui.Badge` 组合 | `ant.Badge(c, count int, fn func())` / `ant.BadgeDot(c, fn func())` | 右上角骑角定位（`ui.Overlay` + `AttachTo`） |
+| `ui.Avatar` | `ant.AvatarEl(c, name string, image ...*ui.Bitmap)` | 未传图片时显示姓名首字母 |
+| `Row` / `Column` 组合 | `ant.Card(c, title string, body func(), opts...)` | 选项：`CardExtra(func(*ui.Context))` / `CardActions(func(*ui.Context))` |
+| `ui.Image` + 自绘 | `extra.QRCode(c, content string, opts...)` | 码色随主题；`extra.QRCodeSize(px)` |
+| `ui.List` / `ui.Collapsible` / `ui.Accordion` / `ui.Outline` | — | 未包装，直接用原生 |
 
 ### 反馈
 
 | MyGo 原生 | antd 风格 | 说明 |
 | --- | --- | --- |
-| `ui.Row` 组合 | `ant.Alert` | 四级别、可关闭 |
-| `ui.Modal` / `AlertDialog` | `ant.Modal` / `ant.Confirm` | OnOk/OnCancel；Confirm 返回确定与否 |
-| `c.Toast` / `AddToast` | `ant.Message` / `ant.Notify` | 轻提示与通知 |
-| `ui.Progress` | `ant.ProgressLine` | `ProgressHideText` 隐藏百分比 |
-| — | `extra.Upload` | 系统文件对话框 + 原生拖放 + 列表 |
+| `Row` 组合 | `ant.Alert(c, title string, opts...)` | `AlertTypeOpt(typ)` / `AlertDescription(s)` / `AlertClosable(fn)`；四级别 |
+| `ui.Modal` / `ui.AlertDialog` | `ant.Modal(c, open *bool, title string, body func(), opts...)` / `ant.Confirm(c, open *bool, title, message string, onOk func())` | Modal 选项：`OkText` / `CancelText` / `OnOk` / `OnCancel` / `HideCancel`；**Confirm 无返回值**，只回调 `onOk` |
+| `c.Toast` / `c.AddToast` | `ant.Message(c, text)` / `ant.MessageTypeTyped(c, typ, text)` / `ant.Notify(c, title, description, action, onAction)` | 复用 MyGo 底部 toast viewport |
+| `ui.Progress` | `ant.ProgressLine(c, value float64, opts...)` | `ProgressShowText()` / `ProgressHideText()` 隐藏百分比 |
+| `ui.Spinner` | — | Button 的 Loading 内部已使用；未单独暴露 `ant.Spin` |
+| — | `extra.Upload(c, opts...)` | 系统文件对话框 + 原生拖放 + 列表；选项：`UploadMultiple` / `UploadAccept` / `UploadHint` / `UploadOnChange` |
 
 ### 导航与布局
 
 | MyGo 原生 | antd 风格 | 说明 |
 | --- | --- | --- |
-| `ui.Breadcrumbs` | `ant.Breadcrumb` | |
-| `ui.Tabs` | `ant.Tabs` | |
-| `ui.MenuButton` / `Menu` | `ant.Dropdown(c, label, items)` | MenuItemData 声明菜单 |
-| Row + ButtonBase | `ant.Pagination` | 页码窗口折叠，OnPageChange |
-| Row 组合 | `ant.Steps` | 完成/进行/等待三态 |
-| `ui.Row` / `Column` / `Grid` | `ant.Space` / `ant.Flex` / `ant.Grid` | 间距经 `t.Space` 随密度缩放 |
+| `ui.Breadcrumbs` | `ant.Breadcrumb(c, items []string, chosen *int)` | `chosen=-1` 表示未选择 |
+| `ui.Tabs` | `ant.Tabs(c, selected *int, labels ...string)` | — |
+| `ui.MenuButton` / `Menu` | `ant.Dropdown(c, label string, items []ant.MenuItemData, opts...)` | `MenuItemData` 声明菜单；`DropdownDisabled(bool)` |
+| 自建 | `ant.Pagination(c, current *int, total int, opts...)` | 页码窗口折叠，`OnPageChange(func(page int))` |
+| 自建 | `ant.Steps(c, current *int, labels []string)` | 完成/进行/等待三态 |
+| `ui.Split` | — | 未包装，直接用原生 |
+| `ui.Sidebar` | — | 未包装，直接用原生 |
 
-### 图标
+### 缺口控件（extra/）
 
-| MyGo 原生 | antd 风格 | 说明 |
-| --- | --- | --- |
-| `ui.ParseSVG` + `ui.Image` | `icon.Icon(c, icon.Search, 16)` | 44 个 outlined 常量，颜色跟随文本色 |
+| antd 组件 | 本库 API |
+| --- | --- |
+| Tree | `extra.Tree(c, nodes, extra.OnTreeNodeSelect(fn))` |
+| TreeSelect | `extra.TreeSelect(c, *string, nodes, extra.TreeSelectPlaceholder(s), extra.TreeSelectDisabled(b), extra.TreeSelectOnSelect(fn))` |
+| Cascader | `extra.Cascader(c, *[]string, nodes, extra.CascaderPlaceholder(s), extra.CascaderDisabled(b), extra.CascaderOnChange(fn))` |
+| Transfer | `extra.Transfer(c, items []extra.TransferItem, right *[]string, extra.TransferTitles(l, r), extra.TransferOnChange(fn))` |
+| Carousel | `extra.Carousel(c, pages []func(*ui.Context), extra.CarouselHeight(h))` |
+| Upload | `extra.Upload(c, opts...)` |
+| QRCode | `extra.QRCode(c, content, extra.QRCodeSize(px))` |
 
 ## 3. 事件回调差异
 
-MyGo 原语是帧内查询（`el.Clicked()` / `el.Changed()`）；antd 包装层补齐了
-React 风格回调：
+MyGo 原语是帧内查询（`el.Clicked()` / `el.Changed()`）；antd 包装层补齐了 React 风格回调：
 
-- `ant.Button(..., ant.OnClick(fn))`：内部用 `ui.Local` 上升沿实现，
-  一次点击只触发一次。
-- `ant.Checkbox(..., ant.OnChange(fn))` 等：`Changed()` 本帧变化语义。
-- 有状态值仍由调用方持有（`*string` / `*bool` / `*time.Time`），
-  与 MyGo 的受控绑定一致。
+- `ant.Button(..., ant.OnClick(fn))`：内部用 `ui.Local` 上升沿实现，一次点击只触发一次。
+- `ant.Input(..., ant.OnChanged(fn))` / `ant.OnSubmit(fn)`、`ant.ControlOption` 的 `OnChange(fn)`：语义是「本帧发生变化」。
+- 有状态值仍由调用方持有（`*string` / `*bool` / `*time.Time` / `*[]string`），与 MyGo 的受控绑定一致。
+- **没有** 通用 `onClick` 属性：`ui.Modal` 的确定/取消用 `ModalOption`，`ant.Pagination` / `ant.Steps` 用各自的回调。
 
 ## 4. 已知差异与限制
 
 - `ant.Table` 单元格为字符串比较排序（数字列请先格式化定宽文本）。
-- `extra.Upload` 的文件对话框调用 `mygo.Dialog.Open`，会阻塞至对话框关闭；
-  无窗口（Tester）环境下不要点击拖放区。
-- `Confirm` 基于 `ui.AlertDialog`，返回被点按钮语义（确定=true）。
-- 颜色/间距铁律：包装层所有取值来自 `c.Theme()` 与 `t.Space/Rem`，
-  运行时换肤自动生效；应用侧不要对 antd 控件硬编码颜色。
+- `ant.Table` 以 `[][]string` 持有全部行数据，但内部走 `ui.Table` 的可见行回调，虚拟滚动仍由 MyGo 提供；排序是比较字符串（数字列请先格式化定宽文本）。
+- `extra.Upload` 的文件对话框调用 `mygo.Dialog.Open`，会阻塞至对话框关闭；无窗口（Tester）环境下不要点击拖放区。
+- `ant.Confirm` 基于 `ui.AlertDialog`，**返回被点按钮下标（0 起），`ant.Confirm` 本身不返回值**，只回调 `onOk`。
+- `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
+- 颜色/间距铁律：包装层所有取值来自 `c.Theme()` 与 `t.Space/Rem`，运行时换肤自动生效；应用侧不要对 antd 控件硬编码颜色。
+- 未实现（见 03）：Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Popconfirm / Drawer / Form / Collapse / Tooltip / Sidebar / List 等包装。
 
 ## 5. 迁移步骤建议
 
-1. `go get github.com/lishuangquan1987/mygo-antdesign@v0.1.0`。
+1. `go get github.com/lishuangquan1987/mygo-antdesign@v0.1.0`（v0.2 发布后可用 `@v0.2.0`）。
 2. 在根视图首行加 `theme.Apply(c, theme.Light())`。
 3. 逐控件替换（对照第 2 节）：先静态展示类（Title/Paragraph/Card），
    再交互类（Button/Input），最后容器类（Space/Flex/Grid）。
-4. 需要紧凑密度时给 token 加 `theme.WithDensity(theme.Compact)`，
-   其余代码零改动。
-5. 用 Gallery（`go run ./gallery`）核对目标控件的视觉与交互。
+4. 需要紧凑密度时给 token 加 `theme.WithDensity(theme.Compact)`，其余代码零改动。
+5. 用 Gallery（`go run ./gallery`）核对目标控件的视觉与交互，并参考 `samples/` 下的可编译示例。

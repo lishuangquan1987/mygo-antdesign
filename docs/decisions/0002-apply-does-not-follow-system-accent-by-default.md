@@ -1,10 +1,7 @@
 # 0002 · Apply 默认不跟随系统强调色
 
 日期：2026-11-26
-
-## 状态
-
-已采纳
+状态：已采纳（2026-11-27 补充实现状态）
 
 ## 背景
 
@@ -12,7 +9,20 @@
 
 ## 决策
 
-`theme.Apply` **默认不跟随**系统强调色 / 高对比度 / 文字缩放，保证 Ant Design 品牌色忠实呈现；需要跟随系统的应用显式传入 `WithFollowSystem()` Option，此时在品牌色之上叠加 `WithPreferences`（亮暗外观仍由预设的 `Dark` 字段决定，系统亮暗切换的自动跟随留待后续版本用 MyGo 的 dark mode 通知实现）。
+`theme.Apply` **默认不跟随**系统强调色 / 高对比度 / 文字缩放，保证 Ant Design 品牌色忠实呈现。
+
+当前实现（`theme/theme.go` + `theme/bridge.go`）：
+
+- `Apply(c, t)` 只做 `c.SetTheme(t.toTheme())`；
+- `toTheme()` 按 `isDark` 选择 `ui.LightTheme()` / `ui.DarkTheme()` 基底，写入 Token 映射，再 `WithAccent(Primary)` 派生成套色阶；
+- **不会**调用 `WithPreferences`，也没有 `WithFollowSystem()` Option。
+
+需要跟随系统的应用，可以在 `theme.Apply` 之后自行调用 `c.SetTheme(c.Theme().WithPreferences(c.Preferences()))`（注意这会覆盖品牌色，属于有意的应用级取舍）。
+
+## 后续计划（未实现）
+
+- 提供 `theme.WithFollowSystem()` Option：在品牌色之上叠加系统偏好，并明确「强调色以谁为准」的优先级（建议：品牌色优先，仅高对比/文字缩放跟随）。
+- 系统亮暗切换的自动跟随（依赖 MyGo 的 dark mode 通知）。
 
 ## 后果
 

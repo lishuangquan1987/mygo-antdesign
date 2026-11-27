@@ -14,7 +14,7 @@
 
 ## 快速开始
 
-**安装**（Go 1.27+）：
+**安装**（Go 1.27.4+，MyGo v0.10.0）：
 
 ```bash
 go get github.com/lishuangquan1987/mygo-antdesign@v0.1.0
@@ -46,7 +46,9 @@ func main() {
 				// 一行接入主题：亮色预设 + 自定义品牌色。
 				theme.Apply(c, theme.Light(theme.WithPrimary(ui.RGB(0x16, 0x77, 0xff))))
 
-				col := ui.Column(c).Gap(12).Padding(24)
+				// 间距一律走主题度量，切换密度时自动缩放。
+				t := c.Theme()
+				col := ui.Column(c).Gap(t.Space(3)).Padding(t.Space(6))
 				col.Children(func() {
 					widgets.Title(c, "登录", widgets.H2)
 					widgets.Input(c, &name, widgets.PlaceholderText("用户名"))
@@ -66,7 +68,7 @@ func main() {
 
 ![最小示例效果](docs/images/quickstart.png)
 
-**运行示例 Gallery**（浏览全部 50+ 控件、切换主题/密度/品牌色、查看同屏亮暗对比）：
+**运行示例 Gallery**（浏览全部控件分组、切换主题/密度/品牌色、查看同屏亮暗对比）：
 
 ```bash
 go run ./gallery
@@ -76,7 +78,10 @@ go run ./gallery
 
 **进阶**：主题自定义与运行时切换见 [docs/04](docs/04-theme-system.md)；紧凑密度见 [docs/05](docs/05-compact-density.md)；从 MyGo 原生控件迁移见 [docs/08](docs/08-migration.md)。
 
-> 当前状态：**v0.1.0**——主题层 + Gallery + 全部 9 组换肤控件（Button / Typography / Divider / 布局 / 输入 / 选择 / 数据展示 / 表格 / 反馈 / 导航）+ 缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标，共 50+ 控件函数，全部带示例、单测与截图验证（见 [docs/06](docs/06-development-plan.md) 进度章节与 [docs/08](docs/08-migration.md) 迁移指南）。
+> **当前状态**
+> - **v0.1.0**（已打 tag）：主题层 + 9 组换肤控件 + 首批缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标 + Gallery + 全部文档。
+> - **v0.2**（代码已提交、未发版）：README 快速开始重写、Release 安装包流水线、Cascader / TreeSelect。
+> - 当前共 **53 个控件构造函数**（`widgets/` 46 + `extra/` 7）、**11 个示例分组 / 46 个示例片段**、**4 张 Gallery 截图基线**；尚未覆盖的控件与逐示例基线见 [docs/03](docs/03-gap-widgets.md) 与 [docs/06](docs/06-development-plan.md)。
 
 ## 一句话结论
 
@@ -89,37 +94,38 @@ go run ./gallery
 3. **无 CSS 选择器**：MyGo 明确「State, not selectors」，因此 Ant Design 的 className / CSS-in-JS 动态样式要翻译成 Go 的条件分支与 Theme 字段。
 4. **主题单一真源**：一套 Token 映射表驱动全部控件，杜绝每个控件各自硬编码颜色。
 5. **密度是一等公民**：标准（Ant Design 默认）与紧凑两套密度共用同一组件实现，靠参数切换。
-6. **示例是一等交付物**：每个控件都配可运行示例，展示不同主题、尺寸、密度与状态，代码与效果一一对应（见 [Samples & Gallery](docs/07-samples-gallery.md)）。
+6. **示例是一等交付物**：每个示例都配可运行代码，展示不同主题、尺寸、密度与状态，代码与效果一一对应（见 [Samples & Gallery](docs/07-samples-gallery.md)）。
 
 ## 控件示例 Gallery
 
-像 WPF 的 Material Design 示例程序一样，本库提供一个可运行的 **Gallery 应用**：左侧控件目录、中间实时预览、旁边可复制的真实代码，顶部可切换主题（亮/暗/品牌色）、密度（标准/紧凑）、尺寸（大/中/小），并支持**同屏并排对比**（借助 MyGo 的 `ui.Themed`）。示例同时用于视觉回归截图与文档插图。设计见 [07 Samples & Gallery](docs/07-samples-gallery.md)。
+像 WPF 的 Material Design 示例程序一样，本库提供一个可运行的 **Gallery 应用**：左侧控件目录、中间实时预览、旁边可复制的真实代码，顶部可切换主题（亮/暗/品牌色）、密度（标准/紧凑），并支持**同屏并排对比**（借助 MyGo 的 `ui.Themed`）。示例同时用于视觉回归截图与文档插图。设计见 [07 Samples & Gallery](docs/07-samples-gallery.md)。
 
 ## 文档导航
 
 | 文档 | 覆盖的需求 | 内容 |
 | --- | --- | --- |
 | [01 可行性分析](docs/01-feasibility.md) | 需求 2 | 技术契合度、架构分层、工作量、风险与里程碑 |
-| [02 控件换肤映射](docs/02-widget-mapping.md) | 需求 3 | MyGo 全部原生控件 → Ant Design 皮肤的逐项改造方案 |
-| [03 缺口控件实现](docs/03-gap-widgets.md) | 需求 4 | Ant Design 有而 MyGo 无的控件，基于 Base / Element 的实现路径 |
+| [02 控件换肤映射](docs/02-widget-mapping.md) | 需求 3 | MyGo v0.10.0 全部原生控件 → Ant Design 皮肤的逐项映射与实现状态 |
+| [03 缺口控件实现](docs/03-gap-widgets.md) | 需求 4 | Ant Design 有而 MyGo 无的控件：已交付、待实现、明确不移植 |
 | [04 主题系统](docs/04-theme-system.md) | 需求 5 | Token 映射、运行时切换、全局/局部主题、预设 |
 | [05 紧凑密度](docs/05-compact-density.md) | 需求 6 | 标准/紧凑两套密度规范、数值表、运行时切换 |
-| [06 开发计划](docs/06-development-plan.md) | 整体 | WBS、里程碑、时间线、DoD、风险 |
-| [07 Samples & Gallery](docs/07-samples-gallery.md) | 示例展示 | 每控件示例、四维展示、并排对比、真实代码、截图回归 |
+| [06 开发计划](docs/06-development-plan.md) | 整体 | WBS、里程碑、时间线、DoD、风险、当前进度 |
+| [07 Samples & Gallery](docs/07-samples-gallery.md) | 示例展示 | 示例数据结构、覆盖矩阵、Gallery、截图回归、如何新增示例 |
 | [08 迁移指南](docs/08-migration.md) | 采用 | 从 MyGo 原生到 antd 控件的对照迁移、事件差异、限制 |
 
-## 目录约定（后续实现阶段）
+## 目录约定
 
 ```
 mygo-antdesign/
 ├── theme/        # Token 定义、预设主题、与 MyGo Theme 的桥接
-├── widgets/      # 换肤后的控件（与 MyGo 原生一一对应）
-├── extra/        # 缺口控件：Tree / Upload / Transfer / Carousel / QRCode
+├── widgets/      # 换肤后的控件（包名 ant，与 MyGo 原生一一对应）
+├── extra/        # 缺口控件：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect
 ├── icon/         # Ant Design 图标的 SVG 常量（44 个 outlined）+ 渲染函数
-├── samples/      # 每控件示例源码（真实可编译，go:embed 提取代码片段）
-├── gallery/      # 示例展示应用：侧栏 + 实时预览 + 代码 + 主题/尺寸/密度切换 + 并排对比
+├── samples/      # 示例源码（真实可编译，go:embed 提取代码片段）+ golden 基线
+├── gallery/      # 示例展示应用：侧栏 + 实时预览 + 代码 + 主题/密度切换 + 并排对比
+├── internal/     # 共享度量、状态映射、静态检查
 ├── scripts/      # genicons：图标常量生成器
-└── docs/         # 本文档集（含截图基线）
+└── docs/         # 文档集（含 decisions/ 与截图）
 ```
 
 ## License

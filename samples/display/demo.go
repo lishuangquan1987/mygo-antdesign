@@ -69,6 +69,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "collapse"),
 				View:        CollapseDemo,
 			},
+			{
+				Title:       "列表",
+				Description: "List 虚拟滚动列表，行选中态由调用方持有。",
+				Code:        samples.Extract(demoSrc, "list"),
+				View:        ListDemo,
+			},
 		},
 	}
 }
@@ -202,6 +208,21 @@ func CollapseDemo(c *ui.Context) {
 			widgets.Paragraph(c, "这里是高级设置的内容。")
 		}},
 	}, widgets.CollapseAccordion(true), widgets.CollapseDefaultOpen("基础设置"))
+}
+
+// /sample
+
+// sample:list
+func ListDemo(c *ui.Context) {
+	items := []string{"苹果", "香蕉", "橙子", "葡萄"}
+	host := ui.Column(c).FillWidth()
+	state := ui.Local(host, "ant.sample.display.list", func() ui.ListState { return ui.ListState{} })
+	chosen := ui.Local(host, "ant.sample.display.chosen", func() int { return -1 })
+	host.Children(func() {
+		widgets.List(c, state, len(items), func(i int) {
+			widgets.Paragraph(c, items[i])
+		}, widgets.ListSelected(chosen))
+	})
 }
 
 // /sample

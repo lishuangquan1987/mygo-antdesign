@@ -166,3 +166,30 @@ func Grid(c *ui.Context, cols int) ui.Element {
 	t := c.Theme()
 	return ui.Grid(c).Columns(cols).Gap(t.Space(3)).FillWidth()
 }
+
+// Splitter 水平分隔面板（antd Splitter）：左右两栏，中间分隔条拖拽调整。
+// size 为左栏宽度（DIP），由调用方持有：
+//
+//	ant.Splitter(c, &app.leftWidth, func() {
+//	    ant.Sidebar(...)
+//	}, func() {
+//	    ant.Card(...)
+//	}).Fill()
+func Splitter(c *ui.Context, size *float32, first, second func()) ui.Element {
+	return ui.Split(c, size, first, second)
+}
+
+// SplitterVertical 垂直分隔面板（上下两栏，size 为上栏高度）。
+func SplitterVertical(c *ui.Context, size *float32, first, second func()) ui.Element {
+	return ui.SplitVertical(c, size, first, second)
+}
+
+// SplitterPercent 水平分隔面板（百分比 0–100，两栏随容器等比缩放）。
+func SplitterPercent(c *ui.Context, p *float32, first, second func()) ui.Element {
+	return ui.SplitPercent(c, p, first, second)
+}
+
+// SplitterVerticalPercent 垂直分隔面板（百分比）。
+func SplitterVerticalPercent(c *ui.Context, p *float32, first, second func()) ui.Element {
+	return ui.SplitVerticalPercent(c, p, first, second)
+}

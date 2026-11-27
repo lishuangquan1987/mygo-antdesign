@@ -49,6 +49,10 @@
 | Popconfirm | `ant.Popconfirm` | widgets | `ui.Popover` + `ButtonBase` | 中 | 触发器点击弹出，确认/取消回调 |
 | Collapse | `ant.Collapse` | widgets | `ButtonBase` 头部 + 图标箭头 + 内容区 | 中 | 手风琴模式、默认展开、按 Key 记忆 |
 | Form | `ant.Form` / `FormItem` / `FormGroup` | widgets | `ui.Form` / `Field` / `Fieldset` | 低 | 标签列对齐、必填标记、帮助/错误文字 |
+| List | `ant.List` | widgets | `ui.List`（虚拟滚动）+ 行内边距与分隔线 | 低 | 行选中/多选由 `ListState` 提供 |
+| Sidebar / Menu | `ant.Sidebar` / `SidebarItem` / `SidebarItemWithIcon` / `SidebarSection` | widgets | `ui.Sidebar` 系列 | 低 | 分区 + 条目 + 选中态，键盘可导航 |
+| Splitter | `ant.Splitter` / `SplitterVertical` / `SplitterPercent` / `SplitterVerticalPercent` | widgets | `ui.Split` 系列 | 低 | 分隔条可拖拽，尺寸/百分比两种模式 |
+| AutoComplete | `ant.AutoComplete` | widgets | `ui.Autocomplete` | 低 | 保留键入内容 + 候选建议 |
 
 > 说明：`ant.AvatarEl`、`ant.Breadcrumb`、`ant.Tabs`、`ant.Dropdown`、`ant.Space` / `Flex` / `Grid` 等是**原生控件换肤**，不是缺口控件，见 [02 映射](02-widget-mapping.md)。
 
@@ -64,7 +68,7 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 
 ### P2 · 需要浮层 / 状态（部分完成）
 
-已完成：Popconfirm、Collapse、Form、Tooltip（见 §一）。剩余：
+已完成：Popconfirm、Collapse、Form、Tooltip、List、Sidebar、Splitter、AutoComplete（见 §一）。剩余：
 
 | antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
@@ -72,10 +76,6 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 | **Watermark 水印** | `ui.NewCanvas` + `Painter` + `ui.Overlay` | `el.PassThrough()` 不挡事件 | 中 |
 | **Tour 漫游引导** | `ui.PopoverBase` | 逐步锚定 + 上一步/下一步，步骤状态由调用方持有 | 高 |
 | **Mentions 提及** | `ui.TextInput` + `ui.PopoverBase` | 检测 `@` 触发候选，插入逻辑自管 | 高 |
-| **AutoComplete 自动补全** | `ui.Autocomplete` | 与 `ant.Combobox` 的差异是保留自由输入 | 低 |
-| **List 列表** | `ui.List` | 行 hover/选中、分隔线、加载更多 | 中 |
-| **Sidebar / Menu 侧栏** | `ui.Sidebar` / `SidebarItem` / `SidebarSection` | 选中项 `t.Selection`、图标色跟随 | 中 |
-| **Splitter 分隔面板** | `ui.Split` / `SplitPercent` / `SplitVertical*` | 分隔条 `t.Border`，拖拽热区加宽 | 低 |
 | **Image 图片预览** | `ui.Image` + `ui.DialogBase` | 圆角 + 点击放大 + 遮罩 | 中 |
 | **ColorPicker 颜色选择** | `ui.ColorWell` / `ui.ColorPicker` | 面板圆角/阴影统一 | 低 |
 | **Progress 环形/仪表** | `ui.Canvas` + `Painter` 或 `ui.Meter` | 线形已实现（`ant.ProgressLine`） | 中 |
@@ -116,8 +116,8 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 已完成  Card → Tag → Badge → Pagination → Steps → Alert → Message/Notify → Confirm
         → Tree → Upload → Transfer → Carousel → QRCode → Cascader → TreeSelect
         → Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
-        → Popconfirm → Collapse → Tooltip → Form
-下一步  Drawer → List/Sidebar 包装 → AutoComplete → Splitter → Image 预览
+        → Popconfirm → Collapse → Tooltip → Form → List → Sidebar → Splitter → AutoComplete
+下一步  Drawer → Image 预览
         → ColorPicker → 环形 Progress → Toggle/SplitButton → Affix
 再后    Mentions → Tour → Watermark → Anchor → Notification
 按需    FloatButton → BorderBeam → Masonry

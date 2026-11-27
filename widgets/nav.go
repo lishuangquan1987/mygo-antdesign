@@ -214,3 +214,51 @@ func Steps(c *ui.Context, current *int, labels []string) ui.Element {
 	})
 	return row
 }
+
+// SidebarOption 定制 Sidebar。
+type SidebarOption func(*sidebarConfig)
+
+type sidebarConfig struct {
+	width float32 // 主题单位数
+}
+
+// SidebarWidth 侧栏宽度（主题单位数，默认 48；随密度缩放）。
+func SidebarWidth(units float32) SidebarOption {
+	return func(c *sidebarConfig) { c.width = units }
+}
+
+// Sidebar 侧栏导航（antd Menu / Layout.Sider）：分区 + 条目 + 选中态，
+// 复用 MyGo 的 Sidebar（键盘导航、滚动、选中项跟随）：
+//
+//	var chosen string
+//	ant.Sidebar(c, &chosen, func() {
+//	    ant.SidebarSection(c, "收件箱", nil, func() {
+//	        ant.SidebarItem(c, "inbox", "收件箱")
+//	        ant.SidebarItem(c, "sent", "已发送")
+//	    })
+//	})
+func Sidebar(c *ui.Context, selected *string, fn func(), opts ...SidebarOption) ui.Element {
+	cfg := &sidebarConfig{width: 48}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+	return ui.Sidebar(c, selected, fn).
+		Width(t.Space(cfg.width)).
+		FillHeight()
+}
+
+// SidebarItem 侧栏条目（无图标）。
+func SidebarItem(c *ui.Context, id, label string) ui.Element {
+	return ui.SidebarItem(c, id, nil, label)
+}
+
+// SidebarItemWithIcon 带图标的侧栏条目。
+func SidebarItemWithIcon(c *ui.Context, id, label string, svg *ui.SVG) ui.Element {
+	return ui.SidebarItem(c, id, svg, label)
+}
+
+// SidebarSection 侧栏分区；open 为 nil 时始终展开。
+func SidebarSection(c *ui.Context, title string, open *bool, fn func()) ui.Element {
+	return ui.SidebarSection(c, title, open, fn)
+}

@@ -39,6 +39,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "grid"),
 				View:        GridDemo,
 			},
+			{
+				Title:       "分隔面板",
+				Description: "Splitter 左右两栏，中间分隔条可拖拽调整宽度。",
+				Code:        samples.Extract(demoSrc, "splitter"),
+				View:        SplitterDemo,
+			},
 		},
 	}
 }
@@ -92,6 +98,21 @@ func GridDemo(c *ui.Context) {
 		for _, name := range []string{"概览", "明细", "统计"} {
 			widgets.Title(c, name, widgets.H5)
 		}
+	})
+}
+
+// /sample
+
+// sample:splitter
+func SplitterDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(32))
+	size := ui.Local(host, "ant.sample.layout.split", func() float32 { return 200 })
+	host.Children(func() {
+		widgets.Splitter(c, size, func() {
+			widgets.Paragraph(c, "左侧面板")
+		}, func() {
+			widgets.Paragraph(c, "右侧面板")
+		}).Fill()
 	})
 }
 

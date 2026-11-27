@@ -45,6 +45,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "steps"),
 				View:        StepsDemo,
 			},
+			{
+				Title:       "侧栏导航",
+				Description: "Sidebar 分区 + 条目 + 选中态，键盘可导航。",
+				Code:        samples.Extract(demoSrc, "sidebar"),
+				View:        SidebarDemo,
+			},
 		},
 	}
 }
@@ -111,6 +117,24 @@ func StepsDemo(c *ui.Context) {
 			}))
 		})
 	})
+}
+
+// /sample
+
+// sample:sidebar
+func SidebarDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(36))
+	chosen := ui.Local(host, "ant.sample.nav.sidebar", func() string { return "inbox" })
+	host.Children(func() {
+		widgets.Sidebar(c, chosen, func() {
+			widgets.SidebarSection(c, "邮件", nil, func() {
+				widgets.SidebarItem(c, "inbox", "收件箱")
+				widgets.SidebarItem(c, "sent", "已发送")
+				widgets.SidebarItem(c, "draft", "草稿箱")
+			})
+		})
+	})
+	widgets.Paragraph(c, "当前选择："+*chosen, widgets.Secondary())
 }
 
 // /sample

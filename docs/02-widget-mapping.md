@@ -48,7 +48,7 @@
 | `ui.Autocomplete` | AutoComplete | `ComboboxBase` | — | ◻ | 与 Combobox 的差别是保留用户输入 |
 | `ui.Checkbox` / `CheckboxGroup` | Checkbox | `CheckboxBase` | `ant.Checkbox` | ✅ | `CheckboxGroup` 容器未单独包装 |
 | `ui.CheckboxState` | Checkbox（indeterminate） | `CheckboxStateBase` | `ant.CheckboxAll` | ✅ | 全选/半选三态 |
-| `ui.Radio` / `ui.RadioGroup` | Radio / Radio.Group | `RadioBase` | `ant.RadioGroup` | ✅ | 单项 `ui.Radio[T]` 未单独暴露，统一走 `RadioGroup` 构建器 |
+| `ui.Radio` / `ui.RadioGroup` | Radio / Radio.Group | `RadioBase` | `ant.Radio` / `ant.RadioGroup` | ✅ | 单项 `ant.Radio[T]` 与容器 `RadioGroup` 均已包装 |
 | `ui.Switch` | Switch | 链式 | `ant.Switch` / `SwitchWithLabel` | ✅ | 轨道色 `t.Accent` |
 | `ui.Slider` / `RangeSlider` | Slider | 链式 | `ant.Slider` / `RangeSliderDouble` | ✅ | 双端区间；`StepSlider` 未包装 |
 | `ui.Stepper` | InputNumber（步进器） | 链式 | — | ◻ | ⚠️ 它是数字步进器，**不是** antd Steps，勿与 `ant.Steps` 混淆 |
@@ -154,8 +154,8 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 ## 七、覆盖度小结（2026-11-27）
 
 - MyGo v0.10.0 的 `ui` 包共 **102 个返回 `Element` 的构造函数**（含 `Base` 与布局原语），`docs/ui/` 下 **88 篇** 组件/主题文档。
-- 本库当前**已包装 35 个原生原语**，提供 **66 个控件构造函数**：
-  - `widgets/`（包 `ant`）59 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline / Breadcrumb·Tabs·Dropdown·Pagination·Steps / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup；
+- 本库当前**已包装 35 个原生原语**，提供 **77 个控件构造函数**：
+  - `widgets/`（包 `ant`）70 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline·List / Breadcrumb·Tabs·Dropdown·Pagination·Steps·Sidebar·SidebarItem·SidebarItemWithIcon·SidebarSection / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup·Splitter·SplitterVertical·SplitterPercent·SplitterVerticalPercent·AutoComplete；
   - `extra/` 7 个：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect；
   - 另有 `icon.Icon` + 44 个图标常量。
 - 仍**未覆盖**的原生控件（约 60 个）与 antd 缺口控件（约 25 个）统一列在 [03 缺口控件](03-gap-widgets.md)，按优先级推进。
@@ -185,4 +185,4 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 | `ui.Keyboard` | `ui.Key` / `ui.KeyCode` / `ui.Modifiers` | 键盘类型 |
 | `ui.Accessibility` | `ui.AccessInfo` / `ui.Role` / `el.Label(...)` | 无障碍 API |
 | `extra.Pagination` | `ant.Pagination` | 已实现于 widgets |
-| `ant.Radio[T]` | 无；用 `ant.RadioGroup(c, fn)` + 原生 `ui.Radio[T]` | 未暴露单项包装 |
+| `ant.Radio[T]` | `ant.Radio(c, *T, value, label, opts...)` | 泛型包装已实现（此前误记为未暴露） |

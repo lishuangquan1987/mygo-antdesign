@@ -58,6 +58,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "form"),
 				View:        FormDemo,
 			},
+			{
+				Title:       "自动补全",
+				Description: "AutoComplete 保留键入内容，同时给出候选建议。",
+				Code:        samples.Extract(demoSrc, "autocomplete"),
+				View:        AutoCompleteDemo,
+			},
 		},
 	}
 }
@@ -149,6 +155,18 @@ func FormDemo(c *ui.Context) {
 				widgets.TextArea(c, &name, widgets.Rows(2))
 			})
 		})
+	})
+}
+
+// /sample
+
+// sample:autocomplete
+func AutoCompleteDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
+	city := ui.Local(host, "ant.sample.input.city", func() string { return "" })
+	host.Children(func() {
+		widgets.AutoComplete(c, city, []string{"北京", "上海", "广州", "深圳"})
+		widgets.Paragraph(c, "当前值："+*city, widgets.Secondary())
 	})
 }
 

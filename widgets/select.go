@@ -197,3 +197,17 @@ func CheckboxAll(c *ui.Context, state *ui.CheckState, label string, opts ...Cont
 	applyControl(el, cfg)
 	return el
 }
+
+// AutoComplete 自动补全（antd AutoComplete）：保留用户键入内容，同时给出
+// 候选建议；与 ant.Combobox 的差别是值不限于候选之一：
+//
+//	ant.AutoComplete(c, &app.city, []string{"北京", "上海", "广州"})
+func AutoComplete(c *ui.Context, value *string, suggestions []string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	el := ui.Autocomplete(c, value, suggestions)
+	applyControl(el, cfg)
+	return el
+}

@@ -52,9 +52,10 @@ func (app *App) view(c *ui.Context) {
 | `ui.NumberInput` | `ant.NumberInputV(c, *float64, lo, hi, step, opts...)` | v0.10.0 原语要求 `*float64` |
 | `ui.Select` | `ant.Select(c, *string, options []string, opts ...ant.ControlOption)` | 高度/字号/圆角对齐 antd |
 | `ui.Combobox` | `ant.Combobox(c, *string, options []string, opts ...)` | 输入过滤 + 候选 |
+| `ui.Autocomplete` | `ant.AutoComplete(c, *string, suggestions []string, opts ...)` | 保留键入内容 + 候选建议 |
 | `ui.DateInput` / `ui.TimeInput` | `ant.DatePicker(c, *time.Time, opts...)` / `ant.TimePicker(c, *time.Time, opts...)` | `*time.Time` 受控 |
 | `ui.Checkbox` / `ui.CheckboxState` | `ant.Checkbox(c, *bool, label, opts...)` / `ant.CheckboxAll(c, *ui.CheckState, label, opts...)` | 三态全选框 |
-| `ui.RadioGroup` / `ui.Radio[T]` | `ant.RadioGroup(c, func())` | **单项 `ui.Radio[T]` 没有对应的 `ant.Radio`**，直接在内层用原生 `ui.Radio` |
+| `ui.RadioGroup` / `ui.Radio[T]` | `ant.RadioGroup(c, func())` / `ant.Radio(c, *T, value, label, opts...)` | 泛型受控值，选项共用 `ControlOption` |
 | `ui.Switch` | `ant.Switch(c, *bool, opts...)` / `ant.SwitchWithLabel(c, *bool, label, opts...)` | — |
 | `ui.Slider` / `ui.RangeSlider` | `ant.Slider(c, *float64, lo, hi, opts...)` / `ant.RangeSliderDouble(c, low, high *float64, lo, hi, step, opts...)` | — |
 | `ui.Rating` | `ant.Rate(c, *int, max int, opts...)` | — |
@@ -74,7 +75,8 @@ func (app *App) view(c *ui.Context) {
 | `ui.Avatar` | `ant.AvatarEl(c, name string, image ...*ui.Bitmap)` | 未传图片时显示姓名首字母 |
 | `Row` / `Column` 组合 | `ant.Card(c, title string, body func(), opts...)` | 选项：`CardExtra(func(*ui.Context))` / `CardActions(func(*ui.Context))` |
 | `ui.Image` + 自绘 | `extra.QRCode(c, content string, opts...)` | 码色随主题；`extra.QRCodeSize(px)` |
-| `ui.List` / `ui.Collapsible` / `ui.Accordion` / `ui.Outline` | — | 未包装，直接用原生 |
+| `ui.List` | `ant.List(c, *ui.ListState, n, row, opts...)` | `ListSelected` / `ListSelection` 绑定选中态 |
+| `ui.Collapsible` / `ui.Accordion` / `ui.Outline` | — | 未包装，直接用原生（Collapse 用 `ant.Collapse`） |
 
 ### 反馈
 
@@ -96,8 +98,8 @@ func (app *App) view(c *ui.Context) {
 | `ui.MenuButton` / `Menu` | `ant.Dropdown(c, label string, items []ant.MenuItemData, opts...)` | `MenuItemData` 声明菜单；`DropdownDisabled(bool)` |
 | 自建 | `ant.Pagination(c, current *int, total int, opts...)` | 页码窗口折叠，`OnPageChange(func(page int))` |
 | 自建 | `ant.Steps(c, current *int, labels []string)` | 完成/进行/等待三态 |
-| `ui.Split` | — | 未包装，直接用原生 |
-| `ui.Sidebar` | — | 未包装，直接用原生 |
+| `ui.Split` / `SplitPercent` / `SplitVertical*` | `ant.Splitter` / `SplitterVertical` / `SplitterPercent` / `SplitterVerticalPercent` | 分隔条可拖拽 |
+| `ui.Sidebar` / `SidebarItem` / `SidebarSection` | `ant.Sidebar(c, *string, fn, opts...)` / `ant.SidebarItem` / `ant.SidebarItemWithIcon` / `ant.SidebarSection` | `SidebarWidth(units)` 控宽 |
 
 ### 缺口控件（extra/）
 
@@ -128,7 +130,7 @@ MyGo 原语是帧内查询（`el.Clicked()` / `el.Changed()`）；antd 包装层
 - `ant.Confirm` 基于 `ui.AlertDialog`，**返回被点按钮下标（0 起），`ant.Confirm` 本身不返回值**，只回调 `onOk`。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
 - 颜色/间距铁律：包装层所有取值来自 `c.Theme()` 与 `t.Space/Rem`，运行时换肤自动生效；应用侧不要对 antd 控件硬编码颜色。
-- 未实现（见 03）：Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Popconfirm / Drawer / Form / Collapse / Tooltip / Sidebar / List 等包装。
+- 未实现（见 03）：Drawer / Watermark / Tour / Mentions / Image 预览 / ColorPicker / 环形 Progress / Toggle / SplitButton / Affix / Anchor / Notification / FloatButton / BorderBeam / Masonry，以及 Collapsible / Accordion / Outline / GridView / TokenField / EditableText / DecimalInput / StepSlider / Calendar / Meter 等原生包装。
 
 ## 5. 迁移步骤建议
 

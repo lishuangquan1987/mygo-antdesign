@@ -74,16 +74,15 @@ jobs:
       - name: 构建 Web/WASM 静态站点
         env:
           MYGO_LDFLAGS: "-X main.version=${{ steps.meta.outputs.version }}"
+          # 去 native 示例的 python 补丁（base64，避免 heredoc 缩进问题）
+          PATCH_B64: "c3JjID0gb3BlbignZ2FsbGVyeS9tYWluLmdvJykucmVhZCgpCnNyYyA9IHNyYy5yZXBsYWNlKGNocig5KSsnc2FtcGxlcy5SZWdpc3RlcihuYXRpdmUuRGVtbygpKScrY2hyKDEwKSwgJycpCnNyYyA9IHNyYy5yZXBsYWNlKGNocig5KSsnImdpdGh1Yi5jb20vbGlzaHVhbmdxdWFuMTk4Ny9teWdvLWFudGRlc2lnbi9zYW1wbGVzL25hdGl2ZSInK2NocigxMCksICcnKQpvcGVuKCdnYWxsZXJ5L21haW4uZ28nLCAndycpLndyaXRlKHNyYykK"
         run: |
+          set -euo pipefail
           if [ "$WEB_EXCLUDE_NATIVE" = "true" ]; then
             # 生成去掉 native 示例的临时入口，构建后恢复
             cp gallery/main.go /tmp/main.orig.go
-            python3 - <<'PY'
-            src = open('gallery/main.go').read()
-            src = src.replace('\tsamples.Register(native.Demo())\n', '')
-            src = src.replace('\t"github.com/lishuangquan1987/mygo-antdesign/samples/native"\n', '')
-            open('gallery/main.go', 'w').write(src)
-            PY
+            echo "$PATCH_B64" | base64 -d > /tmp/patch_native.py
+            python3 /tmp/patch_native.py
             mygo build -platform web -o dist ./gallery
             cp /tmp/main.orig.go gallery/main.go
           else

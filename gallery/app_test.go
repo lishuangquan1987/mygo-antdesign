@@ -61,7 +61,7 @@ func newTestGallery() *Gallery {
 
 func TestGalleryRenders(t *testing.T) {
 	g := newTestGallery()
-	tt := ui.NewTester(g.View, 960, 640)
+	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
 	if !tt.HasText("Button") {
 		t.Fatal("侧栏未显示 Button")
@@ -79,7 +79,7 @@ func TestGalleryRenders(t *testing.T) {
 
 func TestGalleryInteractions(t *testing.T) {
 	g := newTestGallery()
-	tt := ui.NewTester(g.View, 960, 640)
+	tt := ui.NewTester(g.View, 1280, 800)
 
 	// 切换暗色 / 紧凑 / 对比：无 panic、无持续帧请求。
 	for _, label := range []string{"暗", "紧凑", "亮暗对比", "标准", "亮"} {
@@ -101,7 +101,7 @@ func TestGalleryInteractions(t *testing.T) {
 
 func TestGallerySearch(t *testing.T) {
 	g := newTestGallery()
-	tt := ui.NewTester(g.View, 960, 640)
+	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
 	// 直接设置搜索词，避免依赖侧栏搜索框的像素坐标。
 	g.query = "不存在的控件"
@@ -119,7 +119,7 @@ func TestGallerySearch(t *testing.T) {
 func TestGalleryDensityCompare(t *testing.T) {
 	g := newTestGallery()
 	g.compare = compareDensity
-	tt := ui.NewTester(g.View, 960, 640)
+	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
 	if !tt.HasText("基础用法") {
 		t.Error("密度对比模式下示例未渲染")
@@ -131,7 +131,7 @@ func TestGalleryDensityCompare(t *testing.T) {
 
 func TestGalleryCopyCode(t *testing.T) {
 	g := newTestGallery()
-	tt := ui.NewTester(g.View, 960, 640)
+	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
 	if err := tt.Click("复制代码"); err != nil {
 		t.Fatalf("点击复制代码失败: %v", err)
@@ -144,7 +144,7 @@ func TestGalleryCopyCode(t *testing.T) {
 
 func TestGallerySampleInteraction(t *testing.T) {
 	g := newTestGallery()
-	tt := ui.NewTester(g.View, 960, 640)
+	tt := ui.NewTester(g.View, 1280, 800)
 	if err := tt.Click("保存"); err != nil {
 		t.Fatalf("点击示例按钮失败: %v", err)
 	}

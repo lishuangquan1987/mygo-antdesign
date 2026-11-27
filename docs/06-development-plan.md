@@ -218,7 +218,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | F3 | 代码视图（真实源码 + 只读展示） | 2 | ✅ | 只读源码 + 复制代码按钮（`ui/editor` 未接） |
 | F4 | 示例注册表 + 分类 | 1 | ✅ | `samples/registry.go` |
 | F5 | `go:embed` 片段提取 | 2 | ✅ | `samples/extract.go` |
-| F6 | 截图生成与回归 | 3 | ✅ | 3 张 Gallery 级 + 72 张逐示例基线；文档嵌图流水线待做 |
+| F6 | 截图生成与回归 | 3 | ✅ | 3 张 Gallery 级 + 288 张逐示例基线（4 组合）；README 嵌图手工维护 |
 | | **小计** | **14** | | |
 
 **总计估算：约 121 人日**（立项估算；示例编写约 21 人日摊入各控件）。单人约 6 个月，2 人并行约 3.5 个月。
@@ -337,7 +337,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
 - Gallery 暂无全局尺寸切换（各控件尺寸选项无统一注入点）与 `ui/editor` 代码视图；代码以只读纯文本展示。
-- 逐示例基线为单组合（亮色标准），且含加载动画的示例（Button 状态、反馈 加载中）不纳入逐字节比对。
+- 含加载动画的示例（Button 状态、反馈 加载中）不纳入逐字节比对；其余示例覆盖亮/暗 × 标准/紧凑 4 组合。
 - `ant.Skeleton` 为静态骨架，暂未做呼吸动画；`ant.Descriptions` 的 `bordered` 是「外框 + 内边距」简化版，无内部网格线。
 - `ant.Collapse` 用自建头部（无展开/收起动画）；`ant.FormItem` 的必填标记是纯文本「*」，未单独着色。
 - `ant.Drawer` 无滑入动画（直接显示/隐藏）；`ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。

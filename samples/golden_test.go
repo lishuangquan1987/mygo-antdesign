@@ -22,18 +22,26 @@ type controlManifest struct {
 	GOARCH string `json:"goarch"`
 }
 
-// controlFile 把示例名转成安全文件名。
-func controlFile(group string, index int, title string) string {
-	name := fmt.Sprintf("%s-%02d-%s", group, index+1, title)
-	repl := strings.NewReplacer("/", "_", `\`, "_", ":", "_", "*", "_", "?", "_", " ", "_")
-	return repl.Replace(name) + "-light.png"
+// controlCombo 一种亮暗 × 密度组合。
+type controlCombo struct {
+	name    string
+	dark    bool
+	density theme.Density
 }
 
-func twoDigits(n int) string {
-	if n < 10 {
-		return "0" + string(rune('0'+n))
-	}
-	return string(rune('0'+n/10)) + string(rune('0'+n%10))
+// controlCombos 与 Gallery 级基线保持一致的 4 种组合。
+var controlCombos = []controlCombo{
+	{"light-standard", false, theme.Comfortable},
+	{"dark-standard", true, theme.Comfortable},
+	{"light-compact", false, theme.Compact},
+	{"dark-compact", true, theme.Compact},
+}
+
+// controlFile 把示例名与组合转成安全文件名。
+func controlFile(group string, index int, title, combo string) string {
+	name := fmt.Sprintf("%s-%02d-%s-%s", group, index+1, title, combo)
+	repl := strings.NewReplacer("/", "_", `\`, "_", ":", "_", "*", "_", "?", "_", " ", "_")
+	return repl.Replace(name) + ".png"
 }
 
 // animated 记录含加载动画（ui.Spinner）的示例：逐帧像素不稳定，不纳入基线。
@@ -43,8 +51,9 @@ var animated = map[string]bool{
 }
 
 // TestControlScreenshots 生成/比对「逐示例」截图基线（docs/07 §5.2 / F6）：
-// 每个示例以 480×360 亮色标准密度渲染，与 samples/golden/controls/ 逐字节
-// 比对；首次运行生成基线。跨平台只渲染不比对（基线带 manifest 平台信息）。
+// 每个示例按 4 种亮暗 × 密度组合以 480×360 渲染，与
+// samples/golden/controls/ 逐字节比对；首次运行生成基线。跨平台只渲染
+// 不比对（基线带 manifest 平台信息）。
 func TestControlScreenshots(t *testing.T) {
 	dir := filepath.Join("golden", "controls")
 	if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -57,7 +66,15 @@ func TestControlScreenshots(t *testing.T) {
 	}
 	otherPlatform := m.GOOS != "" && (m.GOOS != runtime.GOOS || m.GOARCH != runtime.GOARCH)
 
-	render := func(view func(*ui.Context)) []byte {
+	render := func(s func(*ui.Context), cb controlCombo) []byte {
+		view := func(c *ui.Context) {
+			token := theme.Light(theme.WithDensity(cb.density))
+			if cb.dark {
+				token = theme.Dark(theme.WithDensity(cb.density))
+			}
+			theme.Apply(c, token)
+			s(c)
+		}
 		tt := ui.NewTester(view, 480, 360)
 		tt.Frame()
 		img := tt.Image()
@@ -74,31 +91,27 @@ func TestControlScreenshots(t *testing.T) {
 	wrote := false
 	for _, demo := range allDemos() {
 		for i, s := range demo.Samples {
-			s := s
-			view := func(c *ui.Context) {
-				theme.Apply(c, theme.Light())
-				s.View(c)
-			}
-			path := filepath.Join(dir, controlFile(demo.Name, i, s.Title))
 			if animated[demo.Name+"/"+s.Title] {
-				// 含加载动画（ui.Spinner）的示例逐帧像素不稳定，不纳入逐字节基线。
-				_ = os.Remove(path)
+				// 含加载动画的示例逐帧像素不稳定，不纳入逐字节基线。
 				continue
 			}
-			got := render(view)
-			if otherPlatform {
-				continue
-			}
-			want, err := os.ReadFile(path)
-			if err != nil {
-				if err := os.WriteFile(path, got, 0o644); err != nil {
-					t.Fatal(err)
+			for _, cb := range controlCombos {
+				path := filepath.Join(dir, controlFile(demo.Name, i, s.Title, cb.name))
+				got := render(s.View, cb)
+				if otherPlatform {
+					continue
 				}
-				wrote = true
-				continue
-			}
-			if !bytes.Equal(want, got) {
-				t.Errorf("逐示例截图与基线不一致：%s（如为预期改动，删除该文件重新生成）", path)
+				want, err := os.ReadFile(path)
+				if err != nil {
+					if err := os.WriteFile(path, got, 0o644); err != nil {
+						t.Fatal(err)
+					}
+					wrote = true
+					continue
+				}
+				if !bytes.Equal(want, got) {
+					t.Errorf("逐示例截图与基线不一致：%s（如为预期改动，删除该文件重新生成）", path)
+				}
 			}
 		}
 	}

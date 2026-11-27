@@ -2,6 +2,7 @@ package ant_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -173,5 +174,29 @@ func TestOverlayFollowsThemeAndDensity(t *testing.T) {
 		if tt.FramePending() {
 			t.Errorf("密度 %v 下浮层/表控件持续请求帧", token.Density)
 		}
+	}
+}
+
+func TestTooltipShowsOnHover(t *testing.T) {
+	view := func(c *ui.Context) {
+		theme.Apply(c, theme.Light())
+		t := c.Theme()
+		ui.Column(c).Padding(t.Space(16)).Children(func() {
+			widgets.Tooltip(c, "提示内容", func(c *ui.Context) {
+				widgets.Button(c, "悬停我")
+			})
+		})
+	}
+	tt := ui.NewTester(view, 360, 200)
+	tt.Frame()
+	r, ok := tt.Find("悬停我")
+	if !ok {
+		t.Fatal("找不到锚点")
+	}
+	tt.Move(r.X+r.W/2, r.Y+r.H/2)
+	tt.Advance(2 * time.Second)
+	tt.Frame()
+	if !tt.HasText("提示内容") {
+		t.Fatalf("悬停后未显示提示，texts=%v", tt.Texts())
 	}
 }

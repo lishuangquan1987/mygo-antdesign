@@ -88,14 +88,50 @@ func Radio[T comparable](c *ui.Context, selected *T, value T, label string, opts
 // Switch 开关（antd Switch）。开为品牌色：
 //
 //	ant.Switch(c, &app.enabled, ant.OnChange(app.toggle))
+//
+// 尺寸对齐 antd：44×22 轨道、18px 圆形滑块、2px 内边距；选中为主色。
 func Switch(c *ui.Context, on *bool, opts ...ControlOption) ui.Element {
 	cfg := &controlConfig{}
 	for _, o := range opts {
 		o(cfg)
 	}
-	el := ui.Switch(c, on)
-	applyControl(el, cfg)
-	return el
+	return switchControl(c, on, cfg)
+}
+
+// switchControl 自绘 antd Switch 轨道与滑块（原生 Switch 尺寸固定 40×22）。
+func switchControl(c *ui.Context, on *bool, cfg *controlConfig) ui.Element {
+	t := c.Theme()
+	track := ui.ButtonBase(c).
+		Size(t.Space(11), t.Space(5.5)).
+		Radius(t.Space(2.75)).
+		AlignItems(ui.Center)
+	if *on {
+		track.Background(t.Accent)
+	} else {
+		track.Background(t.Border)
+	}
+	if cfg.disabled {
+		track.Disabled(true)
+	}
+	track.Children(func() {
+		knob := ui.Box(c).
+			Size(t.Space(4.5), t.Space(4.5)).
+			Radius(t.Space(2.25)).
+			Background(t.Surface)
+		if *on {
+			knob.MarginStart(t.Space(6))
+		} else {
+			knob.MarginStart(t.Space(0.5))
+		}
+		knob.Children(func() {})
+	})
+	if !cfg.disabled && track.Clicked() {
+		*on = !*on
+		if cfg.onChg != nil {
+			cfg.onChg()
+		}
+	}
+	return track
 }
 
 // SwitchWithLabel 带旁边文字的开关（组合 Switch + 标签文本）。
@@ -106,17 +142,16 @@ func SwitchWithLabel(c *ui.Context, on *bool, label string, opts ...ControlOptio
 	}
 	t := c.Theme()
 	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
-	var sw ui.Element
 	row.Children(func() {
-		sw = ui.Switch(c, on)
-		if cfg.disabled {
-			sw.Disabled(true)
+		switchControl(c, on, cfg)
+		lbl := ui.Text(c, label).TextColor(t.Text).FontSize(t.FontSize)
+		if !cfg.disabled && lbl.Clicked() {
+			*on = !*on
+			if cfg.onChg != nil {
+				cfg.onChg()
+			}
 		}
-		ui.Text(c, label).TextColor(t.Text)
 	})
-	if cfg.onChg != nil && sw.Changed() {
-		cfg.onChg()
-	}
 	return row
 }
 

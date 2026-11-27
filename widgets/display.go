@@ -200,13 +200,14 @@ func Card(c *ui.Context, title string, body func(), opts ...CardOption) ui.Eleme
 	t := c.Theme()
 
 	el := ui.Column(c).FillWidth().
-		Radius(t.Radius).
+		Radius(t.Radius+t.Space(0.5)).
 		Background(t.Surface).
-		Border(1, t.Border)
+		Border(1, t.Border).
+		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
 	el.Children(func() {
 		if title != "" || cfg.extra != nil {
 			head := ui.Row(c).FillWidth().
-				Padding(t.Space(3), t.Space(4)).
+				Padding(t.Space(4), t.Space(6)).
 				Justify(ui.SpaceBetween).
 				AlignItems(ui.Center)
 			head.Children(func() {
@@ -222,7 +223,7 @@ func Card(c *ui.Context, title string, body func(), opts ...CardOption) ui.Eleme
 			line.BorderWidth(0, 0, 1, 0)
 			line.Children(func() {})
 		}
-		content := ui.Column(c).FillWidth().Padding(t.Space(3), t.Space(4)).Gap(t.Space(2))
+		content := ui.Column(c).FillWidth().Padding(t.Space(6)).Gap(t.Space(2))
 		content.Children(body)
 		if cfg.actions != nil {
 			line := ui.Box(c).FillWidth().Height(t.Space(1)).Border(1, t.Border)

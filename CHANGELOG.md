@@ -6,6 +6,10 @@
 
 ### 变更
 
+- **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
+- **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
+- **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
+
 - **README 重写**为标准开源项目结构：徽章、特性、Gallery 本地构建/运行、安装、快速开始、控件覆盖表、主题与密度、开发测试、项目结构、文档索引、发布与贡献。
 - **CI/Release 工作流重写**：Release 发布自动构建 5 平台 Gallery 安装包并上传附件；`workflow_dispatch` 支持填入已发布 tag 手动构建并上传到对应 Release；补充并发控制、Release 存在性校验与构建摘要。
 - 新增 `Makefile`（`run`/`build`/`test`/`check`/`baselines`）与 `.gitattributes`（统一 LF、二进制标记）。
@@ -31,6 +35,10 @@
 
 ### 变更
 
+- **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
+- **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
+- **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
+
 - `samples/golden/` 改为 3 张稳定基线（亮标准、暗标准、亮紧凑）；并排对比含加载动画，逐帧像素不稳定，改由交互测试覆盖。
 - 文档全面校对：版本、计数（106 个控件构造函数 / 12 个分组 / 66 个片段）、API 签名与已知限制。
 
@@ -48,6 +56,10 @@
 - 截图基线按平台生效（`samples/golden/manifest.json`）。
 
 ### 变更
+
+- **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
+- **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
+- **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 
 - README 快速开始与安装说明重写；文档补充 API 勘误表与状态列。
 

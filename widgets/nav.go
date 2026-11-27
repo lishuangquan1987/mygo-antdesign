@@ -16,8 +16,45 @@ func Breadcrumb(c *ui.Context, items []string, chosen *int) ui.Element {
 // Tabs 页签（antd Tabs）。selected 为选中下标，Changed 报告切换：
 //
 //	ant.Tabs(c, &tab, "常规", "外观", "高级")
+//
+// 样式对齐 antd v5：页签间距 32px、选中项主色 + 2px 下划线、悬停变主色，
+// 整行底部 1px 分隔线。
 func Tabs(c *ui.Context, selected *int, labels ...string) ui.Element {
-	return ui.Tabs(c, selected, labels...)
+	t := c.Theme()
+	row := ui.Row(c).FillWidth().
+		Gap(t.Space(8)).
+		Border(1, t.Border).
+		BorderWidth(0, 0, 1, 0)
+	row.Children(func() {
+		for i, label := range labels {
+			i := i
+			active := i == *selected
+			tab := ui.ButtonBase(c).Padding(t.Space(3), 0, 0, 0)
+			tab.Children(func() {
+				col := ui.Column(c).Gap(t.Space(1))
+				col.Children(func() {
+					color := t.Text
+					if active {
+						color = t.Accent
+					} else if tab.Hovered() {
+						color = t.AccentHover
+					}
+					ui.Text(c, label).TextColor(color).FontSize(t.FontSize).SingleLine()
+					bar := ui.Box(c).FillWidth().Height(t.Space(0.5))
+					if active {
+						bar.Background(t.Accent)
+					} else {
+						bar.Background(ui.Transparent)
+					}
+					bar.Children(func() {})
+				})
+			})
+			if tab.Clicked() {
+				*selected = i
+			}
+		}
+	})
+	return row
 }
 
 // DropdownOption 定制 Dropdown。

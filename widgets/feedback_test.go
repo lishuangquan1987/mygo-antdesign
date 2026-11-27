@@ -54,7 +54,7 @@ func TestModalOpenAndActions(t *testing.T) {
 			widgets.OnOk(func() { okCount++ }),
 			widgets.OnCancel(func() { cancelCount++ }))
 	}
-	tt := ui.NewTester(view, 480, 320)
+	tt := ui.NewTester(view, 640, 400)
 	tt.Frame()
 	if !tt.HasText("此操作不可撤销，是否继续？") {
 		t.Fatal("弹窗内容未渲染")

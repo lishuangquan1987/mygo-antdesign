@@ -106,7 +106,11 @@ func Input(c *ui.Context, value *string, opts ...InputOption) ui.Element {
 		if cfg.prefix != nil {
 			cfg.prefix(c)
 		}
-		inp = ui.TextInput(c, value).Grow(1).Background(t.Surface).FontSize(internal.ControlFont(t, cfg.size))
+		// 内层原语自带的边框/内边距与圆角由外层 inputFrame 统一负责，
+		// 这里清空避免出现双边框与额外的右端圆角。
+		inp = ui.TextInput(c, value).Grow(1).Background(t.Surface).
+			FontSize(internal.ControlFont(t, cfg.size)).
+			Border(0, ui.Transparent).Padding(0).Radius(0)
 		if cfg.label != "" {
 			inp.Label(cfg.label)
 		}
@@ -128,9 +132,10 @@ func Input(c *ui.Context, value *string, opts ...InputOption) ui.Element {
 		el.ReadOnly(true)
 	}
 
-	// 聚焦描边：查询内层输入元素的焦点状态（容器本身不可聚焦）。
+	// 聚焦描边：antd 为 1px 主色边框 + 2px 半透明焦点环（box-shadow），
+	// 不改变布局尺寸。
 	if !cfg.disabled && inp.Focused() {
-		el.Border(2, t.Focus)
+		el.Border(1, t.Accent).Shadow(0, 0, 0, 2, t.Accent.Alpha(0.12))
 	}
 	fireInputEvents(inp, cfg)
 	return el
@@ -164,7 +169,9 @@ func TextArea(c *ui.Context, value *string, opts ...InputOption) ui.Element {
 	}
 	var inp ui.Element
 	el.Children(func() {
+		// 外层 TextArea 容器负责边框与内边距。
 		inp = ui.TextArea(c, value).Grow(1).FillWidth().Background(t.Surface).
+			Border(0, ui.Transparent).Padding(0).Radius(0).
 			FontSize(internal.ControlFont(t, cfg.size))
 		if cfg.label != "" {
 			inp.Label(cfg.label)
@@ -219,7 +226,9 @@ func NumberInputV(c *ui.Context, value *float64, lo, hi, step float64, opts ...I
 	el := inputFrame(c, t, cfg)
 	var inp ui.Element
 	el.Children(func() {
+		// 外层 inputFrame 负责边框与内边距。
 		inp = ui.NumberInput(c, value, lo, hi, step).Grow(1).
+			Border(0, ui.Transparent).Padding(0).Radius(0).
 			Background(t.Surface).FontSize(internal.ControlFont(t, cfg.size))
 		if cfg.label != "" {
 			inp.Label(cfg.label)

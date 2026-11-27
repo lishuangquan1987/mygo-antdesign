@@ -88,19 +88,16 @@ func Alert(c *ui.Context, title string, opts ...AlertOption) ui.Element {
 		el := ui.Row(c).FillWidth().
 			Padding(t.Space(2), t.Space(3)).
 			Gap(t.Space(2)).
-			Radius(t.Radius).
+			Radius(t.Radius+t.Space(0.5)).
 			Background(color.Mix(t.Background, 0.92)).
 			Border(1, color.Mix(t.Background, 0.6)).
 			AlignItems(ui.Center)
 		el.Children(func() {
-			icon := ui.Box(c).Size(t.Space(5), t.Space(5)).Radius(t.Space(2.5)).
-				Background(color).Center()
-			icon.Children(func() {
-				ui.Text(c, alertIcon(cfg.typ)).TextColor(t.AccentText).FontSize(t.Rem(0.8))
-			})
+			// antd v5：语义色图标 16px，无圆形底。
+			ui.Text(c, alertIcon(cfg.typ)).TextColor(color).FontSize(t.Rem(1.14)).SingleLine()
 			body := ui.Column(c).Grow(1).Gap(t.Space(1))
 			body.Children(func() {
-				ui.Text(c, title).TextColor(t.Text).FontWeight(600)
+				ui.Text(c, title).TextColor(t.Text).FontSize(t.FontSize).FontWeight(500)
 				if cfg.description != "" {
 					ui.Text(c, cfg.description).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 				}
@@ -163,13 +160,14 @@ func Modal(c *ui.Context, open *bool, title string, body func(), opts ...ModalOp
 
 	return ui.Modal(c, open, func() {
 		panel := ui.Column(c).
-			Width(t.Space(90)).
-			MaxWidth(t.Space(120)).
-			Radius(t.Radius * 1.34). // antd modal 圆角 8
-			Background(t.Surface)
+			Width(t.Space(130)).
+			MaxWidth(t.Space(160)).
+			Radius(t.Radius+t.Space(0.5)). // antd modal 圆角 8
+			Background(t.Surface).
+			Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
 		panel.Children(func() {
 			// 头部：标题 + 关闭。
-			head := ui.Row(c).FillWidth().Padding(t.Space(4), t.Space(6), t.Space(2), t.Space(6)).
+			head := ui.Row(c).FillWidth().Padding(t.Space(5), t.Space(6), t.Space(2), t.Space(6)).
 				Justify(ui.SpaceBetween).AlignItems(ui.Center)
 			head.Children(func() {
 				ui.Text(c, title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
@@ -185,10 +183,10 @@ func Modal(c *ui.Context, open *bool, title string, body func(), opts ...ModalOp
 				}
 			})
 			// 内容。
-			content := ui.Column(c).FillWidth().Padding(0, t.Space(6)).Gap(t.Space(2))
+			content := ui.Column(c).FillWidth().Padding(t.Space(2), t.Space(6), t.Space(4), t.Space(6)).Gap(t.Space(2))
 			content.Children(body)
 			// 底部操作区。
-			foot := ui.Row(c).FillWidth().Padding(t.Space(3), t.Space(6), t.Space(4), t.Space(6)).
+			foot := ui.Row(c).FillWidth().Padding(t.Space(4), t.Space(6)).
 				Gap(t.Space(2)).Justify(ui.End)
 			foot.Children(func() {
 				if !cfg.hideCancel {
@@ -260,12 +258,19 @@ func ProgressLine(c *ui.Context, value float64, opts ...ProgressOption) ui.Eleme
 	}
 	t := c.Theme()
 
+	frac := value / 100 // antd Progress 原语接收 0..1
+	if frac < 0 {
+		frac = 0
+	}
+	if frac > 1 {
+		frac = 1
+	}
 	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
 	row.Children(func() {
-		ui.Progress(c, value).Grow(1)
+		ui.Progress(c, frac).Grow(1).Height(t.Space(2))
 		if cfg.showText {
 			pct := int(value + 0.5)
-			ui.Textf(c, "%d%%", pct).TextColor(t.TextMuted).FontSize(t.Rem(0.86)).SingleLine()
+			ui.Textf(c, "%d%%", pct).TextColor(t.Text).FontSize(t.FontSize).SingleLine()
 		}
 	})
 	return row
@@ -349,8 +354,8 @@ func ProgressCircle(c *ui.Context, value float64, opts ...ProgressOption) ui.Ele
 	case ProgressError:
 		col = t.Danger
 	}
-	size := t.Space(16)
-	thick := t.Space(1)
+	size := t.Space(30)
+	thick := t.Space(2)
 
 	box := ui.Box(c).Size(size, size).Center()
 	box.Draw(func(p *ui.Painter, r ui.Rect) {

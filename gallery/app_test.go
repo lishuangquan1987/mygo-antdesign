@@ -103,9 +103,8 @@ func TestGallerySearch(t *testing.T) {
 	g := newTestGallery()
 	tt := ui.NewTester(g.View, 960, 640)
 	tt.Frame()
-	// 聚焦侧栏搜索框（顶栏高约 44、侧栏内边距 8，搜索框中心约 y=66）并输入。
-	tt.ClickAt(100, 66)
-	tt.Type("不存在的控件")
+	// 直接设置搜索词，避免依赖侧栏搜索框的像素坐标。
+	g.query = "不存在的控件"
 	tt.Frame()
 	if !tt.HasText("未找到匹配的控件") {
 		t.Error("搜索无结果时未显示空提示")

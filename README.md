@@ -14,6 +14,10 @@ MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`�
 
 *Gallery：左侧控件目录（分类 + 搜索），中间实时预览，下方是可复制的真实示例代码；顶部切换亮/暗、标准/紧凑与品牌色，并支持同屏对比。*
 
+![Gallery 暗色主题](docs/images/gallery-dark.png)
+
+*暗色主题下的 Gallery（同样的目录、预览与代码区，一键切换）。*
+
 ## 目录
 
 - [特性](#特性)
@@ -38,6 +42,7 @@ MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`�
 - **可选跟随系统**：`theme.WithFollowSystem()` 叠加系统强调色、高对比与文字缩放（默认关闭，保证品牌色忠实）。
 - **示例即交付物**：12 个示例分组 / 74 个示例片段，全部是可编译的真实代码；`go:embed` 提取后与 Gallery 预览一一对应。
 - **视觉回归**：3 张 Gallery 级 + 288 张逐示例截图基线（亮/暗 × 标准/紧凑），CI 逐字节比对。
+- **细节对齐 antd v5**：表格、页签、输入焦点环、进度、卡片、弹窗等按 antd Token 校准（见 [docs/09](docs/09-antd-parity.md)）。
 - **纯 Go**：无 cgo，可交叉编译到 Windows / macOS / Linux（amd64、arm64）。
 
 ## 本地运行 Gallery
@@ -229,12 +234,14 @@ go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
 | [06 开发计划](docs/06-development-plan.md) | WBS、里程碑、DoD、风险与当前进度 |
 | [07 示例与 Gallery](docs/07-samples-gallery.md) | 示例结构、覆盖矩阵、截图回归、如何新增示例 |
 | [08 迁移指南](docs/08-migration.md) | 从 MyGo 原生控件迁移的对照表与限制 |
+| [09 antd 细节对齐](docs/09-antd-parity.md) | 尺寸/间距/状态/交互的逐项审计与仍存在的差异 |
 | [CHANGELOG](CHANGELOG.md) | 版本变更记录 |
 
 ## 版本与发布
 
 - 遵循 [语义化版本](https://semver.org/lang/zh-CN/)；当前版本 **v0.3.0**。
 - 发布流程：创建 Release → [Release 工作流](.github/workflows/release.yml) 自动为 5 个平台构建 Gallery 安装包并上传到该 Release 附件；也可在 Actions 页面手动触发（`workflow_dispatch`）并填入已存在的 tag。
+- **注意**：`release` 事件使用的是 **tag 内的 workflow 文件**。如果某个旧 tag 的工作流版本较老（例如 v0.2.0 之前），它的 Release 构建可能失败；此时请在 Actions 页面手动触发 `Release`（workflow 取 main 上的最新版本），填入该 tag 重新上传，或基于最新 main 打新 tag 发布。
 - 历史版本与变更见 [CHANGELOG.md](CHANGELOG.md) 与 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases)。
 
 ## 贡献

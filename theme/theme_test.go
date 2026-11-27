@@ -162,3 +162,19 @@ func TestDefaultDoesNotFollowSystem(t *testing.T) {
 		t.Errorf("默认 Accent = %v, want #1677ff（不应被系统强调色覆盖）", got.Accent)
 	}
 }
+
+func TestWithFontSize(t *testing.T) {
+	var got *ui.Theme
+	view := func(c *ui.Context) {
+		Apply(c, Light(WithFontSize(16)))
+		got = c.Theme()
+	}
+	tt := ui.NewTester(view, 200, 120)
+	tt.Frame()
+	if got == nil {
+		t.Fatal("未渲染")
+	}
+	if got.FontSize != 16 {
+		t.Errorf("FontSize = %v, want 16", got.FontSize)
+	}
+}

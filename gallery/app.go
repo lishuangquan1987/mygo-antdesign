@@ -48,10 +48,11 @@ var categories = []samples.Category{
 type Gallery struct {
 	dark     bool
 	density  theme.Density
-	brand    string // 品牌色 hex，"" 表示 antd 默认
-	compare  int    // compareNone / compareTheme / compareDensity
-	selected string // 当前展示的控件名
-	query    string // 侧栏搜索词
+	brand    string  // 品牌色 hex，"" 表示 antd 默认
+	compare  int     // compareNone / compareTheme / compareDensity
+	fontSize float32 // 0 表示跟随密度（标准 14 / 紧凑 13）
+	selected string  // 当前展示的控件名
+	query    string  // 侧栏搜索词
 }
 
 // NewGallery 创建 Gallery。
@@ -59,13 +60,21 @@ func NewGallery() *Gallery {
 	return &Gallery{density: theme.Comfortable, brand: brandColors[0].hex}
 }
 
-// options 汇总当前的品牌色与密度选项。
-func (g *Gallery) options() []theme.Option {
-	opts := []theme.Option{theme.WithDensity(g.density)}
+// fontScale 把字号选项并入主题（0 表示跟随密度）。
+func (g *Gallery) fontScale(d theme.Density) []theme.Option {
+	opts := []theme.Option{theme.WithDensity(d)}
+	if g.fontSize > 0 {
+		opts = append(opts, theme.WithFontSize(g.fontSize))
+	}
 	if g.brand != "" {
 		opts = append(opts, theme.WithPrimary(ui.Hex(g.brand)))
 	}
 	return opts
+}
+
+// options 汇总当前的品牌色、密度与字号选项。
+func (g *Gallery) options() []theme.Option {
+	return g.fontScale(g.density)
 }
 
 // token 当前全局主题。
@@ -78,10 +87,7 @@ func (g *Gallery) token() *theme.AntToken {
 
 // tokenOf 指定密度与亮暗的主题（并排对比用）。
 func (g *Gallery) tokenOf(dark bool, d theme.Density) *theme.AntToken {
-	opts := []theme.Option{theme.WithDensity(d)}
-	if g.brand != "" {
-		opts = append(opts, theme.WithPrimary(ui.Hex(g.brand)))
-	}
+	opts := g.fontScale(d)
 	if dark {
 		return theme.Dark(opts...)
 	}
@@ -360,6 +366,7 @@ func (g *Gallery) header(c *ui.Context) {
 		tools := ui.Row(c).FillWidth().
 			AlignItems(ui.Center).
 			Gap(t.Space(3)).
+			Wrap().
 			Margin(t.Space(1), 0, 0, 0)
 		tools.Children(func() {
 			toolGroup(c, "主题", func() {
@@ -373,6 +380,14 @@ func (g *Gallery) header(c *ui.Context) {
 				segmented(c,
 					segItem{label: "标准", on: g.density == theme.Comfortable, onClick: func() { g.density = theme.Comfortable }},
 					segItem{label: "紧凑", on: g.density == theme.Compact, onClick: func() { g.density = theme.Compact }},
+				)
+			})
+			widgets.VerticalDivider(c)
+			toolGroup(c, "字号", func() {
+				segmented(c,
+					segItem{label: "小", on: g.fontSize == 12, onClick: func() { g.fontSize = 12 }},
+					segItem{label: "中", on: g.fontSize == 0, onClick: func() { g.fontSize = 0 }},
+					segItem{label: "大", on: g.fontSize == 16, onClick: func() { g.fontSize = 16 }},
 				)
 			})
 			widgets.VerticalDivider(c)

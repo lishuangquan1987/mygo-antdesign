@@ -64,8 +64,8 @@ func Tag(c *ui.Context, text string, opts ...TagOption) ui.Element {
 	t := c.Theme()
 	pal := tagPal(t, cfg.color)
 
-	el := ui.Box(c).Height(t.Space(5)).
-		Padding(0, t.Space(2)).
+	el := ui.Box(c).Height(t.Space(5.5)).
+		Padding(0, t.Space(1.75)).
 		Radius(t.Radius*0.67). // antd tag 圆角略小于全局
 		Background(pal.Bg).
 		Border(1, pal.Border).
@@ -73,7 +73,11 @@ func Tag(c *ui.Context, text string, opts ...TagOption) ui.Element {
 	el.Children(func() {
 		ui.Text(c, text).TextColor(pal.Fg).FontSize(t.Rem(0.86)).SingleLine()
 		if cfg.closable {
-			x := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).Center()
+			x := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).
+				Radius(t.Space(2)).Center().MarginStart(t.Space(1))
+			if x.Hovered() {
+				x.Background(pal.Fg.Alpha(0.12))
+			}
 			x.Children(func() {
 				ui.Text(c, "✕").TextColor(pal.Fg).FontSize(t.Rem(0.7))
 			})
@@ -140,14 +144,14 @@ func Badge(c *ui.Context, count int, fn func()) ui.Element {
 				text = strconv.Itoa(count)
 			}
 			badge := ui.Box(c).
-				MinWidth(t.Space(4)).
-				Height(t.Space(4)).
-				Padding(0, t.Space(1)).
-				Radius(t.Space(2)).
+				MinWidth(t.Space(5)).
+				Height(t.Space(5)).
+				Padding(0, t.Space(1.5)).
+				Radius(t.Space(2.5)).
 				Background(t.Danger).
 				AlignItems(ui.Center)
 			badge.Children(func() {
-				ui.Text(c, text).TextColor(t.Background).FontSize(t.Rem(0.7)).SingleLine()
+				ui.Text(c, text).TextColor(t.Background).FontSize(t.Rem(0.86)).SingleLine()
 			})
 			// 徽标中心骑在内容右上角上。
 			badge.AttachTo(anchor, ui.AnchorTopRight, ui.AnchorCenter)

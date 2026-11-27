@@ -1,8 +1,80 @@
 # mygo-antdesign
 
-> Ant Design 设计风格的 [MyGo](https://github.com/egoist/mygo) 原生 UI 控件库（**设计阶段 / RFC**）
+![CI](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml/badge.svg)
+![Release](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml/badge.svg)
+![v0.1.0](https://img.shields.io/badge/version-v0.1.0-1677ff)
+
+> Ant Design 设计风格的 [MyGo](https://github.com/egoist/mygo) 原生 UI 控件库
 
 本仓库目标：为 MyGo 的 `package ui` 原生控件提供一套完整的 **Ant Design 视觉与交互规范**，并补齐 Ant Design 有而 MyGo 暂缺的控件。所有控件共享一套主题，支持**运行时切换**；在 Ant Design 标准间距之外，额外提供一套**紧凑密度**风格，用于上位机、IDE 等信息密集型场景。
+
+![Gallery 示例应用：侧栏 + 实时预览 + 真实代码 + 主题切换](docs/images/gallery.png)
+
+*↑ 示例展示应用 Gallery：左侧控件目录、实时预览、旁边即真实示例代码，顶部可切换亮暗与标准/紧凑密度（`go run ./gallery` 运行）。*
+
+## 快速开始
+
+**安装**（Go 1.27+）：
+
+```bash
+go get github.com/lishuangquan1987/mygo-antdesign@v0.1.0
+```
+
+**最小示例**（完整可编译）：
+
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/egoist/mygo"
+	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/theme"
+	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
+)
+
+func main() {
+	name := ""
+	remember := false
+	mygo.App.WhenReady(func() {
+		mygo.NewWindow(mygo.WindowOptions{
+			Title: "Hello mygo-antdesign",
+			Content: ui.View(func(c *ui.Context) {
+				// 一行接入主题：亮色预设 + 自定义品牌色。
+				theme.Apply(c, theme.Light(theme.WithPrimary(ui.RGB(0x16, 0x77, 0xff))))
+
+				col := ui.Column(c).Gap(12).Padding(24)
+				col.Children(func() {
+					widgets.Title(c, "登录", widgets.H2)
+					widgets.Input(c, &name, widgets.PlaceholderText("用户名"))
+					widgets.Checkbox(c, &remember, "记住我")
+					widgets.Button(c, "登录", widgets.Primary(), widgets.OnClick(func() {
+						fmt.Println("登录：", name, remember)
+					}))
+				})
+			}),
+		})
+	})
+	if err := mygo.App.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+![最小示例效果](docs/images/quickstart.png)
+
+**运行示例 Gallery**（浏览全部 50+ 控件、切换主题/密度/品牌色、查看同屏亮暗对比）：
+
+```bash
+go run ./gallery
+```
+
+**下载安装包**：无需配置 Go 环境？到 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases) 页下载对应平台的 Gallery 安装包（Windows / macOS / Linux，发布后由 CI 自动构建）。
+
+**进阶**：主题自定义与运行时切换见 [docs/04](docs/04-theme-system.md)；紧凑密度见 [docs/05](docs/05-compact-density.md)；从 MyGo 原生控件迁移见 [docs/08](docs/08-migration.md)。
 
 > 当前状态：**v0.1.0**——主题层 + Gallery + 全部 9 组换肤控件（Button / Typography / Divider / 布局 / 输入 / 选择 / 数据展示 / 表格 / 反馈 / 导航）+ 缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标，共 50+ 控件函数，全部带示例、单测与截图验证（见 [docs/06](docs/06-development-plan.md) 进度章节与 [docs/08](docs/08-migration.md) 迁移指南）。
 

@@ -69,6 +69,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "popover"),
 				View:        PopoverDemo,
 			},
+			{
+				Title:       "水印、引导与通知",
+				Description: "Watermark 平铺水印、Tour 漫游引导、Notification 右上角通知卡片。",
+				Code:        samples.Extract(demoSrc, "guide"),
+				View:        GuideDemo,
+			},
 		},
 	}
 }
@@ -225,6 +231,31 @@ func PopoverDemo(c *ui.Context) {
 		if *chosen != "" {
 			widgets.Tag(c, "菜单选择："+*chosen, widgets.TagPrimary())
 		}
+	})
+}
+
+// /sample
+
+// sample:guide
+func GuideDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	open := ui.Local(host, "ant.sample.feedback.tour", func() bool { return false })
+	step := ui.Local(host, "ant.sample.feedback.tour.step", func() int { return 0 })
+	notice := ui.Local(host, "ant.sample.feedback.notice", func() bool { return false })
+	host.Children(func() {
+		row := ui.Row(c).Gap(c.Theme().Space(2))
+		row.Children(func() {
+			widgets.Button(c, "开始引导", widgets.Primary(), widgets.OnClick(func() { *open = true }))
+			widgets.Button(c, "显示通知", widgets.OnClick(func() { *notice = true }))
+		})
+		widgets.Watermark(c, "内部资料", func() {
+			widgets.Paragraph(c, "这段文字上会平铺半透明水印，且不拦截输入。")
+		})
+		widgets.Tour(c, open, []widgets.TourStep{
+			{Title: "欢迎", Description: "这是漫游引导的第一步。"},
+			{Title: "继续", Description: "点「下一步」继续。"},
+		}, step)
+		widgets.Notification(c, notice, "部署完成", "v0.3.0 已上线")
 	})
 }
 

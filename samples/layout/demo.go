@@ -3,6 +3,7 @@ package layout
 
 import (
 	_ "embed"
+	"strconv"
 
 	"github.com/egoist/mygo/ui"
 
@@ -44,6 +45,12 @@ func Demo() samples.WidgetDemo {
 				Description: "Splitter 左右两栏，中间分隔条可拖拽调整宽度。",
 				Code:        samples.Extract(demoSrc, "splitter"),
 				View:        SplitterDemo,
+			},
+			{
+				Title:       "悬浮按钮",
+				Description: "FloatButton 固定在窗口右下角的悬浮按钮。",
+				Code:        samples.Extract(demoSrc, "floatbutton"),
+				View:        FloatButtonDemo,
 			},
 		},
 	}
@@ -113,6 +120,19 @@ func SplitterDemo(c *ui.Context) {
 		}, func() {
 			widgets.Paragraph(c, "右侧面板")
 		}).Fill()
+	})
+}
+
+// /sample
+
+// sample:floatbutton
+func FloatButtonDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth()
+	count := ui.Local(host, "ant.sample.layout.float", func() int { return 0 })
+	host.Children(func() {
+		widgets.Paragraph(c, "右下角悬浮按钮固定在窗口上。")
+		widgets.Paragraph(c, "点击次数："+strconv.Itoa(*count), widgets.Secondary())
+		widgets.FloatButton(c, "↑", func() { *count++ })
 	})
 }
 

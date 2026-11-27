@@ -38,10 +38,10 @@
 
 | 指标 | 目标 | 现状（2026-11-27） |
 | --- | --- | --- |
-| 换肤 + 缺口控件构造函数 | ≥ 55 | **98**（`widgets/` 91 + `extra/` 7，另有 `icon.Icon`） |
+| 换肤 + 缺口控件构造函数 | ≥ 55 | **106**（`widgets/` 99 + `extra/` 7，另有 `icon.Icon`） |
 | 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 61 个示例片段**，尚未逐控件覆盖 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 65 个示例片段**，尚未逐控件覆盖 |
 | 视觉回归 | 每个示例 × 4 种主题组合 | **4 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
@@ -186,9 +186,9 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | C1 | P1 简单组合 | Card、Tag、Empty、Result、Divider、Statistic、Timeline | 3 | ✅ | v0.3 补齐 Empty/Result/Statistic/Timeline |
 | C2 | P1 数据展示 | Descriptions、Skeleton | 2 | ✅ | v0.3 完成 |
 | C3 | P2 分页与穿梭 | Pagination、Transfer | 3 | ✅ | Pagination 在 widgets，Transfer 在 extra |
-| C4 | P2 浮层 | Drawer、Popconfirm、Watermark、Tour | 6 | ◐ | Drawer/Popconfirm 完成；Watermark/Tour 未做 |
-| C5 | P2 复杂选择 | Cascader、TreeSelect、Mentions | 8 | ◐ | 前两项完成 |
-| C6 | P3 依赖能力 | QRCode、Upload、Spin、FloatButton、BorderBeam、Notification、Anchor、Carousel、Masonry | 12 | ◐ | QRCode/Upload/Carousel 完成；Notify 已复用 toast |
+| C4 | P2 浮层 | Drawer、Popconfirm、Watermark、Tour | 6 | ✅ | v0.3 全部完成 |
+| C5 | P2 复杂选择 | Cascader、TreeSelect、Mentions | 8 | ✅ | 全部完成 |
+| C6 | P3 依赖能力 | QRCode、Upload、Spin、FloatButton、BorderBeam、Notification、Anchor、Carousel、Masonry | 12 | ✅ | v0.3 全部完成 |
 | | **小计** | | **34** | | 实际分批交付，见 §11 |
 
 ### WS-D · 图标与资源
@@ -231,7 +231,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | **M1 主题闭环** | W2–W5 | A + B1–B6 + F1–F5 | ✅ | Button/录入/选择/日期与 11 组示例卡片；主题/密度/品牌色可切换 |
 | **M2 常用控件** | W6–W10 | B7–B12 | ✅ | v0.3 补齐 Form/Collapse/Tooltip/Sidebar/Drawer/List 等 |
 | **M3 密度适配** | W11–W12 | 全控件紧凑审计 + F2/F6 + E3 | ◐ | 4 组合基线有；逐控件审计与 IDE 示例缺 |
-| **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | v0.1.0 已发；C 余项与 v0.2 发布待做 |
+| **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | 缺口控件已全部完成；v0.2/v0.3 发布与 CHANGELOG 待做 |
 
 ## 7. 时间线（历史基线）
 
@@ -271,11 +271,11 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 ## 10. 下一步（按优先级）
 
-1. **P2/P3 剩余**：Watermark、Tour、Mentions、Anchor、Notification、FloatButton、BorderBeam、Masonry（见 03）；Outline/GridView 为原生高级用法，维持不包装；SplitButton 由 `ant.Dropdown` 覆盖。
-2. **示例覆盖**：为 `widgets/` 与 `extra/` 每个控件补独立示例页，逐控件截图基线。
+1. **发布 v0.2/v0.3**：CHANGELOG + tag + Release 附件（流水线已就绪）。
+2. **示例覆盖**：为每个控件补独立示例页与逐控件截图基线（当前 11 组 / 65 片段）。
 3. **Gallery 增强**：侧栏分类与搜索、覆盖率显示、全局尺寸切换、代码复制按钮、`ui/editor` 代码视图。
 4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。
-5. **发布**：v0.2 / v0.3 的 CHANGELOG + tag + Release 附件（流水线已就绪）。
+5. **文档定稿**：README 状态、02 覆盖度、07 覆盖矩阵与截图。
 6. **主题增强**：`WithFollowSystem`（跟随系统强调色/高对比）与系统亮暗自动跟随（ADR 0002 的 TODO）。
 
 ## 11. 当前进度（2026-11-27）
@@ -302,7 +302,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - `extra` 新增 **Cascader** 与 **TreeSelect**（基于 `ui.Popover` 组合），含示例与测试。
 - 截图基线改为按平台生效（`samples/golden/manifest.json`），修复 Linux CI 上跨平台字体渲染导致的永久失败。
 
-### 11.3 v0.3（开发中）：缺口控件 P1 + P2 部分
+### 11.3 v0.3（已完成）：缺口控件全部 + 原生控件补全包装
 
 | 控件 | 位置 | 示例 | 验证 |
 | --- | --- | --- | --- |
@@ -311,6 +311,8 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | Form / FormItem / FormGroup | `widgets/form.go` | `samples/input`（新增 1 个示例） | 单测 + 主题组合 |
 | List / Sidebar / Splitter / AutoComplete | `widgets/list.go`、`nav.go`、`layout.go`、`select.go` | display / nav / layout / input 各新增 1 个示例 | 单测（选中/键盘/拖拽/补全）+ 主题组合 |
 | Drawer / Image / ColorPicker / 环形 Progress / Toggle / Affix | `widgets/drawer.go`、`media.go`、`feedback.go`、`select.go`、`layout.go` | feedback / display / input / selectdemo 新增示例 | 单测（抽屉开关、预览、进度环）+ 主题组合 |
+| 原生控件补全包装 | `widgets/native.go`（Hyperlink/DecimalInput/SearchField/Stepper/Calendar/TokenField/EditableText/Meter/Collapsible/Accordion）、`overlay.go`（Popover/ContextMenu） | input / display / feedback 各新增 1 个示例 | 单测（渲染/气泡/右键菜单）+ 主题组合 |
+| P3 缺口收尾 | `widgets/gaps2.go`：Watermark/Mentions/Tour/Notification/FloatButton/Anchor/BorderBeam/Masonry | feedback/display/layout/input 各新增 1 个示例 | 单测（水印/提及插入/引导步骤/通知/锚点/流光）+ 人工图像核对 |
 | 工具 | `scripts/visualcheck` | 把示例按主题渲染成 PNG，人工核对控件效果 | 无窗口 `ui.NewTester` |
 | 质量门禁 | `samples/all_test.go` | 校验全部示例分组的代码片段提取与亮/暗渲染 | 新增测试 |
 

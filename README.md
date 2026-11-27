@@ -82,7 +82,7 @@ go run ./gallery
 > - **v0.1.0**（已打 tag）：主题层 + 9 组换肤控件 + 首批缺口控件（Tree / Upload / Transfer / Carousel / QRCode）+ 44 个 antd 图标 + Gallery + 全部文档。
 > - **v0.2**（已推送、待打 tag）：README 快速开始重写、Release 安装包流水线、Cascader / TreeSelect，截图基线按平台生效。
 > - **v0.3**（开发中）：P1 缺口控件 Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin。
-> - 当前共 **98 个控件构造函数**（`widgets/` 91 + `extra/` 7）、**11 个示例分组 / 61 个示例片段**、**4 张 Gallery 截图基线**；尚未覆盖的控件与逐示例基线见 [docs/03](docs/03-gap-widgets.md) 与 [docs/06](docs/06-development-plan.md)。
+> - 当前共 **106 个控件构造函数**（`widgets/` 99 + `extra/` 7）、**11 个示例分组 / 65 个示例片段**、**4 张 Gallery 截图基线**；尚未覆盖的控件与逐示例基线见 [docs/03](docs/03-gap-widgets.md) 与 [docs/06](docs/06-development-plan.md)。
 
 ## 一句话结论
 

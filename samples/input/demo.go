@@ -76,6 +76,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "moreinput"),
 				View:        MoreInputDemo,
 			},
+			{
+				Title:       "提及",
+				Description: "Mentions 输入 @ 弹出候选，选中后插入。",
+				Code:        samples.Extract(demoSrc, "mentions"),
+				View:        MentionsDemo,
+			},
 		},
 	}
 }
@@ -216,6 +222,18 @@ func MoreInputDemo(c *ui.Context) {
 		widgets.TokenField(c, tags, []string{"Go", "GUI", "Ant Design"})
 		widgets.EditableText(c, name)
 		widgets.Calendar(c, date)
+	})
+}
+
+// /sample
+
+// sample:mentions
+func MentionsDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
+	reply := ui.Local(host, "ant.sample.input.mentions", func() string { return "" })
+	host.Children(func() {
+		widgets.Mentions(c, reply, []string{"张三", "李四", "王五"})
+		widgets.Paragraph(c, "输入 @ 触发候选；当前值："+*reply, widgets.Secondary())
 	})
 }
 

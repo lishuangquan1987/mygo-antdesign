@@ -59,40 +59,29 @@
 | Progress（环形） | `ant.ProgressCircle` | widgets | `ui.Box.Draw` + `ui.Path` 圆弧 | 中 | 中心百分比，成功/错误状态色 |
 | Toggle | `ant.Toggle` / `ToggleGroup` | widgets | `ui.Toggle` / `ui.ToggleGroup` | 低 | 保持按下的按钮 |
 | Affix | `ant.Affix` | widgets | `el.Sticky().Top(...)` | 低 | 吸顶，无需额外状态 |
+| Watermark | `ant.Watermark` | widgets | `ui.Overlay` + `Painter.Text` 平铺 | 中 | 半透明平铺、不拦截输入 |
+| Mentions | `ant.Mentions` | widgets | `ant.Input` + `ui.Popover` 候选 | 高 | 输入 @ 触发候选并插入 |
+| Tour | `ant.Tour` | widgets | `ui.Overlay` 绝对定位卡片 | 中 | 右下角步骤卡片（简化版，不遮挡高亮） |
+| Notification | `ant.Notification` | widgets | `ui.Overlay` 右上角卡片 | 中 | 标题 + 描述 + 关闭 |
+| FloatButton | `ant.FloatButton` | widgets | `ui.Overlay` + `ButtonBase` | 低 | 右下角悬浮按钮 |
+| Anchor | `ant.Anchor` | widgets | `ButtonBase` 目录 + 选中态 | 中 | 高亮当前项，滚动由调用方处理 |
+| BorderBeam | `ant.BorderBeam` | widgets | `BorderConicGradient` | 中 | 主题色渐变边框（静态） |
+| Masonry | `ant.Masonry` | widgets | `Row` + 多列 `Column` | 中 | 按列均衡分配（无虚拟滚动） |
 
 > 说明：`ant.AvatarEl`、`ant.Breadcrumb`、`ant.Tabs`、`ant.Dropdown`、`ant.Space` / `Flex` / `Grid` 等是**原生控件换肤**，不是缺口控件，见 [02 映射](02-widget-mapping.md)。
 
-## 二、待实现清单（按优先级）
+## 二、缺口清单状态
 
-> 复杂度是 1 名熟悉 Go 的开发者的粗估，不含示例与截图回归。
+**全部完成（v0.3）。** P1（Empty/Result/Skeleton/Statistic/Descriptions/Timeline/Spin）、
+P2（Popconfirm/Collapse/Form/Tooltip/List/Sidebar/Splitter/AutoComplete/Drawer/Image/
+ColorPicker/环形 Progress/Toggle/Affix/Watermark/Mentions/Tour/Notification）、
+P3（FloatButton/Anchor/BorderBeam/Masonry）以及首批缺口控件（Tree/Upload/Transfer/
+Carousel/QRCode/Cascader/TreeSelect）均已在 `widgets/` 或 `extra/` 落地，并配有
+单元测试与 `samples/` 示例。
 
-### P1 · 纯组合、低风险（✅ 已完成，见 §一）
-
-Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
-已在 `widgets/data.go` 与 `widgets/feedback.go` 实现，并配单元测试与
-`samples/` 示例（`samples/display`、`samples/feedback`）。
-
-### P2 · 需要浮层 / 状态（部分完成）
-
-已完成：Popconfirm、Collapse、Form、Tooltip、List、Sidebar、Splitter、AutoComplete、Drawer、Image、ColorPicker、环形 Progress、Toggle、Affix（见 §一）。剩余：
-
-| antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
-| --- | --- | --- | --- |
-| **Watermark 水印** | `ui.NewCanvas` + `Painter` + `ui.Overlay` | `el.PassThrough()` 不挡事件 | 中 |
-| **Tour 漫游引导** | `ui.PopoverBase` | 逐步锚定 + 上一步/下一步，步骤状态由调用方持有 | 高 |
-| **Mentions 提及** | `ui.TextInput` + `ui.PopoverBase` | 检测 `@` 触发候选，插入逻辑自管 | 高 |
-
-### P3 · 依赖额外能力或强 Web 语义
-
-| antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
-| --- | --- | --- | --- |
-| **FloatButton 悬浮按钮** | `Box` + `Absolute()` + `ButtonBase` | 角落锚定；BackTop 用 `ScrollState` | 低 |
-| **Anchor 锚点** | `ui.Outline` + `ScrollState` | 滚动位置联动高亮 | 中 |
-| **BorderBeam 边框流光** | `el.BorderConicGradient(...)` + `el.AnimateTo(...)` | 旋转角度动画；MyGo 原生渐变边框 | 中 |
-| **Notification（独立浮层）** | `ui.ToastViewportBase` | 自定义右上角 viewport + 关闭按钮 | 中 |
-| **Masonry 瀑布流** | `Scroll` + 分桶 `Column` | 按高度分配到最短列 | 高 |
-
-> QRCode / Upload / Transfer / Carousel / Cascader / TreeSelect 已在 §一 交付，无需再排期。
+> 说明：`Tour` 为右下角步骤卡片的简化版（不遮挡/高亮目标元素）；`Watermark` 为窗口级平铺；
+> `Masonry` 按列轮转分配（无高度测量与虚拟滚动）；`BorderBeam` 为静态渐变边框（无旋转动画）。
+> 这些差异记录在 [06 已知限制](06-development-plan.md#12-已知限制)。
 
 ## 三、明确不移植
 
@@ -119,10 +108,8 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
         → Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
         → Popconfirm → Collapse → Tooltip → Form → List → Sidebar → Splitter → AutoComplete
         → Drawer → Image → ColorPicker → 环形 Progress → Toggle → Affix
-下一步  Watermark → Mentions → Tour
-再后    Anchor → Notification
-按需    FloatButton → BorderBeam → Masonry
-不提供  SplitButton（由 ant.Dropdown 覆盖，见 §三）
+        → Watermark → Mentions → Tour → Notification → FloatButton → Anchor → BorderBeam → Masonry
+缺口清单已全部完成；SplitButton 由 ant.Dropdown 覆盖（见 §三）
 ```
 
 每完成一个控件，同步在 `samples/` 添加示例、在 `gallery/main.go` 注册，并生成/更新截图基线。

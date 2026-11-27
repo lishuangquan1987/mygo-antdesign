@@ -32,7 +32,7 @@
 | `ui.Toolbar` | Space（紧凑工具条） | 原生 | — | — | MyGo 特有溢出逻辑，保留原生 |
 | `ui.Toggle` / `ui.ToggleGroup` | Radio.Button / Segmented | 链式 | `ant.Toggle` / `ToggleGroup` | ✅ | 保持按下的按钮 |
 | `ui.SplitButton` / `ui.PrimarySplitButton` | Dropdown.Button | 链式 | — | — | 由 `ant.Dropdown` + 按钮组合表达，不单独提供同名控件 |
-| `ui.PopoverMenuButton` | Dropdown | 组合 | — | ◻ | 可选，`ant.Dropdown` 已覆盖主场景 |
+| `ui.PopoverMenuButton` | Dropdown | 组合 | — | — | 由 `ant.Dropdown` 覆盖主场景，不单独提供 |
 
 ## 二、数据录入
 
@@ -70,8 +70,8 @@
 | `ui.Table` | Table | 链式 | `ant.Table` | ✅ | 列定义、表头排序、行多选；单元格为字符串比较排序 |
 | `ui.List` | List（虚拟列表） | 链式 | `ant.List` | ✅ | 虚拟滚动 + 行分隔线 + 选中/多选 |
 | `ui.Tree` / `TreeItem` | Tree | 链式/组合 | `extra.Tree` | ✅ | 声明式节点树 + 展开状态 |
-| `ui.Outline` / `OutlineTable` | Tree / Anchor（近似） | 链式 | — | ◻ | 大树的列表/表格形态 |
-| `ui.GridView` | List（grid）/ Image.Preview | 链式 | — | ◻ | 网格视图 |
+| `ui.Outline` / `OutlineTable` | Tree / Anchor（近似） | 原生 | — | — | 高级原生用法，不包装；ant.Anchor 覆盖目录场景 |
+| `ui.GridView` | List（grid）/ Image.Preview | 原生 | — | — | 高级原生用法，不包装 |
 | `ui.Avatar` | Avatar | 组合 | `ant.AvatarEl` | ✅ | 圆形/姓名首字母；`image` 可选 |
 | `ui.Badge` | Badge（计数/红点） | 组合 | `ant.Badge` / `BadgeDot` | ✅ | ⚠️ 原生 `ui.Badge` 是文本胶囊；计数与右上角骑角是自建（`ui.Overlay` + `AttachTo`） |
 | `ui.Progress` | Progress（线形） | 链式 | `ant.ProgressLine` | ✅ | 百分比文字可隐藏；环形/仪表盘未做 |
@@ -155,8 +155,8 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 ## 七、覆盖度小结（2026-11-27）
 
 - MyGo v0.10.0 的 `ui` 包共 **102 个返回 `Element` 的构造函数**（含 `Base` 与布局原语），`docs/ui/` 下 **88 篇** 组件/主题文档。
-- 本库当前**已包装 35 个原生原语**，提供 **98 个控件构造函数**：
-  - `widgets/`（包 `ant`）91 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline·List·Drawer·ImageEl·ColorPicker·ColorPanel / Breadcrumb·Tabs·Dropdown·Pagination·Steps·Sidebar·SidebarItem·SidebarItemWithIcon·SidebarSection / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup·Splitter·SplitterVertical·SplitterPercent·SplitterVerticalPercent·AutoComplete·ProgressCircle·Toggle·ToggleGroup·Affix·Hyperlink·DecimalInput·SearchField·Stepper·Calendar·TokenField·EditableText·Meter·Collapsible·Accordion·AccordionItem·Popover·ContextMenu；
+- 本库当前**已包装绝大多数原生控件与 Base 原语**，提供 **106 个控件构造函数**：
+  - `widgets/`（包 `ant`）99 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline·List·Drawer·ImageEl·ColorPicker·ColorPanel / Breadcrumb·Tabs·Dropdown·Pagination·Steps·Sidebar·SidebarItem·SidebarItemWithIcon·SidebarSection / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup·Splitter·SplitterVertical·SplitterPercent·SplitterVerticalPercent·AutoComplete·ProgressCircle·Toggle·ToggleGroup·Affix·Hyperlink·DecimalInput·SearchField·Stepper·Calendar·TokenField·EditableText·Meter·Collapsible·Accordion·AccordionItem·Popover·ContextMenu / Watermark·Mentions·Tour·Notification·FloatButton·Anchor·BorderBeam·Masonry；
   - `extra/` 7 个：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect；
   - 另有 `icon.Icon` + 44 个图标常量。
 - 仍**未覆盖**的原生控件（约 60 个）与 antd 缺口控件（约 25 个）统一列在 [03 缺口控件](03-gap-widgets.md)，按优先级推进。

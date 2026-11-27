@@ -79,6 +79,9 @@ func (app *App) view(c *ui.Context) {
 | `ui.Image` | `ant.ImageEl(c, src, ant.ImageWidth(units), ant.ImagePreview(b))` | 圆角显示 + 点击模态预览 |
 | `ui.List` | `ant.List(c, *ui.ListState, n, row, opts...)` | `ListSelected` / `ListSelection` 绑定选中态 |
 | `ui.Collapsible` / `ui.Accordion` | `ant.Collapsible(c, label, *bool, fn)` / `ant.Accordion` / `ant.AccordionItem` | 原生折叠动画；antd 风格面板用 `ant.Collapse` |
+| `ui.Meter` | `ant.Meter(c, value, lo, hi, *ui.MeterLevels)` | 按阈值变色 |
+| 自建 | `ant.Masonry(c, cols, items)` | 多列瀑布流（按列轮转分配） |
+| 自建 | `ant.BorderBeam(c, content)` | 主题色渐变边框（静态） |
 
 ### 反馈
 
@@ -135,7 +138,7 @@ MyGo 原语是帧内查询（`el.Clicked()` / `el.Changed()`）；antd 包装层
 - `ant.Confirm` 基于 `ui.AlertDialog`，**返回被点按钮下标（0 起），`ant.Confirm` 本身不返回值**，只回调 `onOk`。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
 - 颜色/间距铁律：包装层所有取值来自 `c.Theme()` 与 `t.Space/Rem`，运行时换肤自动生效；应用侧不要对 antd 控件硬编码颜色。
-- 未实现（见 03）：Watermark / Tour / Mentions / Anchor / Notification / FloatButton / BorderBeam / Masonry；`Outline` / `GridView` / `StepSlider` / `SplitButton` 维持原生或由 Dropdown 组合。
+- 缺口控件已全部落地（见 03）；`Outline` / `GridView` / `StepSlider` / `SplitButton` 维持原生或由 Dropdown 组合。语义简化：`Tour` 不高亮目标、`Watermark` 为窗口级、`Masonry` 无高度测量、`BorderBeam` 无旋转动画。
 
 ## 5. 迁移步骤建议
 

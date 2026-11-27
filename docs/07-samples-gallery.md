@@ -2,7 +2,7 @@
 
 > 对应需求：为**每一个控件**写示例，告诉别人怎么用，并展示不同主题、不同 size 的效果——像 WPF 的 MaterialDesignInXamlToolkit 示例程序那样，让人一眼看到每个控件的全部样子。
 >
-> 本文区分「已实现」与「规划」。当前实现：11 个示例分组、61 个示例片段、Gallery 侧栏 + 卡片流 + 控制条 + 4 张截图基线。
+> 本文区分「已实现」与「规划」。当前实现：11 个示例分组、65 个示例片段、Gallery 侧栏 + 卡片流 + 控制条 + 4 张截图基线。
 
 ## 1. 目标与体验参照
 
@@ -80,19 +80,19 @@ func All() []WidgetDemo
 
 尚未覆盖：文字 + 图标按钮、与 Popconfirm 组合的危险操作确认、标准/紧凑并排（当前只做了亮/暗并排）。
 
-### 4.1 当前示例分组（11 组 / 61 个片段）
+### 4.1 当前示例分组（11 组 / 65 个片段）
 
 | 分组 | 覆盖控件 | 示例数 |
 | --- | --- | --- |
 | `samples/button` | Button | 4 |
 | `samples/typography` | Title / Paragraph / Code / TextMuted | 3 |
 | `samples/divider` | Divider / VerticalDivider | 3 |
-| `samples/layout` | Space / Flex / Grid / Splitter | 4 |
-| `samples/input` | Input / TextArea / SearchInput / NumberInputV / DatePicker / TimePicker / Form / AutoComplete / ColorPicker / Hyperlink·DecimalInput·SearchField·Stepper·TokenField·EditableText·Calendar | 9 |
+| `samples/layout` | Space / Flex / Grid / Splitter / FloatButton | 5 |
+| `samples/input` | Input / TextArea / SearchInput / NumberInputV / DatePicker / TimePicker / Form / AutoComplete / ColorPicker / Hyperlink·DecimalInput·SearchField·Stepper·TokenField·EditableText·Calendar / Mentions | 10 |
 | `samples/selectdemo` | Checkbox / RadioGroup / Switch / Slider / RangeSlider / Rate / Segmented / Select / Combobox / Toggle | 7 |
-| `samples/display` | Tag / Badge / Avatar / Card / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Collapse / List / Image / Collapsible·Accordion·Meter | 11 |
+| `samples/display` | Tag / Badge / Avatar / Card / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Collapse / List / Image / Collapsible·Accordion·Meter / Anchor·Masonry·BorderBeam | 12 |
 | `samples/table` | Table | 1 |
-| `samples/feedback` | Alert / Modal / Message / Notify / Progress / Confirm / Spin / Tooltip / Popconfirm / Drawer / Popover / ContextMenu | 8 |
+| `samples/feedback` | Alert / Modal / Message / Notify / Progress / Confirm / Spin / Tooltip / Popconfirm / Drawer / Popover / ContextMenu / Watermark·Tour·Notification | 9 |
 | `samples/nav` | Breadcrumb / Tabs / Dropdown / Pagination / Steps / Sidebar | 5 |
 | `samples/extrademo` | Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect | 6 |
 
@@ -251,7 +251,7 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 | --- | --- | --- |
 | Gallery 框架（侧栏、控制条、并排对比、代码视图、搜索） | 6 | ✅ 除搜索 |
 | 示例注册表 + `go:embed` 片段提取工具 | 2 | ✅ |
-| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 11 组 / 61 片段 |
+| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 11 组 / 65 片段 |
 | 截图生成与文档嵌图联动 | 4 | ◐ Gallery 级 4 张 + README 2 图 |
 | **小计** | **约 33 人日** | |
 

@@ -88,6 +88,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "accordion"),
 				View:        AccordionDemo,
 			},
+			{
+				Title:       "锚点、瀑布流与边框流光",
+				Description: "Anchor 目录高亮、Masonry 多列瀑布流、BorderBeam 渐变流光边框。",
+				Code:        samples.Extract(demoSrc, "masonry"),
+				View:        MasonryDemo,
+			},
 		},
 	}
 }
@@ -273,6 +279,31 @@ func AccordionDemo(c *ui.Context) {
 			})
 		})
 		widgets.Meter(c, 72, 0, 100, &ui.MeterLevels{Warning: 60, Critical: 85})
+	})
+}
+
+// /sample
+
+// sample:masonry
+func MasonryDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	active := ui.Local(host, "ant.sample.display.anchor", func() int { return 0 })
+	host.Children(func() {
+		row := ui.Row(c).Gap(c.Theme().Space(4)).AlignItems(ui.Start)
+		row.Children(func() {
+			widgets.Anchor(c, []widgets.AnchorItem{
+				{ID: "intro", Label: "介绍"},
+				{ID: "usage", Label: "用法"},
+				{ID: "api", Label: "API"},
+			}, active, func(id string) {})
+			widgets.BorderBeam(c, func() {
+				widgets.Masonry(c, 2, []func(*ui.Context){
+					func(c *ui.Context) { widgets.Card(c, "卡片一", func() { widgets.Paragraph(c, "瀑布流内容") }) },
+					func(c *ui.Context) { widgets.Card(c, "卡片二", func() { widgets.Paragraph(c, "瀑布流内容") }) },
+					func(c *ui.Context) { widgets.Card(c, "卡片三", func() { widgets.Paragraph(c, "瀑布流内容") }) },
+				})
+			})
+		})
 	})
 }
 

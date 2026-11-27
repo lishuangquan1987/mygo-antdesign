@@ -2,7 +2,7 @@
 
 > 对应需求：为**每一个控件**写示例，告诉别人怎么用，并展示不同主题、不同 size 的效果——像 WPF 的 MaterialDesignInXamlToolkit 示例程序那样，让人一眼看到每个控件的全部样子。
 >
-> 本文区分「已实现」与「规划」。当前实现：13 个示例分组、84 个示例片段、Gallery 侧栏（分类 + 搜索 + 计数）+ 卡片流（代码复制）+ 控制条 + 3 张 Gallery 级基线 + 324 张逐示例基线（4 组合）。
+> 本文区分「已实现」与「规划」。当前实现：**99 个控件示例页**（13 个源分组 / 84 个片段聚合，每控件一页）+ 首页 + Gallery 侧栏（开始入口 / 分类 / 搜索 / 计数）+ 卡片流（代码复制 + `ui/editor` 只读代码视图）+ 控制条（主题/密度/尺寸/字号/品牌色/对比）+ 3 张 Gallery 级基线 + 324 张逐示例基线（4 组合）。
 
 ## 1. 目标与体验参照
 
@@ -80,23 +80,25 @@ func All() []WidgetDemo
 
 尚未覆盖：文字 + 图标按钮、与 Popconfirm 组合的危险操作确认、标准/紧凑并排（当前只做了亮/暗并排）。
 
-### 4.1 当前示例分组（13 组 / 84 个片段）
+### 4.1 示例分组 → 控件页（99 页）
 
-| 分组 | 覆盖控件 | 示例数 |
+源分组 13 个、片段 84 个；`samples/pages.go` 按「分组|片段标题 → 控件页名」映射表聚合为 **每控件一页**（同控件的多个片段合并，一个片段演示多个控件时展开为多页、共享同一代码与预览）。页名对齐 antd 官网英文控件名，MyGo 命名优先（DateInput/TimeInput/Autocomplete/Rating…）。
+
+| 源分组 | 片段 | 展开的控件页 |
 | --- | --- | --- |
-| `samples/button` | Button | 4 |
-| `samples/typography` | Title / Paragraph / Code / TextMuted | 3 |
-| `samples/divider` | Divider / VerticalDivider / DashedVerticalDivider | 4 |
-| `samples/layout` | Space / Flex / Grid / Splitter / FloatButton / Affix / SplitterVertical | 8 |
-| `samples/input` | Input / TextArea / SearchInput / NumberInputV / DatePicker / TimePicker / Form / AutoComplete / ColorPicker / Hyperlink·DecimalInput·SearchField·Stepper·TokenField·EditableText·Calendar / Mentions | 10 |
-| `samples/selectdemo` | Checkbox / RadioGroup / Switch / Slider / RangeSlider / Rate / Segmented / Select / Combobox / Toggle / RangeSliderDouble / ToggleGroup | 9 |
-| `samples/display` | Tag / Badge / Avatar / Card / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Collapse / List / Image / Collapsible·Accordion·Meter / Anchor·Masonry·BorderBeam | 12 |
-| `samples/table` | Table | 1 |
-| `samples/feedback` | Alert / Modal / Message / Notify / Progress / Confirm / Spin / Tooltip / Popconfirm / Drawer / Popover / ContextMenu / Watermark·Tour·Notification / 确认对话 | 10 |
-| `samples/nav` | Breadcrumb / Tabs / Dropdown / Pagination / Steps / Sidebar / SidebarItemWithIcon | 6 |
-| `samples/extrademo` | Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect | 6 |
-| `samples/native` | 原生补全：Toolbar / SplitButton / GridView / CheckboxGroup / ColorWell / Markdown / CodeEditor / ChartPlot / RichTextEditor / RemoteImage | 10 |
-| `samples/ide` | 紧凑型 IDE 布局（Sidebar / Tabs / 代码区 / 状态栏） | 1 |
+| `samples/button` | 4 | Button（4 片段） |
+| `samples/typography` | 3 | Title / Paragraph / Code |
+| `samples/divider` | 4 | Divider（4 片段） |
+| `samples/layout` | 8 | Space / Flex / Grid / Splitter / SplitterPercent / SplitterVerticalPercent / SplitterVertical / FloatButton / Affix |
+| `samples/input` | 10 | Input（2 片段）/ TextArea / SearchInput / NumberInput / DateInput / TimeInput / Form / Autocomplete / ColorPicker / Mentions / Hyperlink / DecimalInput / SearchField / Stepper / TokenField / EditableText / Calendar |
+| `samples/selectdemo` | 9 | Checkbox / Radio / Switch / Slider / Rating / Segmented / Select / Toggle / RangeSlider / ToggleGroup |
+| `samples/display` | 12 | Tag / Badge / Avatar / Card / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Collapse / List / Image / Collapsible / Accordion / Meter / Anchor / Masonry / BorderBeam |
+| `samples/table` | 1 | Table |
+| `samples/feedback` | 10 | Alert / Modal / Message / Progress / Spin / Tooltip / Popconfirm / Drawer / Popover / ContextMenu / Watermark / Tour / Notification / Confirm |
+| `samples/nav` | 6 | Breadcrumb / Tabs / Dropdown / Pagination / Steps / Sidebar（2 片段） |
+| `samples/extrademo` | 6 | Tree / Cascader / TreeSelect / Upload / Transfer / Carousel / QRCode |
+| `samples/native` | 10 | Toolbar / SplitButton / GridView / CheckboxGroup / ColorWell / Markdown / CodeEditor / ChartPlot / RichTextEditor / RemoteImage |
+| `samples/ide` | 1 | IDE 风格（应用级示例） |
 
 ## 5. Gallery 应用的界面结构
 
@@ -119,9 +121,9 @@ func All() []WidgetDemo
 └────────────┴───────────────────────────────────────────────────┘
 ```
 
-- **左侧**：搜索框 + 按分类分组的控件列表，每个分组显示示例数量。
-- **中部**：示例卡片流，每张卡片 = 标题 + 描述 + 实时预览 + `ui/editor` 只读代码视图（`MaxHeight` 截断），右上角「复制代码」。
-- **顶部控制条**：亮/暗、标准/紧凑、4 个品牌色块、亮暗对比与密度对比开关。
+- **左侧**：「开始」首页入口 + 搜索框 + 按分类分组的控件页列表（每控件一行，行尾显示示例数）。
+- **中部**：首页（主视觉 + 特性卡片 + 统计 + 快速开始）或控件页的示例卡片流，每张卡片 = 标题 + 描述 + 实时预览 + `ui/editor` 只读代码视图（`MaxHeight` 截断），右上角「复制代码」。
+- **顶部控制条**：亮/暗、标准/紧凑、尺寸（大/中/小）、字号（12/14/16）、4 个品牌色块、亮暗对比与密度对比开关。
 - **并排对比模式**：`theme.Sub` 左右两栏——亮暗对比（左亮右暗）或密度对比（左标准右紧凑），携带当前品牌色。
 
 控制条只改 `Gallery` 的 app state，view 函数是 state 的函数，下一帧全部示例自动重绘——**不需要逐个刷新示例**。
@@ -130,9 +132,11 @@ func All() []WidgetDemo
 
 | 能力 | 状态 | 说明 |
 | --- | --- | --- |
-| 侧栏按 `Category` 分组 | ✅ | 6 个分类（通用/输入/展示/导航/反馈/缺口） |
+| 首页（主视觉 + 特性 + 统计 + 快速开始） | ✅ | 侧栏「开始」进入，默认落地页 |
+| **每控件一页** | ✅ | `samples/pages.go` 把 13 组 / 84 片段聚合为 99 个控件页（页名对齐 antd 官网，MyGo 命名优先） |
+| 侧栏按 `Category` 分组 | ✅ | 7 个分类（通用/数据录入/数据展示/导航/反馈/缺口控件/原生补全） |
 | 侧栏搜索 / 过滤 | ✅ | 匹配控件名、简介与分类名 |
-| 覆盖率显示（每组示例数） | ✅ | 行尾显示该分组示例数量 |
+| 覆盖率显示（每控件示例数） | ✅ | 行尾显示该控件示例数量 |
 | 全局尺寸切换（大/中/小） | ✅ | 顶部「尺寸」通过 `theme.WithSpacing/WithRadius/WithFontSize` 统一缩放 |
 | 字号切换（12/14/16） | ✅ | 顶部「字号」通过 `theme.WithFontSize` 全局生效 |
 | 标准/紧凑并排 | ✅ | 顶部「密度对比」 |
@@ -269,8 +273,8 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 | 阶段 | 交付 | 状态 |
 | --- | --- | --- |
 | M1 | Gallery 框架（侧栏/控制条/并排对比/代码视图）+ 基础控件示例 | ✅ |
-| M2 | 随控件开发同步补齐全部换肤控件的示例 | ✅ 按分组覆盖（13 组 / 84 片段），逐控件拆分不做 |
-| M3 | 全控件示例的四维覆盖审计 + 紧凑并排 + 截图基线全量生成 | ◻ |
+| M2 | 随控件开发同步补齐全部换肤控件的示例 | ✅ 99 个控件页（13 组 / 84 片段聚合），每控件一页 |
+| M3 | 全控件示例的四维覆盖审计 + 紧凑并排 + 截图基线全量生成 | ✅ 四维全局开关齐备（主题/密度/尺寸/字号）、密度并排、324 张逐示例基线 |
 | M4 | 缺口控件示例 + 文档嵌图 + 发布 | ✅ 缺口示例齐备；文档嵌图自动化见 docs/06 §10 |
 
 ## 11. 工作量补充估算
@@ -279,7 +283,7 @@ go run ./scripts/visualcheck -group 数据展示 -theme compact
 | --- | --- | --- |
 | Gallery 框架（侧栏、控制条、并排对比、代码视图、搜索） | 6 | ✅ 全部完成 |
 | 示例注册表 + `go:embed` 片段提取工具 | 2 | ✅ |
-| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ◐ 13 组 / 84 片段（按 docs/02 §九 继续补齐） |
+| 全控件示例编写（约 70 个控件 × 0.3） | 21 | ✅ 99 个控件页（13 组 / 84 片段聚合），对照 docs/10 checklist 全覆盖 |
 | 截图生成与文档嵌图联动 | 4 | ◐ Gallery 级 3 张 + README 2 图 |
 | **小计** | **约 33 人日** | |
 

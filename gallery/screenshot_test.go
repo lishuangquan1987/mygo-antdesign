@@ -83,15 +83,18 @@ func TestWriteDocsScreenshots(t *testing.T) {
 
 	dir := filepath.Join("..", "docs", "images")
 	g := NewGallery()
-	g.selected = "Button"
 
-	// 亮色 Gallery。
+	// 首页。
+	savePNG(t, filepath.Join(dir, "home.png"), g.View, 1280, 800)
+
+	// 亮色 Gallery（Button 控件页）。
+	g.selected = "Button"
 	g.dark = false
 	savePNG(t, filepath.Join(dir, "gallery.png"), g.View, 1280, 800)
 
-	// 暗色 Gallery（放在同一张卡片流上，选择「反馈」分组以展示更多控件）。
+	// 暗色 Gallery（Alert 控件页，展示反馈类控件）。
+	g.selected = "Alert"
 	g.dark = true
-	g.selected = "反馈"
 	savePNG(t, filepath.Join(dir, "gallery-dark.png"), g.View, 1280, 800)
 
 	// 最小示例（README 快速开始）。

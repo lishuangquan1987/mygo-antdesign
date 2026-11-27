@@ -63,9 +63,21 @@ func TestGalleryRenders(t *testing.T) {
 	g := newTestGallery()
 	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
+	// 默认展示首页；侧栏仍列出全部控件页。
+	if !tt.HasText("Ant Design 风格的 MyGo 原生控件库") {
+		t.Error("首页主视觉未渲染")
+	}
+	if !tt.HasText("控件构造函数") {
+		t.Error("首页统计未渲染")
+	}
 	if !tt.HasText("Button") {
 		t.Fatal("侧栏未显示 Button")
 	}
+	// 点击「浏览控件」进入第一个控件页。
+	if err := tt.Click("浏览控件"); err != nil {
+		t.Fatalf("点击浏览控件失败: %v", err)
+	}
+	tt.Frame()
 	if !tt.HasText("基础用法") {
 		t.Fatal("示例卡片未渲染")
 	}
@@ -79,6 +91,7 @@ func TestGalleryRenders(t *testing.T) {
 
 func TestGalleryInteractions(t *testing.T) {
 	g := newTestGallery()
+	g.selected = "Button"
 	tt := ui.NewTester(g.View, 1280, 800)
 
 	// 切换暗色 / 紧凑 / 对比 / 全局尺寸：无 panic、无持续帧请求。
@@ -118,6 +131,7 @@ func TestGallerySearch(t *testing.T) {
 
 func TestGalleryDensityCompare(t *testing.T) {
 	g := newTestGallery()
+	g.selected = "Button"
 	g.compare = compareDensity
 	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
@@ -131,6 +145,7 @@ func TestGalleryDensityCompare(t *testing.T) {
 
 func TestGalleryCopyCode(t *testing.T) {
 	g := newTestGallery()
+	g.selected = "Button"
 	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
 	if err := tt.Click("复制代码"); err != nil {
@@ -144,6 +159,7 @@ func TestGalleryCopyCode(t *testing.T) {
 
 func TestGallerySampleInteraction(t *testing.T) {
 	g := newTestGallery()
+	g.selected = "Button"
 	tt := ui.NewTester(g.View, 1280, 800)
 	if err := tt.Click("保存"); err != nil {
 		t.Fatalf("点击示例按钮失败: %v", err)
@@ -175,6 +191,7 @@ func TestGalleryBaselines(t *testing.T) {
 		g := newTestGallery()
 		cb.setup(g)
 		g.brand = "" // 基线用默认品牌色
+		g.selected = "Button"
 		tt := ui.NewTester(g.View, 960, cb.height)
 		tt.Frame()
 		if tt.Image() == nil {

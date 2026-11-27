@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml/badge.svg)](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/ci.yml)
 [![Release](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml/badge.svg)](https://github.com/lishuangquan1987/mygo-antdesign/actions/workflows/release.yml)
+[![在线预览](https://img.shields.io/badge/%E5%9C%A8%E7%BA%BF%E9%A2%84%E8%A7%88-GitHub%20Pages-0969DA?logo=github)](https://lishuangquan1987.github.io/mygo-antdesign/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/lishuangquan1987/mygo-antdesign.svg)](https://pkg.go.dev/github.com/lishuangquan1987/mygo-antdesign)
 [![Go Version](https://img.shields.io/badge/Go-1.27.4%2B-00ADD8?logo=go&logoColor=white)](go.mod)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -25,6 +26,7 @@ MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`�
 ## 目录
 
 - [特性](#特性)
+- [在线预览](#在线预览)
 - [本地运行 Gallery](#本地运行-gallery)
 - [安装](#安装)
 - [快速开始](#快速开始)
@@ -49,6 +51,15 @@ MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`�
 - **视觉回归**：3 张 Gallery 级 + 324 张逐示例截图基线（亮/暗 × 标准/紧凑），CI 逐字节比对。
 - **细节对齐 antd v5**：表格、页签、输入焦点环、进度、卡片、弹窗等按 antd Token 校准（见 [docs/09](docs/09-antd-parity.md)）。
 - **纯 Go**：无 cgo，可交叉编译到 Windows / macOS / Linux（amd64、arm64）。
+
+## 在线预览
+
+Gallery 已编译为 WebAssembly 并托管在 GitHub Pages，无需安装即可在浏览器中体验全部控件：
+
+**👉 [https://lishuangquan1987.github.io/mygo-antdesign/](https://lishuangquan1987.github.io/mygo-antdesign/)**
+
+- 由 [.github/workflows/pages.yml](.github/workflows/pages.yml) 自动构建：发布 Release 时预览更新为发布版内容，也可在 Actions 页面手动触发（可指定 tag）。
+- wasm 以 gzip 分发并在浏览器端解压加载，首次下载约 7 MB；受 WebAssembly 单线程与 Go 运行时限制，交互流畅度略低于桌面版，长列表场景建议使用桌面版。
 
 ## 本地运行 Gallery
 
@@ -246,7 +257,7 @@ go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
 ## 版本与发布
 
 - 遵循 [语义化版本](https://semver.org/lang/zh-CN/)；当前版本 **v0.5.0**。
-- 发布流程：创建 Release → [Release 工作流](.github/workflows/release.yml) 自动为 5 个平台构建 Gallery 安装包并上传到该 Release 附件；也可在 Actions 页面手动触发（`workflow_dispatch`）并填入已存在的 tag。
+- 发布流程：创建 Release → [Release 工作流](.github/workflows/release.yml) 自动为 5 个平台构建 Gallery 安装包并上传到该 Release 附件；同时 [Pages 工作流](.github/workflows/pages.yml) 用该 tag 构建并更新[在线预览](#在线预览)。两者也可在 Actions 页面手动触发（`workflow_dispatch`；Release 需填入已存在的 tag，Pages 留空 tag 则预览 main 最新代码）。
 - **注意**：`release` 事件使用的是 **tag 内的 workflow 文件**。如果某个旧 tag 的工作流版本较老（例如 v0.2.0 之前），它的 Release 构建可能失败；此时请在 Actions 页面手动触发 `Release`（workflow 取 main 上的最新版本），填入该 tag 重新上传，或基于最新 main 打新 tag 发布。
 - 历史版本与变更见 [CHANGELOG.md](CHANGELOG.md) 与 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases)。
 

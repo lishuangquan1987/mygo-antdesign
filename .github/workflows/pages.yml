@@ -1,0 +1,165 @@
+# 在线预览：把 Gallery 构建为 Web/WASM 静态站点并发布到 GitHub Pages。
+#
+# 预览地址：https://lishuangquan1987.github.io/mygo-antdesign/
+#
+# 触发方式：
+#   1. Release 发布（published）→ 用该 tag 的代码构建，预览更新为发布版内容。
+#   2. 手动触发（workflow_dispatch）→ 不填 tag 用 main 最新代码，填 tag 则构建该 tag。
+#
+# 优化（均已在本地 Chromium 实测）：
+#   1. wasm 以 gzip 分发（27MB -> 6.9MB），index.html 用浏览器端
+#      DecompressionStream 解压加载，不依赖服务器 Content-Encoding 头。
+#   2. WEB_EXCLUDE_NATIVE=true 时去掉 native 重型示例（ui/editor、chart、
+#      richtext 等），27MB -> 20MB，gzip 6.9MB -> 5.1MB。
+#
+# 使用前提：仓库 Settings -> Pages -> Build and deployment -> Source 选 "GitHub Actions"。
+name: Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要预览的 tag（例如 v0.3.0）；留空则构建 main 最新代码"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # 改为 true 则 web 预览不含 native 示例（省约 7MB / gz 省 1.8MB）
+  WEB_EXCLUDE_NATIVE: "false"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 解析构建目标
+        id: meta
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          tag="${RELEASE_TAG:-${INPUT_TAG:-}}"
+          # 有 tag 构建该 tag（发布版）；无 tag 构建 main 最新代码。
+          ref="${tag:-${{ github.ref }}}"
+          version="${tag#v}"
+          [ -z "$version" ] && version="dev"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.meta.outputs.ref }}
+
+      - name: 安装 Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: 安装 mygo CLI
+        run: go install github.com/egoist/mygo/cmd/mygo@v0.10.0
+
+      - name: 构建 Web/WASM 静态站点
+        env:
+          MYGO_LDFLAGS: "-X main.version=${{ steps.meta.outputs.version }}"
+        run: |
+          if [ "$WEB_EXCLUDE_NATIVE" = "true" ]; then
+            # 生成去掉 native 示例的临时入口，构建后恢复
+            cp gallery/main.go /tmp/main.orig.go
+            python3 - <<'PY'
+            src = open('gallery/main.go').read()
+            src = src.replace('\tsamples.Register(native.Demo())\n', '')
+            src = src.replace('\t"github.com/lishuangquan1987/mygo-antdesign/samples/native"\n', '')
+            open('gallery/main.go', 'w').write(src)
+            PY
+            mygo build -platform web -o dist ./gallery
+            cp /tmp/main.orig.go gallery/main.go
+          else
+            mygo build -platform web -o dist ./gallery
+          fi
+
+      - name: gzip 压缩 wasm 并替换加载页
+        working-directory: gallery/dist/web
+        run: |
+          WASM=$(ls *.wasm)
+          # -n：不写时间戳，内容寻址文件名与产物一一对应，可长期缓存
+          gzip -9 -n -k "$WASM"
+          python3 - "$WASM.gz" <<'PY'
+          import sys
+          gz = sys.argv[1]
+          html = """<!doctype html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>mygo-antdesign Gallery</title>
+          <style>
+          html, body { margin: 0; height: 100%; }
+          body { display: flex; align-items: center; justify-content: center;
+            color: #8e8e93; font: 13px system-ui, sans-serif; }
+          .spinner { width: 24px; height: 24px; animation: spin 1s steps(12) infinite; }
+          .spinner line { stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+          @keyframes spin { to { transform: rotate(360deg); } }
+          .error { max-width: 80%; white-space: pre-wrap; }
+          </style>
+          </head>
+          <body>
+          <svg class="spinner" viewBox="0 0 24 24" aria-label="Loading">
+            <g transform="translate(12 12)">
+          """
+          for i in range(12):
+              html += f'<line y1="-5.5" y2="-10" opacity="{max(1-0.08*i, 0.2):.2f}" transform="rotate({-30*i})" />\n'
+          html += """</g></svg>
+          <script src="wasm_exec.js"></script>
+          <script>
+          async function boot() {
+            const resp = await fetch("%s");
+            if (!resp.ok) throw new Error("fetch " + resp.status);
+            // 浏览器端流式解压：不依赖服务器 Content-Encoding 头
+            const ds = resp.body.pipeThrough(new DecompressionStream("gzip"));
+            const bytes = await new Response(ds).arrayBuffer();
+            const go = new Go();
+            const { instance } = await WebAssembly.instantiate(bytes, go.importObject);
+            go.run(instance);
+            document.querySelector(".spinner").remove();
+          }
+          boot().catch(e => {
+            const p = document.createElement("p");
+            p.className = "error";
+            p.textContent = "The app did not load: " + e;
+            document.body.replaceChildren(p);
+          });
+          </script>
+          </body></html>
+          """ % gz
+          open("index.html", "w").write(html)
+          PY
+          ls -lh
+
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gallery/dist/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

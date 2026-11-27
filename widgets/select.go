@@ -284,22 +284,60 @@ func Select(c *ui.Context, selected *string, options []string, opts ...ControlOp
 //	var q string
 //	ant.Combobox(c, &q, []string{"重启服务", "重启网关"}, ant.OnChange(app.suggest))
 func Combobox(c *ui.Context, selected *string, options []string, opts ...ControlOption) ui.Element {
-	return wrapSelect(c, func() ui.Element { return ui.Combobox(c, selected, options) }, opts)
-}
-
-// wrapSelect 统一的下拉类包装（Select/Combobox 共用）。
-func wrapSelect(c *ui.Context, build func() ui.Element, opts []ControlOption) ui.Element {
 	cfg := &controlConfig{}
 	for _, o := range opts {
 		o(cfg)
 	}
 	t := c.Theme()
-	el := build().
+
+	before := *selected
+	cb := ui.ComboboxBase(c, selected)
+	// 输入框对齐 antd：32px 高、11px 水平内边距、6px 圆角、1px 描边。
+	cb.Input.
 		Height(internal.ControlHeight(t, internal.SizeMiddle)).
-		FontSize(internal.ControlFont(t, internal.SizeMiddle)).
-		Radius(t.Radius)
-	applyControl(el, cfg)
-	return el
+		Padding(0, internal.ControlPaddingX(t, internal.SizeMiddle)).
+		Radius(t.Radius).
+		Border(1, t.Border).
+		Background(t.Surface).
+		FontSize(internal.ControlFont(t, internal.SizeMiddle))
+	if cfg.disabled {
+		cb.Input.Disabled(true)
+	}
+
+	// 候选面板与 Select 相同：8px 圆角、32px 选项、选中/悬停浅底。
+	cb.Popup(func(panel ui.Element) {
+		panel.Padding(t.Space(1)).
+			Radius(t.Radius+t.Space(0.5)).
+			Background(t.Surface).
+			Border(1, t.Border).
+			Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
+		for _, opt := range options {
+			opt := opt
+			item := cb.Item(opt).
+				Height(internal.ControlHeight(t, internal.SizeSmall)).
+				Padding(0, t.Space(2)).
+				Radius(t.Radius * 0.67).
+				AlignItems(ui.Center)
+			if opt == *selected {
+				item.Background(t.Selection)
+			} else if item.Highlighted() {
+				item.Background(t.SurfaceHover)
+			}
+			item.Children(func() {
+				ui.Text(c, opt).TextColor(t.Text).
+					FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine()
+			})
+		}
+	})
+
+	// ComboboxBase 只报告 Chosen，需由调用方写回输入文本。
+	if chosen, ok := cb.Chosen(); ok {
+		*selected = chosen
+		if chosen != before && cfg.onChg != nil {
+			cfg.onChg()
+		}
+	}
+	return cb.Input
 }
 
 // CheckboxAll 三态复选框（全选框：全选/半选/未选），antd 表格表头场景：

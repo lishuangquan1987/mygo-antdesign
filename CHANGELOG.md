@@ -14,6 +14,7 @@
 - **第六批校准**：Select 改为 `ui.SelectBase` 自绘（32px 高/11px 内边距/右侧箭头/32px 选项/选中浅底），保留键盘导航与原有点击交互测试。
 - **第七批校准**：Drawer 打开时 220ms 从右侧滑入、Modal 打开时 200ms 缩放淡入（`AnimateTo`，尊重 ReduceMotion）；Drawer 测试补充动画帧断言与等待。
 - **第八批校准（extra 缺口控件）**：Transfer（方形复选框/32px 行/40px 浅灰表头/箭头按钮）、Upload（96px 拖放区/40px 图标/16px 文案/文件行悬停）、Cascader/TreeSelect 触发器（chevron 图标 + 悬停主色描边）。
+- **第九批校准**：Combobox 改为 `ui.ComboboxBase` 自绘（32px 输入框/11px 内边距/32px 候选面板），修复选中项未写回输入框的问题；AutoComplete 维持原生。
 - **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
 - **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 

@@ -74,7 +74,7 @@
 | Drawer / Modal 动画 | 打开动效已实现（Drawer 220ms 滑入、Modal 200ms 缩放淡入，尊重 ReduceMotion）；关闭仍为即时（MyGo `DialogBase` 关闭即卸载面板，无退场钩子） |
 | Tooltip 箭头 | 反色气泡已对齐；箭头在无头 Tester 中无法稳定绘制（原生 tooltip 层不参与 `Tester.Image()`），未纳入视觉核对 |
 | Dropdown 触发按钮 | 使用原生 `ui.MenuButton`（尺寸/字号/描边无法完全覆盖），下拉项样式由原生菜单绘制 |
-| Select / Combobox 内边距 | Select 已自绘对齐 antd；Combobox（可输入下拉）仍透传原生 `ui.Combobox`，仅统一高度/字号/圆角 |
+| Select / Combobox | Select 已自绘对齐 antd；Combobox 现基于 `ui.ComboboxBase` 自绘输入框（32px/11px 内边距）与 32px 候选面板；AutoComplete 仍透传原生 |
 | Gallery 控件尺寸切换 | 字号已支持全局 小/中/大（`theme.WithFontSize`）；控件自身 size（大/中/小）仍由各示例显式指定，无统一注入点 |
 | 系统亮暗自动跟随 | MyGo `ui` 未暴露系统外观 API（见 ADR 0002） |
 

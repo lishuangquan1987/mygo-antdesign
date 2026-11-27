@@ -213,7 +213,7 @@ go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
 ├── samples/      # 真实可编译的示例源码（go:embed 提取片段）+ golden 截图基线
 ├── gallery/      # 示例展示应用（本地运行入口）
 ├── internal/     # 共享度量、状态映射、样式静态检查
-├── scripts/      # genicons（图标生成）、visualcheck（示例渲染核对）
+├── scripts/      # genicons（图标生成）、visualcheck（示例渲染核对）、package（发布打包，纯 Go）
 └── docs/         # 设计文档、ADR 与截图
 ```
 

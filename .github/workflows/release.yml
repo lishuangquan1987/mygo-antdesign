@@ -120,32 +120,17 @@ jobs:
           VERSION: ${{ steps.meta.outputs.version }}
         run: |
           set -euo pipefail
-          out="${APP_NAME}-${VERSION}-${GOOS}-${GOARCH}"
-          pkg="dist/${out}"
-          mkdir -p "$pkg"
           suffix=""
           if [ "$GOOS" = "windows" ]; then suffix=".exe"; fi
-          cp "dist/${APP_NAME}${suffix}" "$pkg/"
-          cp README.md LICENSE "$pkg/" 2>/dev/null || true
-          cat > "$pkg/RUN.txt" <<EOF
-          mygo-antdesign Gallery ${VERSION}
-          Ant Design 风格的 MyGo 原生 UI 控件库 · 示例程序
-
-          运行方式：
-            Windows: 双击 ${APP_NAME}.exe
-            macOS:   chmod +x ${APP_NAME} && ./${APP_NAME}
-            Linux:   chmod +x ${APP_NAME} && ./${APP_NAME}
-
-          说明：
-            - 纯 Go 构建，无 cgo 依赖；需要桌面环境（Windows 10+/macOS 11+/X11 或 Wayland）。
-            - 仓库：https://github.com/lishuangquan1987/mygo-antdesign
-            - 文档：https://github.com/lishuangquan1987/mygo-antdesign/tree/main/docs
-          EOF
-          if [ "$ARCHIVE" = "zip" ]; then
-            (cd dist && zip -q -r "${out}.zip" "${out}")
-          else
-            tar -czf "dist/${out}.tar.gz" -C dist "${out}"
-          fi
+          out="${APP_NAME}-${VERSION}-${GOOS}-${GOARCH}"
+          # 用宿主环境编译打包工具（GOOS/GOARCH 置空），否则交叉编译出的
+          # 二进制无法在当前 runner 上执行。
+          env -u GOOS -u GOARCH CGO_ENABLED=0 go run ./scripts/package \
+            -bin "dist/${APP_NAME}${suffix}" \
+            -out "dist/${out}.${ARCHIVE}" \
+            -app "$APP_NAME" -version "$VERSION" \
+            -os "$GOOS" -arch "$GOARCH" -mode "$ARCHIVE" \
+            -readme README.md -license LICENSE
           echo "ARCHIVE_PATH=dist/${out}.${ARCHIVE}" >> "$GITHUB_ENV"
           ls -lh "dist/${out}.${ARCHIVE}"
 

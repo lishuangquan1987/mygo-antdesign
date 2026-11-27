@@ -26,6 +26,9 @@ type Sample struct {
 	Code string
 	// View 是实时预览的构建函数，由 Gallery 在主题子树内调用。
 	View func(c *ui.Context)
+	// Fill 标记布局型示例（如 IDE 风格）：Gallery 与截图工具中
+	// 撑满可用区域而非居中，避免四周留白。
+	Fill bool
 }
 
 // WidgetDemo 一个控件的示例集合。

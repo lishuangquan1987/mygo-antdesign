@@ -175,7 +175,15 @@ func main() {
 				theme.Apply(c, tk)
 				// 示例本身不带页面留白（Gallery 由外层补白），截图时包一层
 				// 16px 内边距，避免内容顶到画布边缘、被误判为裁切。
-				ui.Column(c).Fill().Padding(16).Children(func() {
+				host := ui.Column(c).Fill().Padding(16)
+				if s.Fill {
+					// 布局型示例：撑满画布而非居中。
+					host.Children(func() {
+						s.View(c)
+					})
+					return
+				}
+				host.Center().Children(func() {
 					s.View(c)
 				})
 			}

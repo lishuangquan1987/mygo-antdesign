@@ -29,6 +29,7 @@ func Demo() samples.WidgetDemo {
 				Description: "局部使用紧凑密度（theme.Sub + Compact），顶部标签页、左侧文件树、右侧大纲、底部状态栏。",
 				Code:        samples.Extract(demoSrc, "layout"),
 				View:        Layout,
+				Fill:        true,
 			},
 		},
 	}
@@ -41,14 +42,14 @@ func Layout(c *ui.Context) {
 	if c.Theme().Dark {
 		tk = theme.Dark(theme.WithDensity(theme.Compact))
 	}
-	theme.Sub(c, tk).Children(func() {
+	theme.Sub(c, tk).Fill().Children(func() {
 		t := c.Theme()
-		host := ui.Column(c).FillWidth()
+		host := ui.Column(c).Fill()
 		tab := ui.Local(host, "ant.sample.ide.tab", func() int { return 0 })
 		host.Children(func() {
-			ui.Column(c).FillWidth().Border(1, t.Border).Radius(t.Radius).Children(func() {
-				// 主体：左文件树 + 中编辑区 + 右大纲。
-				ui.Row(c).FillWidth().Height(t.Space(56)).AlignItems(ui.Stretch).Children(func() {
+			ui.Column(c).Fill().Border(1, t.Border).Radius(t.Radius).Children(func() {
+				// 主体：左文件树 + 中编辑区 + 右大纲（纵向撑满剩余空间）。
+				ui.Row(c).FillWidth().Grow(1).AlignItems(ui.Stretch).Children(func() {
 					// 左侧文件树。
 					left := ui.Column(c).Width(t.Space(34)).
 						Padding(0, t.Space(1)).

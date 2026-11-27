@@ -616,7 +616,14 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 					g.comparePane(c, "紧凑密度", g.dark, theme.Compact, s.View)
 				})
 			default:
-				s.View(c)
+				if s.Fill {
+					host := ui.Column(c).Fill()
+					host.Children(func() {
+						s.View(c)
+					})
+				} else {
+					s.View(c)
+				}
 			}
 		})
 	})

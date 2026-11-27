@@ -67,7 +67,7 @@ func TestTransferMoveItems(t *testing.T) {
 		t.Fatalf("点击左列行失败: %v", err)
 	}
 	tt.Frame()
-	if err := tt.Click("▶"); err != nil {
+	if err := tt.Click("›"); err != nil {
 		t.Fatalf("点击移动按钮失败: %v", err)
 	}
 	tt.Frame()

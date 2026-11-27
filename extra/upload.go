@@ -6,6 +6,8 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/transfer"
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // UploadFile 已加入上传列表的一个文件。
@@ -55,16 +57,17 @@ func Upload(c *ui.Context, opts ...UploadOption) ui.Element {
 	host.Children(func() {
 		// 拖放区：ButtonBase 提供点击，同时是原生拖放目的地。
 		zone := ui.ButtonBase(c).FillWidth().
-			MinHeight(t.Space(12)).
+			MinHeight(t.Space(24)).
+			Padding(t.Space(6)).
 			Radius(t.Radius).
 			Justify(ui.Center).AlignItems(ui.Center)
 		zone.Children(func() {
-			body := ui.Column(c).Gap(t.Space(1)).AlignItems(ui.Center)
+			body := ui.Column(c).Gap(t.Space(2)).AlignItems(ui.Center)
 			body.Children(func() {
-				ui.Text(c, "⬆").FontSize(t.Rem(1.5)).TextColor(t.Accent)
-				ui.Text(c, cfg.hint).TextColor(t.Text)
+				icon.Icon(c, icon.Upload, t.Space(10), icon.WithColor(t.Accent))
+				ui.Text(c, cfg.hint).TextColor(t.Text).FontSize(t.Rem(1.14))
 				if cfg.accept != "" {
-					ui.Text(c, "支持 "+cfg.accept).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
+					ui.Text(c, "支持 "+cfg.accept).TextColor(t.TextMuted).FontSize(t.FontSize)
 				}
 			})
 		})
@@ -93,13 +96,20 @@ func Upload(c *ui.Context, opts ...UploadOption) ui.Element {
 		for i, f := range *files {
 			i := i
 			row := ui.Row(c).FillWidth().Gap(t.Space(2)).AlignItems(ui.Center).
-				Padding(t.Space(1), 0)
+				Padding(t.Space(1), t.Space(2)).
+				Radius(t.Radius * 0.67)
+			if row.Hovered() {
+				row.Background(t.SurfaceHover)
+			}
 			row.Children(func() {
-				ui.Text(c, "📄").TextColor(t.TextMuted)
-				ui.Text(c, f.Name).TextColor(t.Text)
-				x := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).Center()
+				icon.Icon(c, icon.File, t.Space(4), icon.WithColor(t.TextMuted))
+				ui.Text(c, f.Name).TextColor(t.Text).FontSize(t.FontSize)
+				x := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Radius(t.Radius * 0.67).Center()
+				if x.Hovered() {
+					x.Background(t.Danger.Mix(t.Surface, 0.86))
+				}
 				x.Children(func() {
-					ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.7))
+					ui.Text(c, "✕").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 				})
 				if x.Clicked() {
 					removeFile(files, i)

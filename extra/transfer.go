@@ -106,28 +106,44 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 			Background(t.Surface).
 			Border(1, t.Border)
 		col.Children(func() {
-			head := ui.Row(c).FillWidth().Padding(t.Space(2), t.Space(3)).
+			// antd Transfer 头部：40px 高、浅灰底、14px 标题 + 12px 计数。
+			head := ui.Row(c).FillWidth().
+				Height(t.Space(10)).
+				Padding(0, t.Space(4)).
+				Background(t.Background.Mix(t.Surface, 0.5)).
 				Justify(ui.SpaceBetween).AlignItems(ui.Center)
 			head.Border(1, t.Border)
 			head.BorderWidth(0, 0, 1, 0)
 			head.Children(func() {
-				ui.Text(c, title).FontWeight(600).TextColor(t.Text)
+				ui.Text(c, title).FontWeight(600).FontSize(t.FontSize).TextColor(t.Text)
 				ui.Textf(c, "%d 项", len(list)).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 			})
 			for _, it := range list {
 				key, label := it.Key, it.Label
-				row := ui.ButtonBase(c).FillWidth().Height(t.Space(6)).
-					Padding(0, t.Space(3))
+				row := ui.ButtonBase(c).FillWidth().Height(t.Space(8)).
+					Padding(0, t.Space(4)).
+					AlignItems(ui.Center).Gap(t.Space(2))
 				row.Children(func() {
-					mark := "○"
+					// antd Transfer 行首是方形复选框，选中为主色实心 + 勾。
+					box := ui.Box(c).Size(t.Space(4), t.Space(4)).
+						Radius(t.Space(0.5)).
+						Border(1, t.Border).
+						Center()
 					if (*picked)[key] {
-						mark = "●"
+						box.Background(t.Accent)
+						box.Border(1, t.Accent)
+						box.Children(func() {
+							ui.Text(c, "✓").TextColor(t.AccentText).FontSize(t.Rem(0.7))
+						})
+					} else {
+						box.Children(func() {})
 					}
-					ui.Text(c, mark).TextColor(t.Accent)
-					ui.Text(c, label).TextColor(t.Text)
+					ui.Text(c, label).TextColor(t.Text).FontSize(t.FontSize)
 				})
 				if (*picked)[key] {
 					row.Background(t.Selection)
+				} else if row.Hovered() {
+					row.Background(t.SurfaceHover)
 				}
 				if row.Clicked() {
 					if (*picked)[key] {
@@ -138,9 +154,9 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 				}
 			}
 			if len(list) == 0 {
-				empty := ui.Row(c).FillWidth().Height(t.Space(6)).Center()
+				empty := ui.Row(c).FillWidth().Height(t.Space(12)).Center()
 				empty.Children(func() {
-					ui.Text(c, "空").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
+					ui.Text(c, "暂无数据").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 				})
 			}
 		})
@@ -151,12 +167,27 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 		panel(cfg.leftTitle, leftItems)
 		mid := ui.Column(c).Gap(t.Space(2)).AlignItems(ui.Center)
 		mid.Children(func() {
-			if ui.Button(c, "▶").Clicked() {
-				move(true)
+			// antd Transfer 中间操作：32×32 描边按钮 + 箭头。
+			arrow := func(glyph string, toRight bool) {
+				btn := ui.ButtonBase(c).Size(t.Space(8), t.Space(8)).
+					Radius(t.Radius).Border(1, t.Border).
+					Background(t.Surface).Center()
+				if btn.Hovered() {
+					btn.Border(1, t.Accent)
+				}
+				btn.Children(func() {
+					color := t.TextMuted
+					if btn.Hovered() {
+						color = t.Accent
+					}
+					ui.Text(c, glyph).TextColor(color).FontSize(t.Rem(1.14))
+				})
+				if btn.Clicked() {
+					move(toRight)
+				}
 			}
-			if ui.Button(c, "◀").Clicked() {
-				move(false)
-			}
+			arrow("›", true)
+			arrow("‹", false)
 		})
 		panel(cfg.rightTitle, rightItems)
 	})

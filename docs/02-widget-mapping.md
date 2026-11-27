@@ -69,7 +69,7 @@
 
 | MyGo v0.10.0 控件 | Ant Design 对应 | 换肤方式 | 本库 API | 状态 | 要点 |
 | --- | --- | --- | --- | --- | --- |
-| `ui.Table` | Table | 链式 | `ant.Table` | ✅ | 列定义、表头排序、行多选；单元格为字符串比较排序 |
+| `ui.Table` | Table | 链式 | `ant.Table` | ✅ | 列定义、表头排序（数字列按数值、其余按字符串）、行多选 |
 | `ui.List` | List（虚拟列表） | 链式 | `ant.List` | ✅ | 虚拟滚动 + 行分隔线 + 选中/多选 |
 | `ui.Tree` / `TreeItem` | Tree | 链式/组合 | `extra.Tree` | ✅ | 声明式节点树 + 展开状态 |
 | `ui.Outline` / `OutlineTable` | Tree / Anchor（近似） | 原生 | — | — | 高级原生用法，不包装；ant.Anchor 覆盖目录场景 |

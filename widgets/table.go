@@ -3,6 +3,8 @@ package ant
 import (
 	"slices"
 	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -244,12 +246,33 @@ func sortIndexes(columns []TableColumn, rows [][]string, sortOrder *ui.SortOrder
 		ra, rb := order[a], order[b]
 		cellA := cellAt(rows, ra, col)
 		cellB := cellAt(rows, rb, col)
+		// 数字列按数值比较（「9」排在「10」前），其余按字符串比较。
+		if na, okA := parseSortNumber(cellA); okA {
+			if nb, okB := parseSortNumber(cellB); okB {
+				if sortOrder.Descending {
+					return nb < na
+				}
+				return na < nb
+			}
+		}
 		if sortOrder.Descending {
 			return cellB < cellA
 		}
 		return cellA < cellB
 	})
 	return order
+}
+
+// parseSortNumber 解析去掉千分位逗号与 % 后缀的数值；非数字返回 false。
+func parseSortNumber(s string) (float64, bool) {
+	s = strings.TrimSpace(s)
+	s = strings.TrimSuffix(s, "%")
+	s = strings.ReplaceAll(s, ",", "")
+	if s == "" {
+		return 0, false
+	}
+	n, err := strconv.ParseFloat(s, 64)
+	return n, err == nil
 }
 
 func cellAt(rows [][]string, row, col int) string {

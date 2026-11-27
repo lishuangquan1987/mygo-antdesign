@@ -334,7 +334,6 @@ WBS A–F 全部完成（见 §11），v0.3.0 已发布。以下为后续可选�
 
 ## 12. 已知限制
 
-- `ant.Table` 单元格为字符串比较排序（数字列请先格式化定宽文本）。
 - `extra.Upload` 的文件对话框阻塞调用，Tester 无窗口环境不可点击触发。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。
 - 含加载动画或网络依赖的示例（Button 状态、反馈 加载中、RemoteImage 网络图片）不纳入逐字节比对；其余示例覆盖亮/暗 × 标准/紧凑 4 组合。
@@ -342,6 +341,7 @@ WBS A–F 全部完成（见 §11），v0.3.0 已发布。以下为后续可选�
 - `ant.Collapse` 用自建头部（无展开/收起动画）。
 - `ant.ImageEl` 预览为模态大图，无缩放/旋转工具条。
 - `ant.Drawer` / `ant.Modal` 已实现打开动效；关闭仍为即时（MyGo `DialogBase` 关闭即卸载面板）。
+- Tooltip 箭头与 Dropdown 触发按钮样式受原生能力限制（见 docs/09 §4）。
 
 ## 13. 变更记录
 

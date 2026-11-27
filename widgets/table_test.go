@@ -76,6 +76,35 @@ func TestTableSortByHeader(t *testing.T) {
 	}
 }
 
+// TestTableNumericSort 验证数字列按数值排序（"9" 排在 "10" 前）。
+func TestTableNumericSort(t *testing.T) {
+	rows := [][]string{{"10", "x"}, {"9", "y"}, {"2", "z"}}
+	cols := []widgets.TableColumn{{Title: "数量", Sortable: true}, {Title: "备注"}}
+	view := func(c *ui.Context) {
+		theme.Apply(c, theme.Light())
+		widgets.Table(c, cols, rows)
+	}
+	tt := ui.NewTester(view, 320, 220)
+	tt.Frame()
+	if err := tt.Click("数量"); err != nil {
+		t.Fatalf("点击表头失败: %v", err)
+	}
+	tt.Frame()
+	texts := tt.Texts()
+	pos := func(s string) int {
+		for i, x := range texts {
+			if x == s {
+				return i
+			}
+		}
+		return -1
+	}
+	// 数值升序：2 9 10（字符串比较会得到 10 2 9）。
+	if pos("2") > pos("9") || pos("9") > pos("10") {
+		t.Errorf("数值升序错误，texts=%v", texts)
+	}
+}
+
 func TestTableSelection(t *testing.T) {
 	var chosen ui.Selection[int]
 	view := func(c *ui.Context) {

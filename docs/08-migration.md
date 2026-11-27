@@ -132,8 +132,7 @@ MyGo 原语是帧内查询（`el.Clicked()` / `el.Changed()`）；antd 包装层
 
 ## 4. 已知差异与限制
 
-- `ant.Table` 单元格为字符串比较排序（数字列请先格式化定宽文本）。
-- `ant.Table` 以 `[][]string` 持有全部行数据，但内部走 `ui.Table` 的可见行回调，虚拟滚动仍由 MyGo 提供；排序是比较字符串（数字列请先格式化定宽文本）。
+- `ant.Table` 以 `[][]string` 持有全部行数据，但内部走 `ui.Table` 的可见行回调，虚拟滚动仍由 MyGo 提供；排序对数字列（含千分位逗号与 `%` 后缀）按数值比较，其余按字符串比较。
 - `extra.Upload` 的文件对话框调用 `mygo.Dialog.Open`，会阻塞至对话框关闭；无窗口（Tester）环境下不要点击拖放区。
 - `ant.Confirm` 基于 `ui.AlertDialog`，**返回被点按钮下标（0 起），`ant.Confirm` 本身不返回值**，只回调 `onOk`。
 - `ant.Message` / `Notify` 复用 MyGo 底部 toast viewport，无法做到 antd 的顶部居中 / 右上角独立浮层。

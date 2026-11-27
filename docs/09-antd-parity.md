@@ -75,7 +75,7 @@
 | Tooltip 箭头 | 反色气泡已对齐；箭头在无头 Tester 中无法稳定绘制（原生 tooltip 层不参与 `Tester.Image()`），未纳入视觉核对 |
 | Dropdown 触发按钮 | 使用原生 `ui.MenuButton`（尺寸/字号/描边无法完全覆盖），下拉项样式由原生菜单绘制 |
 | Select / Combobox | Select 已自绘对齐 antd；Combobox 现基于 `ui.ComboboxBase` 自绘输入框（32px/11px 内边距）与 32px 候选面板；AutoComplete 仍透传原生 |
-| Gallery 控件尺寸切换 | 字号已支持全局 小/中/大（`theme.WithFontSize`）；控件自身 size（大/中/小）仍由各示例显式指定，无统一注入点 |
+| Gallery 控件尺寸切换 | ✅ 已实现——顶部「尺寸 小/中/大」通过 `theme.WithSpacing/WithRadius/WithFontSize` 全局缩放（示例内部的三档尺寸演示仍保留） |
 | 系统亮暗自动跟随 | MyGo `ui` 未暴露系统外观 API（见 ADR 0002） |
 
 ## 5. 验证方式

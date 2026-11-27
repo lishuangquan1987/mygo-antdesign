@@ -45,6 +45,10 @@
 | Descriptions | `ant.Descriptions` | widgets | `Grid` 键值成对布局 | 低 | 列数/标题/外框（简化：外框 + 内边距） |
 | Timeline（antd） | `ant.Timeline` | widgets | `Column` + 圆点 + 连接线 | 中 | 节点色（蓝/绿/红/灰）、标题 + 描述 |
 | Spin | `ant.Spin` | widgets | `ui.Spinner` + 提示文字 | 低 | 可容器内居中；复用 MyGo 原生指示器 |
+| Tooltip | `ant.Tooltip` | widgets | `ui.TooltipBase` 反色气泡 | 低 | 悬停 0.6s / 键盘聚焦立即显示，Esc 关闭 |
+| Popconfirm | `ant.Popconfirm` | widgets | `ui.Popover` + `ButtonBase` | 中 | 触发器点击弹出，确认/取消回调 |
+| Collapse | `ant.Collapse` | widgets | `ButtonBase` 头部 + 图标箭头 + 内容区 | 中 | 手风琴模式、默认展开、按 Key 记忆 |
+| Form | `ant.Form` / `FormItem` / `FormGroup` | widgets | `ui.Form` / `Field` / `Fieldset` | 低 | 标签列对齐、必填标记、帮助/错误文字 |
 
 > 说明：`ant.AvatarEl`、`ant.Breadcrumb`、`ant.Tabs`、`ant.Dropdown`、`ant.Space` / `Flex` / `Grid` 等是**原生控件换肤**，不是缺口控件，见 [02 映射](02-widget-mapping.md)。
 
@@ -58,19 +62,17 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 已在 `widgets/data.go` 与 `widgets/feedback.go` 实现，并配单元测试与
 `samples/` 示例（`samples/display`、`samples/feedback`）。
 
-### P2 · 需要浮层 / 状态（下一步）
+### P2 · 需要浮层 / 状态（部分完成）
+
+已完成：Popconfirm、Collapse、Form、Tooltip（见 §一）。剩余：
 
 | antd 组件 | MyGo 原语 | 实现要点 | 复杂度 |
 | --- | --- | --- | --- |
-| **Popconfirm 气泡确认** | `ui.PopoverBase` + `ButtonBase` | 锚定触发器，确认/取消回调 | 中 |
 | **Drawer 抽屉** | `ui.DialogBase` / `ui.Modal` + `el.AnimateTo` | 边缘锚定 + 滑入；注意 Esc/点外关闭语义 | 中 |
 | **Watermark 水印** | `ui.NewCanvas` + `Painter` + `ui.Overlay` | `el.PassThrough()` 不挡事件 | 中 |
 | **Tour 漫游引导** | `ui.PopoverBase` | 逐步锚定 + 上一步/下一步，步骤状态由调用方持有 | 高 |
 | **Mentions 提及** | `ui.TextInput` + `ui.PopoverBase` | 检测 `@` 触发候选，插入逻辑自管 | 高 |
-| **Collapse 折叠面板** | `ui.Collapsible` / `ui.Accordion` | 头部背景 `t.Surface`，箭头/边框对齐 antd | 低 |
 | **AutoComplete 自动补全** | `ui.Autocomplete` | 与 `ant.Combobox` 的差异是保留自由输入 | 低 |
-| **Form 表单** | `ui.Form` / `ui.Field` / `ui.Fieldset` | 标签对齐、必填星号、校验信息配色 | 中 |
-| **Tooltip 文字提示** | `el.Tooltip(...)` / `ui.TooltipBase` | 用 `t.Inverse` / `t.InverseText` 反色 | 低 |
 | **List 列表** | `ui.List` | 行 hover/选中、分隔线、加载更多 | 中 |
 | **Sidebar / Menu 侧栏** | `ui.Sidebar` / `SidebarItem` / `SidebarSection` | 选中项 `t.Selection`、图标色跟随 | 中 |
 | **Splitter 分隔面板** | `ui.Split` / `SplitPercent` / `SplitVertical*` | 分隔条 `t.Border`，拖拽热区加宽 | 低 |
@@ -114,9 +116,11 @@ Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin 七项
 已完成  Card → Tag → Badge → Pagination → Steps → Alert → Message/Notify → Confirm
         → Tree → Upload → Transfer → Carousel → QRCode → Cascader → TreeSelect
         → Empty → Result → Skeleton → Statistic → Descriptions → Timeline → Spin
-下一步  Popconfirm → Drawer → Collapse/AutoComplete/Form/Tooltip/List/Sidebar 包装
-再后    Mentions → Tour → Watermark → Anchor → Notification → 环形 Progress
-按需    FloatButton → BorderBeam → Masonry → Splitter → Image 预览 → ColorPicker
+        → Popconfirm → Collapse → Tooltip → Form
+下一步  Drawer → List/Sidebar 包装 → AutoComplete → Splitter → Image 预览
+        → ColorPicker → 环形 Progress → Toggle/SplitButton → Affix
+再后    Mentions → Tour → Watermark → Anchor → Notification
+按需    FloatButton → BorderBeam → Masonry
 ```
 
 每完成一个控件，同步在 `samples/` 添加示例、在 `gallery/main.go` 注册，并生成/更新截图基线。

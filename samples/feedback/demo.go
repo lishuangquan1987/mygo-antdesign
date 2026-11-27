@@ -51,6 +51,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "spin"),
 				View:        SpinDemo,
 			},
+			{
+				Title:       "文字提示与气泡确认",
+				Description: "Tooltip 悬停显示反色提示；Popconfirm 点击弹出确认气泡。",
+				Code:        samples.Extract(demoSrc, "overlay"),
+				View:        OverlayDemo,
+			},
 		},
 	}
 }
@@ -136,6 +142,27 @@ func SpinDemo(c *ui.Context) {
 		box.Children(func() {
 			widgets.Spin(c, widgets.SpinCenter(), widgets.SpinTip("正在保存"))
 		})
+	})
+}
+
+// /sample
+
+// sample:overlay
+func OverlayDemo(c *ui.Context) {
+	t := c.Theme()
+	row := ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center)
+	removed := ui.Local(row, "ant.sample.feedback.removed", func() bool { return false })
+	row.Children(func() {
+		widgets.Tooltip(c, "删除后不可恢复", func(c *ui.Context) {
+			widgets.Button(c, "悬停提示")
+		})
+		widgets.Popconfirm(c, func(c *ui.Context) ui.Element {
+			return widgets.Button(c, "删除", widgets.Danger())
+		}, "确定删除这一项？", func() { *removed = true },
+			widgets.PopconfirmTitle("删除确认"))
+		if *removed {
+			widgets.Tag(c, "已删除", widgets.TagError())
+		}
 	})
 }
 

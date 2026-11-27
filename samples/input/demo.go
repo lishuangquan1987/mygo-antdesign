@@ -52,6 +52,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "picker"),
 				View:        PickerDemo,
 			},
+			{
+				Title:       "表单",
+				Description: "Form 标签列对齐，FormItem 支持必填、帮助与错误文字。",
+				Code:        samples.Extract(demoSrc, "form"),
+				View:        FormDemo,
+			},
 		},
 	}
 }
@@ -122,6 +128,27 @@ func PickerDemo(c *ui.Context) {
 	col.Children(func() {
 		widgets.DatePicker(c, date, widgets.InputLabel("日期"))
 		widgets.TimePicker(c, start, widgets.InputLabel("开始时间"))
+	})
+}
+
+// /sample
+
+// sample:form
+func FormDemo(c *ui.Context) {
+	name := ""
+	email := ""
+	widgets.Form(c, func() {
+		widgets.FormItem(c, "用户名", func() {
+			widgets.Input(c, &name, widgets.PlaceholderText("请输入用户名"))
+		}, widgets.FormItemRequired(true))
+		widgets.FormItem(c, "邮箱", func() {
+			widgets.Input(c, &email, widgets.PlaceholderText("name@example.com"))
+		}, widgets.FormItemHelp("用于接收通知"), widgets.FormItemError("邮箱格式不正确"))
+		widgets.FormGroup(c, "其他", func() {
+			widgets.FormItem(c, "备注", func() {
+				widgets.TextArea(c, &name, widgets.Rows(2))
+			})
+		})
 	})
 }
 

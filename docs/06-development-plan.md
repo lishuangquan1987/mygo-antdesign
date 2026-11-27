@@ -38,10 +38,10 @@
 
 | 指标 | 目标 | 现状（2026-11-27） |
 | --- | --- | --- |
-| 换肤 + 缺口控件构造函数 | ≥ 55 | **60**（`widgets/` 53 + `extra/` 7，另有 `icon.Icon`） |
-| 缺口控件 | ≥ 12 | `extra/` **7**（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内 **14**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin / Confirm） |
+| 换肤 + 缺口控件构造函数 | ≥ 55 | **66**（`widgets/` 59 + `extra/` 7，另有 `icon.Icon`） |
+| 缺口控件 | ≥ 12 | `extra/` **7**（Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect）+ `widgets/` 内 **19**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / FormItem） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 53 个示例片段**，尚未逐控件覆盖 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **11 个示例分组 / 50 个示例片段**，尚未逐控件覆盖 |
 | 视觉回归 | 每个示例 × 4 种主题组合 | **4 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
@@ -170,12 +170,12 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | B3 | 选择类 | Select、Combobox | 5 | ◐ | Autocomplete 未包装；Cascader/TreeSelect 在 extra |
 | B4 | 选择控件 | Checkbox、CheckboxAll、RadioGroup、Switch、Slider、RangeSlider、Rate、Segmented | 4 | ✅ | `Toggle` 未包装 |
 | B5 | 日期时间 | DatePicker、TimePicker | 4 | ✅ | 基于 `ui.DateInput` / `ui.TimeInput` |
-| B6 | 表单 | Form（标签/必填/校验） | 2 | ◻ | 原生 `ui.Form` 未包装 |
+| B6 | 表单 | Form（标签/必填/校验） | 2 | ✅ | `ant.Form` / `FormItem` / `FormGroup`（v0.3） |
 | B7 | 数据展示-基础 | Table、Tree、Card、List、Descriptions、Statistic | 6 | ◐ | 仅 List 未包装 |
 | B8 | 数据展示-辅助 | Avatar、Badge、Tag、Progress、Timeline、Empty、Result、Skeleton | 5 | ✅ | 全部完成（Timeline/Empty/Result/Skeleton 在 v0.3） |
 | B9 | 导航 | Tabs、Segmented、Steps、Breadcrumb、Dropdown | 5 | ◐ | Sidebar/Menu 未包装 |
-| B10 | 折叠/浮层 | Collapse/Accordion、Popover、Tooltip | 3 | ◻ | Popover 仅内部使用 |
-| B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ◐ | Spin 已完成；Popconfirm/Watermark 未做 |
+| B10 | 折叠/浮层 | Collapse/Accordion、Popover、Tooltip | 3 | ◐ | Collapse/Tooltip 完成；公开的 `ant.Popover` 未做 |
+| B11 | 反馈 | Modal、Confirm、Message/Notify、Spin、Watermark | 5 | ◐ | Spin 已完成；Watermark 未做 |
 | B12 | 其他 | Splitter、Affix、Drawer | 2 | ◻ | — |
 | | **小计** | | **44** | | |
 
@@ -186,7 +186,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | C1 | P1 简单组合 | Card、Tag、Empty、Result、Divider、Statistic、Timeline | 3 | ✅ | v0.3 补齐 Empty/Result/Statistic/Timeline |
 | C2 | P1 数据展示 | Descriptions、Skeleton | 2 | ✅ | v0.3 完成 |
 | C3 | P2 分页与穿梭 | Pagination、Transfer | 3 | ✅ | Pagination 在 widgets，Transfer 在 extra |
-| C4 | P2 浮层 | Drawer、Popconfirm、Watermark、Tour | 6 | ◻ | — |
+| C4 | P2 浮层 | Drawer、Popconfirm、Watermark、Tour | 6 | ◐ | Popconfirm 完成；Drawer/Watermark/Tour 未做 |
 | C5 | P2 复杂选择 | Cascader、TreeSelect、Mentions | 8 | ◐ | 前两项完成 |
 | C6 | P3 依赖能力 | QRCode、Upload、Spin、FloatButton、BorderBeam、Notification、Anchor、Carousel、Masonry | 12 | ◐ | QRCode/Upload/Carousel 完成；Notify 已复用 toast |
 | | **小计** | | **34** | | 实际分批交付，见 §11 |
@@ -229,7 +229,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | --- | --- | --- | --- | --- |
 | **M0 基建** | W1 | A1–A8 | ✅ | 仓库、CI、主题层、Gallery 可渲染 |
 | **M1 主题闭环** | W2–W5 | A + B1–B6 + F1–F5 | ✅ | Button/录入/选择/日期与 11 组示例卡片；主题/密度/品牌色可切换 |
-| **M2 常用控件** | W6–W10 | B7–B12 | ◐ | 表格/导航/反馈主体完成；Form/Collapse/Tooltip/Sidebar/Drawer 未做 |
+| **M2 常用控件** | W6–W10 | B7–B12 | ◐ | 表格/导航/反馈/表单主体完成；Sidebar/Drawer/List/Tooltip 公开包装未做 |
 | **M3 密度适配** | W11–W12 | 全控件紧凑审计 + F2/F6 + E3 | ◐ | 4 组合基线有；逐控件审计与 IDE 示例缺 |
 | **M4 缺口与发布** | W13–W18 | C 全部 + D + E4 | ◐ | v0.1.0 已发；C 余项与 v0.2 发布待做 |
 
@@ -271,7 +271,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 
 ## 10. 下一步（按优先级）
 
-1. **P2 浮层与容器**：Popconfirm、Drawer、Collapse/Accordion 包装、Form/Field 包装、Tooltip 包装、List/Sidebar 包装（见 03）。
+1. **P2 浮层与容器**：Drawer、List/Sidebar 包装、AutoComplete、Splitter、Image 预览、ColorPicker、环形 Progress、Toggle/SplitButton、Affix（见 03）。
 2. **示例覆盖**：为 `widgets/` 与 `extra/` 每个控件补独立示例页，逐控件截图基线。
 3. **Gallery 增强**：侧栏分类与搜索、覆盖率显示、全局尺寸切换、代码复制按钮、`ui/editor` 代码视图。
 4. **E3**：IDE / 上位机风格示例应用（紧凑密度落地样板）。
@@ -302,12 +302,13 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - `extra` 新增 **Cascader** 与 **TreeSelect**（基于 `ui.Popover` 组合），含示例与测试。
 - 截图基线改为按平台生效（`samples/golden/manifest.json`），修复 Linux CI 上跨平台字体渲染导致的永久失败。
 
-### 11.3 v0.3（开发中）：P1 缺口控件
+### 11.3 v0.3（开发中）：缺口控件 P1 + P2 部分
 
 | 控件 | 位置 | 示例 | 验证 |
 | --- | --- | --- | --- |
-| Empty / Result / Skeleton / Statistic / Descriptions / Timeline | `widgets/data.go` | `samples/display`（新增 3 个示例） | 单测 + 亮/暗/紧凑渲染 + 人工图像核对 |
-| Spin | `widgets/feedback.go` | `samples/feedback`（新增 1 个示例） | 单测 + 主题组合 |
+| Empty / Result / Skeleton / Statistic / Descriptions / Timeline / Collapse | `widgets/data.go`、`widgets/collapse.go` | `samples/display`（新增 4 个示例） | 单测 + 亮/暗/紧凑渲染 + 人工图像核对 |
+| Spin / Tooltip / Popconfirm | `widgets/feedback.go`、`widgets/overlay.go` | `samples/feedback`（新增 2 个示例） | 单测（含气泡确认/取消交互）+ 主题组合 |
+| Form / FormItem / FormGroup | `widgets/form.go` | `samples/input`（新增 1 个示例） | 单测 + 主题组合 |
 | 工具 | `scripts/visualcheck` | 把示例按主题渲染成 PNG，人工核对控件效果 | 无窗口 `ui.NewTester` |
 | 质量门禁 | `samples/all_test.go` | 校验全部示例分组的代码片段提取与亮/暗渲染 | 新增测试 |
 
@@ -331,6 +332,7 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 - Gallery 暂无侧栏搜索、分类折叠、覆盖率显示与全局尺寸切换（文档 07 的规划项）。
 - 逐控件示例与逐控件截图基线尚未建立（当前为 11 个示例分组 + 4 张 Gallery 级基线）。
 - `ant.Skeleton` 为静态骨架，暂未做呼吸动画；`ant.Descriptions` 的 `bordered` 是「外框 + 内边距」简化版，无内部网格线。
+- `ant.Collapse` 用自建头部（无展开/收起动画）；`ant.FormItem` 的必填标记是纯文本「*」，未单独着色。
 
 ## 13. 变更记录
 
@@ -338,4 +340,4 @@ W13-18 M4 缺口控件 + 缺口示例 + 图标 + 文档嵌图 + 发布
 | --- | --- |
 | 2026-11-26 | A1–A8、F1–F5、B1 完成；v0.1.0 进度表初版 |
 | 2026-11-27 | v0.1.0 发布（9 组换肤 + 首批缺口 + 图标）；v0.2 Cascader/TreeSelect；本文档按「实现状态」重写，修正 MyGo 版本与 API 名、区分「设计/已实现」 |
-| 2026-11-27 | v0.3 进行中：P1 缺口控件 Empty/Result/Skeleton/Statistic/Descriptions/Timeline/Spin 落地（含示例、测试、visualcheck 工具）；截图基线改为按平台生效 |
+| 2026-11-27 | v0.3 进行中：P1 缺口控件 Empty/Result/Skeleton/Statistic/Descriptions/Timeline/Spin 落地；P2 的 Tooltip/Popconfirm/Collapse/Form 落地（含示例、测试、visualcheck 工具）；截图基线改为按平台生效 |

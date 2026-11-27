@@ -63,6 +63,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "desctimeline"),
 				View:        DescTimelineDemo,
 			},
+			{
+				Title:       "折叠面板",
+				Description: "Collapse 头部点击展开/收起，支持手风琴模式与默认展开。",
+				Code:        samples.Extract(demoSrc, "collapse"),
+				View:        CollapseDemo,
+			},
 		},
 	}
 }
@@ -182,6 +188,20 @@ func DescTimelineDemo(c *ui.Context) {
 			{Title: "已完成", Color: widgets.TimelineGray},
 		})
 	})
+}
+
+// /sample
+
+// sample:collapse
+func CollapseDemo(c *ui.Context) {
+	widgets.Collapse(c, []widgets.CollapseItem{
+		{Header: "基础设置", Content: func() {
+			widgets.Paragraph(c, "这里是基础设置的内容。")
+		}},
+		{Header: "高级设置", Content: func() {
+			widgets.Paragraph(c, "这里是高级设置的内容。")
+		}},
+	}, widgets.CollapseAccordion(true), widgets.CollapseDefaultOpen("基础设置"))
 }
 
 // /sample

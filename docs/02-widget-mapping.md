@@ -154,8 +154,8 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 ## 七、覆盖度小结（2026-11-27）
 
 - MyGo v0.10.0 的 `ui` 包共 **102 个返回 `Element` 的构造函数**（含 `Base` 与布局原语），`docs/ui/` 下 **88 篇** 组件/主题文档。
-- 本库当前**已包装 35 个原生原语**，提供 **60 个控件构造函数**：
-  - `widgets/`（包 `ant`）53 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline / Breadcrumb·Tabs·Dropdown·Pagination·Steps / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin；
+- 本库当前**已包装 35 个原生原语**，提供 **66 个控件构造函数**：
+  - `widgets/`（包 `ant`）59 个：Button / Typography（4）/ Divider（3）/ Space·Flex·Grid / Input·TextArea·SearchInput·NumberInputV / Checkbox·CheckboxAll·RadioGroup·Switch·SwitchWithLabel·Slider·RangeSliderDouble·Rate·Segmented / Select·Combobox / DatePicker·TimePicker / Table / Tag·Badge·BadgeDot·AvatarEl·Card / Empty·Result·Skeleton·Statistic·Descriptions·Timeline / Breadcrumb·Tabs·Dropdown·Pagination·Steps / Alert·Modal·Message·MessageTypeTyped·Notify·ProgressLine·Confirm·Spin·Tooltip·Popconfirm·Collapse·Form·FormItem·FormGroup；
   - `extra/` 7 个：Tree / Upload / Transfer / Carousel / QRCode / Cascader / TreeSelect；
   - 另有 `icon.Icon` + 44 个图标常量。
 - 仍**未覆盖**的原生控件（约 60 个）与 antd 缺口控件（约 25 个）统一列在 [03 缺口控件](03-gap-widgets.md)，按优先级推进。

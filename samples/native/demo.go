@@ -78,6 +78,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "richtexteditor"),
 				View:        RichTextEditorDemo,
 			},
+			{
+				Title:       "RemoteImage 网络图片",
+				Description: "MyGo ui/netimage 子包适配：占位图加载完成后淡入（依赖网络，不纳入逐字节基线）。",
+				Code:        samples.Extract(demoSrc, "remoteimage"),
+				View:        RemoteImageDemo,
+			},
 		},
 	}
 }
@@ -223,6 +229,19 @@ func RichTextEditorDemo(c *ui.Context) {
 	host.Children(func() {
 		widgets.RichTextEditor(c, doc, widgets.RichTextEditorOptions{ReadOnly: true}).
 			Height(t.Space(24)).FillWidth()
+	})
+}
+
+// /sample
+
+// sample:remoteimage
+func RemoteImageDemo(c *ui.Context) {
+	t := c.Theme()
+	ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Children(func() {
+		widgets.RemoteImage(c, "https://avatars.githubusercontent.com/u/15365329?v=4",
+			widgets.RemoteImageOptions{MaxSide: 128}).
+			Width(t.Space(16)).Height(t.Space(16)).Radius(t.Space(8))
+		ui.Text(c, "网络图片：占位图加载完成后淡入").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 	})
 }
 

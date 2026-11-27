@@ -44,10 +44,11 @@ func controlFile(group string, index int, title, combo string) string {
 	return repl.Replace(name) + ".png"
 }
 
-// animated 记录含加载动画（ui.Spinner）的示例：逐帧像素不稳定，不纳入基线。
+// animated 记录含加载动画或网络依赖的示例：逐帧像素不稳定，不纳入基线。
 var animated = map[string]bool{
-	"Button/状态": true,
-	"反馈/加载中":    true,
+	"Button/状态":             true,
+	"反馈/加载中":                true,
+	"原生补全/RemoteImage 网络图片": true,
 }
 
 // TestControlScreenshots 生成/比对「逐示例」截图基线（docs/07 §5.2 / F6）：

@@ -41,7 +41,7 @@
 | 换肤 + 缺口控件构造函数 | ≥ 55 | **106**（`widgets/` 99 + `extra/` 7，另有 `icon.Icon`） |
 | 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **13 个示例分组 / 83 个示例片段**，按 docs/02 §九 全覆盖矩阵继续补齐 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **13 个示例分组 / 84 个示例片段**，按 docs/02 §九 全覆盖矩阵继续补齐 |
 | 视觉回归 | 每个示例 × 3 种主题组合 | **3 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。

@@ -57,6 +57,10 @@ type AntToken struct {
 
 	// isDark 标记来自哪个工厂，桥接时选择 ui 基底主题。
 	isDark bool
+	// noFocusRing 为 true 时桥接层把焦点环设为透明。静态截图/录屏等
+	// 无键盘交互的场景应禁用——antd 的焦点环只在键盘导航（:focus-visible）
+	// 时出现，常驻渲染反而偏离规范。
+	noFocusRing bool
 	// followSystem 为 true 时，Apply/Sub 会叠加桌面的强调色、高对比与
 	// 文字缩放（见 ADR 0002）。
 	followSystem bool
@@ -106,6 +110,11 @@ func WithFollowSystem() Option { return func(t *AntToken) { t.followSystem = tru
 func WithTextInverse(c ui.Color) Option {
 	return func(t *AntToken) { t.TextInverse = c }
 }
+
+// WithoutFocusRing 禁用焦点环（渲染为透明）。用于截图、录屏等无键盘
+// 交互的静态渲染：antd 的焦点环仅键盘导航时出现（:focus-visible），
+// 常驻绘制会污染画面并误导视觉回归对比。
+func WithoutFocusRing() Option { return func(t *AntToken) { t.noFocusRing = true } }
 
 // WithSpacing 直接覆盖 Spacing 单位（高级用法；常规请用 WithDensity）。
 func WithSpacing(px float32) Option {

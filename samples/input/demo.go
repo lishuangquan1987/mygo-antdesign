@@ -193,7 +193,9 @@ func AutoCompleteDemo(c *ui.Context) {
 // sample:color
 func ColorDemo(c *ui.Context) {
 	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
-	col := ui.Local(host, "ant.sample.input.color", func() ui.Color { return ui.Hex("#1677ff") })
+	// 初始值取主题主色：亮色 #1677ff、暗色 #1668dc，避免暗色下演示
+	// 硬编码亮色品牌色。
+	col := ui.Local(host, "ant.sample.input.color", func() ui.Color { return c.Theme().Accent })
 	host.Children(func() {
 		widgets.ColorPicker(c, col)
 		widgets.Paragraph(c, "色块可展开取色面板；也可直接使用常驻面板：", widgets.Secondary())

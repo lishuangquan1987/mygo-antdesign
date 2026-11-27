@@ -130,7 +130,7 @@ func StepsDemo(c *ui.Context) {
 
 // sample:sidebar
 func SidebarDemo(c *ui.Context) {
-	host := ui.Column(c).FillWidth().Height(c.Theme().Space(36))
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(44))
 	chosen := ui.Local(host, "ant.sample.nav.sidebar", func() string { return "inbox" })
 	host.Children(func() {
 		widgets.Sidebar(c, chosen, func() {

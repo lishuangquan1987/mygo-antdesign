@@ -38,6 +38,11 @@ func (t *AntToken) toTheme() *ui.Theme {
 	th.FontSize = t.FontSize
 	th.Spacing = t.Spacing
 
+	// 静态渲染场景禁用焦点环（见 WithoutFocusRing）。
+	if t.noFocusRing {
+		th.Focus = ui.Transparent
+	}
+
 	// —— 由主色派生成套色阶 ——
 	// WithAccent 生成 AccentHover / AccentPressed / Selection / Focus /
 	// AccentText（暗主题下色阶整体更亮）。Info 无独立槽位，跟随主色。

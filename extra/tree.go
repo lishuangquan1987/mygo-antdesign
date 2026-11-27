@@ -23,12 +23,19 @@ type TreeNode struct {
 type TreeOption func(*treeConfig)
 
 type treeConfig struct {
-	onSelect func(key string)
+	onSelect      func(key string)
+	defaultExpand bool
 }
 
 // OnTreeNodeSelect 节点选中回调（叶子或分支被点击时触发）。
 func OnTreeNodeSelect(fn func(key string)) TreeOption {
 	return func(c *treeConfig) { c.onSelect = fn }
+}
+
+// TreeDefaultExpand 分支默认展开（antd Tree 的 defaultExpandAll）。
+// 首帧即展示层级关系；用户折叠后仍以用户操作为准。
+func TreeDefaultExpand() TreeOption {
+	return func(c *treeConfig) { c.defaultExpand = true }
 }
 
 // Tree 树形控件（antd Tree）。基于 MyGo Tree 原语：分支自带展开/折叠
@@ -70,8 +77,8 @@ func buildNodes(c *ui.Context, nodes []TreeNode, cfg *treeConfig, opens map[stri
 			}
 			continue
 		}
-		// 分支：展开状态跨帧持有（默认收起）。
-		item := ui.TreeItem(c, n.Label, branchOpen(opens, key), func() {
+		// 分支：展开状态跨帧持有（初始值由 defaultExpand 决定）。
+		item := ui.TreeItem(c, n.Label, branchOpen(opens, key, cfg.defaultExpand), func() {
 			buildNodes(c, n.Children, cfg, opens)
 		})
 		if item.Clicked() && cfg.onSelect != nil {
@@ -81,10 +88,11 @@ func buildNodes(c *ui.Context, nodes []TreeNode, cfg *treeConfig, opens map[stri
 }
 
 // branchOpen 取分支的跨帧展开状态指针。
-func branchOpen(opens map[string]*bool, key string) *bool {
+func branchOpen(opens map[string]*bool, key string, dft bool) *bool {
 	b, ok := opens[key]
 	if !ok {
 		b = new(bool)
+		*b = dft
 		opens[key] = b
 	}
 	return b

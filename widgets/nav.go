@@ -2,6 +2,7 @@ package ant
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/egoist/mygo/ui"
 
@@ -322,6 +323,37 @@ func SidebarWidth(units float32) SidebarOption {
 	return func(c *sidebarConfig) { c.width = units }
 }
 
+// sidebarSel 栈：Sidebar 构建期间记录当前 selected 指针，SidebarItem
+// 据此实现 antd 选中态。MyGo 的 Sidebar 未选中焦点时用灰色底（AppKit
+// 惯例），与 antd Menu 的 item-selected（主色浅底 + 主色文字）不符，
+// 这里在包装层覆盖。
+var sidebarSel struct {
+	mu       sync.Mutex
+	selected []*string
+}
+
+func sidebarSelPush(selected *string) {
+	sidebarSel.mu.Lock()
+	sidebarSel.selected = append(sidebarSel.selected, selected)
+	sidebarSel.mu.Unlock()
+}
+
+func sidebarSelPop() {
+	sidebarSel.mu.Lock()
+	sidebarSel.selected = sidebarSel.selected[:len(sidebarSel.selected)-1]
+	sidebarSel.mu.Unlock()
+}
+
+// sidebarSelChosen 返回当前构建中的侧栏是否选中了 id。
+func sidebarSelChosen(id string) bool {
+	sidebarSel.mu.Lock()
+	defer sidebarSel.mu.Unlock()
+	if n := len(sidebarSel.selected); n > 0 {
+		return *sidebarSel.selected[n-1] == id
+	}
+	return false
+}
+
 // Sidebar 侧栏导航（antd Menu / Layout.Sider）：分区 + 条目 + 选中态，
 // 复用 MyGo 的 Sidebar（键盘导航、滚动、选中项跟随）：
 //
@@ -338,19 +370,34 @@ func Sidebar(c *ui.Context, selected *string, fn func(), opts ...SidebarOption) 
 		o(cfg)
 	}
 	t := c.Theme()
+	sidebarSelPush(selected)
+	defer sidebarSelPop()
 	return ui.Sidebar(c, selected, fn).
 		Width(t.Space(cfg.width)).
 		FillHeight()
 }
 
-// SidebarItem 侧栏条目（无图标）。
+// SidebarItem 侧栏条目（无图标）。选中态对齐 antd Menu：主色 12% 浅底 +
+// 主色文字（亮色 ≈ #e6f4ff/#1677ff，暗色同理派生）。
 func SidebarItem(c *ui.Context, id, label string) ui.Element {
-	return ui.SidebarItem(c, id, nil, label)
+	el := ui.SidebarItem(c, id, nil, label)
+	return styleSidebarItem(c, el, id)
 }
 
 // SidebarItemWithIcon 带图标的侧栏条目。
 func SidebarItemWithIcon(c *ui.Context, id, label string, svg *ui.SVG) ui.Element {
-	return ui.SidebarItem(c, id, svg, label)
+	el := ui.SidebarItem(c, id, svg, label)
+	return styleSidebarItem(c, el, id)
+}
+
+// styleSidebarItem 覆盖 MyGo 侧栏未聚焦时的灰色选中底为 antd 主色浅底。
+// 键盘聚焦时框架的焦点环仍会绘制，导航可用性不变。
+func styleSidebarItem(c *ui.Context, el ui.Element, id string) ui.Element {
+	if sidebarSelChosen(id) {
+		t := c.Theme()
+		el.Background(t.Accent.Mix(t.Surface, 0.88)).TextColor(t.Accent)
+	}
+	return el
 }
 
 // SidebarSection 侧栏分区；open 为 nil 时始终展开。

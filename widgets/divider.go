@@ -50,24 +50,34 @@ func Divider(c *ui.Context, opts ...DividerOption) ui.Element {
 		return line
 	}
 
-	// 带文字：线 - 文 - 线，按 align 分配两条线的伸缩比例。
+	// 带文字：线 - 文 - 线。文字必须夹在两条线中间构建（此前先建两条线
+	// 再建文字，导致渲染成"线-线-文字"、文字贴边且线中断开）。
 	row := ui.Row(c).FillWidth().Gap(t.Space(3)).AlignItems(ui.Center).
 		Padding(t.Space(6), 0)
+	text := func() {
+		ui.Text(c, cfg.text).TextColor(t.Text).FontWeight(500).Shrink(0)
+	}
 	row.Children(func() {
-		left := lineEl(c, t, cfg.dashed)
-		right := lineEl(c, t, cfg.dashed)
 		switch cfg.align {
-		case ui.Center:
+		case ui.Center: // 文字居中：左线 - 文字 - 右线
+			left := lineEl(c, t, cfg.dashed)
 			left.Grow(1)
+			text()
+			right := lineEl(c, t, cfg.dashed)
 			right.Grow(1)
-		case ui.End:
+		case ui.End: // 文字靠右（antd orientation="right"）：长线 - 文字 - 短线
+			left := lineEl(c, t, cfg.dashed)
 			left.Grow(9)
+			text()
+			right := lineEl(c, t, cfg.dashed)
 			right.Grow(1)
-		default: // Start：文字靠左，左线占小比例
+		default: // 文字靠左（antd orientation="left"，默认）：短线 - 文字 - 长线
+			left := lineEl(c, t, cfg.dashed)
 			left.Grow(1)
+			text()
+			right := lineEl(c, t, cfg.dashed)
 			right.Grow(9)
 		}
-		ui.Text(c, cfg.text).TextColor(t.Text).FontWeight(500)
 	})
 	return row
 }

@@ -72,10 +72,18 @@ func TreeDemo(c *ui.Context) {
 			{Label: "src", Children: []extra.TreeNode{
 				{Label: "main.go", Key: "main"},
 				{Label: "view.go", Key: "view"},
+				{Label: "widgets", Children: []extra.TreeNode{
+					{Label: "button.go", Key: "btn"},
+					{Label: "input.go", Key: "input"},
+				}},
+			}},
+			{Label: "theme", Children: []extra.TreeNode{
+				{Label: "token.go", Key: "token"},
 			}},
 			{Label: "go.mod", Key: "gomod"},
 		}
-		extra.Tree(c, nodes, extra.OnTreeNodeSelect(func(key string) { *picked = key }))
+		extra.Tree(c, nodes, extra.TreeDefaultExpand(),
+			extra.OnTreeNodeSelect(func(key string) { *picked = key }))
 		if *picked != "" {
 			widgets.Tag(c, "已选 "+*picked, widgets.TagSuccess())
 		}

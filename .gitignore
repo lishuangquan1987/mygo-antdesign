@@ -19,3 +19,7 @@ dist/
 
 # 本地视觉核对输出（scripts/visualcheck）
 .visualcheck/
+
+# visual-audit 审查截图（.workbuddy/skills/visual-audit）
+images/
+.audit/

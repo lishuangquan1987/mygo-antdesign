@@ -5,6 +5,9 @@ import (
 	_ "embed"
 
 	"github.com/egoist/mygo/ui"
+	"github.com/egoist/mygo/ui/chart"
+	"github.com/egoist/mygo/ui/editor"
+	"github.com/egoist/mygo/ui/richtext"
 
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
@@ -19,7 +22,7 @@ func Demo() samples.WidgetDemo {
 		Name:     "原生补全",
 		Package:  "widgets",
 		Category: samples.CatNative,
-		Summary:  "按 MyGo 命名补齐的控件：Toolbar、SplitButton、GridView、CheckboxGroup、ColorWell。",
+		Summary:  "按 MyGo 命名补齐的控件：Toolbar、SplitButton、GridView、CheckboxGroup、ColorWell，以及 Markdown/CodeEditor/ChartPlot/RichTextEditor 子包适配。",
 		Samples: []samples.Sample{
 			{
 				Title:       "Toolbar 工具条",
@@ -56,6 +59,24 @@ func Demo() samples.WidgetDemo {
 				Description: "MyGo ui/markdown 子包适配：标题、列表、行内代码与链接。",
 				Code:        samples.Extract(demoSrc, "markdown"),
 				View:        MarkdownDemo,
+			},
+			{
+				Title:       "CodeEditor 代码编辑器",
+				Description: "MyGo ui/editor 子包适配：语法高亮、行号、只读浏览。",
+				Code:        samples.Extract(demoSrc, "codeeditor"),
+				View:        CodeEditorDemo,
+			},
+			{
+				Title:       "ChartPlot 坐标图",
+				Description: "MyGo ui/chart 子包适配：轴刻度 + 绘图区，绘制折线。",
+				Code:        samples.Extract(demoSrc, "chartplot"),
+				View:        ChartPlotDemo,
+			},
+			{
+				Title:       "RichTextEditor 富文本",
+				Description: "MyGo ui/richtext 子包适配：段落、加粗与列表。",
+				Code:        samples.Extract(demoSrc, "richtexteditor"),
+				View:        RichTextEditorDemo,
 			},
 		},
 	}
@@ -137,9 +158,72 @@ func ColorWellDemo(c *ui.Context) {
 }
 
 // /sample
+
 // sample:markdown
 func MarkdownDemo(c *ui.Context) {
-	widgets.Markdown(c, "## 版本说明\n\n- 新增 `Toolbar` / `GridView`\n- 修正 **Select** 内边距\n\n> 详见 [文档](https://example.com)\n", nil)
+	widgets.Markdown(c, "## 版本说明\n\n- 新增 `Toolbar` / `GridView`\n- 修正 **Select** 内边距\n\n> 详见 [MyGo 文档](https://github.com/egoist/mygo)\n", nil)
+}
+
+// /sample
+
+// sample:codeeditor
+func CodeEditorDemo(c *ui.Context) {
+	t := c.Theme()
+	host := ui.Column(c).FillWidth()
+	st := ui.Local(host, "sample.codeeditor.state", func() editor.State {
+		return editor.State{
+			Buffer:   editor.NewBuffer("package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"hello mygo\")\n}\n"),
+			ReadOnly: true,
+			SoftWrap: true,
+		}
+	})
+	host.Children(func() {
+		widgets.CodeEditor(c, st).Height(t.Space(30)).FillWidth()
+	})
+}
+
+// /sample
+
+// sample:chartplot
+func ChartPlotDemo(c *ui.Context) {
+	t := c.Theme()
+	axes := widgets.ChartAxes{
+		Left: []widgets.ChartTick{
+			{At: 0.0, Value: 0, Label: "0"},
+			{At: 0.5, Value: 50, Label: "50"},
+			{At: 1.0, Value: 100, Label: "100"},
+		},
+		Bottom: []widgets.ChartTick{
+			{At: 0.0, Value: 0, Label: "周一"},
+			{At: 0.5, Value: 3, Label: "周三"},
+			{At: 1.0, Value: 6, Label: "周六"},
+		},
+	}
+	widgets.ChartPlot(c, axes, func(area ui.Element) {
+		area.Children(func() {
+			area.Draw(func(p *ui.Painter, r ui.Rect) {
+				p.Line(chart.X(r, 0.1), chart.Y(r, 0.15), chart.X(r, 0.9), chart.Y(r, 0.85), 2, t.Accent)
+			})
+		})
+	}).Height(t.Space(40)).Width(t.Space(80))
+}
+
+// /sample
+
+// sample:richtexteditor
+func RichTextEditorDemo(c *ui.Context) {
+	t := c.Theme()
+	host := ui.Column(c).FillWidth()
+	doc := ui.Local(host, "sample.richtext.doc", func() richtext.Document {
+		text := richtext.Text{}
+		text = text.Append("富文本示例\n", richtext.Attributes{Weight: 700})
+		text = text.Append("支持段落、加粗与列表。\n", richtext.Attributes{})
+		return *richtext.NewDocument(text)
+	})
+	host.Children(func() {
+		widgets.RichTextEditor(c, doc, widgets.RichTextEditorOptions{ReadOnly: true}).
+			Height(t.Space(24)).FillWidth()
+	})
 }
 
 // /sample

@@ -304,6 +304,7 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 ### 9.3 已落地的补齐批次
 
 - 第九轮：新增 `widgets/mygo_names.go`：`Breadcrumbs`、`Avatar`、`Autocomplete`、`Image`、`NumberInput`、`Progress`、`RangeSlider`、`Rating`、`Spinner`、`PrimaryButton`、`CheckboxState`、`CheckboxGroup`、`ColorWell`、`Toolbar`、`GridView`、`FindBar`、`BackButton`、`ForwardButton`、`RichText`、`Icon`、`Scroll*`、`Split*`、`Video`/`WebView`/`NativeView`、`SplitButton`、`PrimarySplitButton`、`MenuButton`、`PopoverMenuButton`、`AlertDialog`、`TimeInput`/`DateInput`、`ToggleBase`、`StepSlider`。
-- 第十轮：`TextInputBuffer` / `TextAreaBuffer`（复用 Input/TextArea 外框）；新增 `widgets/native_packages.go` 适配 `ui/markdown`、`ui/editor`、`ui/chart`、`ui/richtext`、`ui/netimage`、`ui/video`；`samples/native` 增加 Markdown 示例（共 6 个）。
+- 第十轮：`TextInputBuffer` / `TextAreaBuffer`（复用 Input/TextArea 外框）；新增 `widgets/native_packages.go` 适配 `ui/markdown`、`ui/editor`、`ui/chart`、`ui/richtext`、`ui/netimage`、`ui/video`；`samples/native` 增加 Markdown 示例。
+- 第十一轮：为 `CodeEditor`、`ChartPlot`、`RichTextEditor` 补独立示例（`samples/native` 共 9 个）；`RemoteImage` 依赖网络，示例从略并在本节注明。
 - 测试：`widgets/mygo_names_test.go`、`widgets/native_packages_test.go` 覆盖别名渲染、SplitButton 点击、GridView、CheckboxGroup、TextBuffer、Markdown、ChartPlot。
 - 根包 `package ui` 已无 ⏳ 项；`XxxBase` 按设计以 🧱 直接使用 `ui.*Base`；子包覆盖状态见 9.2 平台/子包表。

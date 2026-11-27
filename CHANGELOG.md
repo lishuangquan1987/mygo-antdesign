@@ -7,6 +7,7 @@
 ### 变更
 
 - **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
+- **第二批控件校准**：Pagination（32×32 页码 + 翻页箭头 + 悬停主色描边）、Steps（32px 图标/2px 连线）、Empty/Result（64/72px 插画、14/24px 文字）、FormItem（纵向标签 + 红色必填星号 + 24px 项距）、Collapse（44px 头 + `#fafafa` 底）、Checkbox（8px 间距 + 标签可点击）。
 - **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
 - **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 
@@ -35,10 +36,6 @@
 
 ### 变更
 
-- **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
-- **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
-- **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
-
 - `samples/golden/` 改为 3 张稳定基线（亮标准、暗标准、亮紧凑）；并排对比含加载动画，逐帧像素不稳定，改由交互测试覆盖。
 - 文档全面校对：版本、计数（106 个控件构造函数 / 12 个分组 / 66 个片段）、API 签名与已知限制。
 
@@ -54,12 +51,6 @@
 - 缺口控件首批：`Tree`、`Upload`、`Transfer`、`Carousel`、`QRCode`、`Cascader`、`TreeSelect`（`extra/` 包）。
 - Release 工作流：5 平台交叉编译安装包，release 后自动附加。
 - 截图基线按平台生效（`samples/golden/manifest.json`）。
-
-### 变更
-
-- **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
-- **README 截图更新**：`docs/images/gallery.png`（1280×800 亮色）、`gallery-dark.png`、`quickstart.png` 由 `WRITE_DOCS_SCREENSHOTS=1 go test ./gallery -run TestWriteDocsScreenshots` 重新生成。
-- **Release 工作流说明**：`release` 事件使用 tag 内 workflow 版本；旧 tag 失败时可在 Actions 手动触发（main 最新 workflow）并填入该 tag 重传。
 
 - README 快速开始与安装说明重写；文档补充 API 勘误表与状态列。
 

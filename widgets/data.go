@@ -40,12 +40,12 @@ func Empty(c *ui.Context, opts ...EmptyOption) ui.Element {
 	t := c.Theme()
 
 	el := ui.Column(c).FillWidth().Padding(t.Space(6), t.Space(4)).
-		AlignItems(ui.Center).Gap(t.Space(3))
+		AlignItems(ui.Center).Gap(t.Space(2))
 	el.Children(func() {
 		if cfg.image != nil {
 			cfg.image(c)
 		} else {
-			// 默认插画：虚线框 + 文件图标，全部取主题色。
+			// 默认插画：虚线框 + 文件图标，全部取主题色（antd 空状态 64px 图）。
 			frame := ui.Box(c).Size(t.Space(16), t.Space(11)).
 				Radius(t.Radius*1.34).
 				Border(1, t.Border).BorderStyle(ui.BorderDashed).
@@ -55,9 +55,9 @@ func Empty(c *ui.Context, opts ...EmptyOption) ui.Element {
 				icon.Icon(c, icon.File, t.Space(5))
 			})
 		}
-		ui.Text(c, cfg.description).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
+		ui.Text(c, cfg.description).TextColor(t.TextMuted).FontSize(t.FontSize)
 		if cfg.footer != nil {
-			row := ui.Row(c).Gap(t.Space(2))
+			row := ui.Row(c).Gap(t.Space(2)).Padding(t.Space(2), 0, 0, 0)
 			row.Children(func() { cfg.footer(c) })
 		}
 	})
@@ -119,19 +119,19 @@ func Result(c *ui.Context, status ResultStatus, title string, opts ...ResultOpti
 	el := ui.Column(c).FillWidth().Padding(t.Space(8), t.Space(4)).
 		AlignItems(ui.Center).Gap(t.Space(2))
 	el.Children(func() {
-		holder := ui.Box(c).Size(t.Space(14), t.Space(14)).
-			Radius(t.Space(7)).
+		holder := ui.Box(c).Size(t.Space(18), t.Space(18)).
+			Radius(t.Space(9)).
 			Background(color.Mix(t.Background, 0.88)).
 			Center()
 		holder.Children(func() {
-			icon.Icon(c, tip, t.Space(7), icon.WithColor(color))
+			icon.Icon(c, tip, t.Space(9), icon.WithColor(color))
 		})
-		ui.Text(c, title).FontSize(t.Rem(1.43)).FontWeight(600).TextColor(t.Text)
+		ui.Text(c, title).FontSize(t.Rem(1.71)).FontWeight(600).TextColor(t.Text)
 		if cfg.subTitle != "" {
-			ui.Text(c, cfg.subTitle).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
+			ui.Text(c, cfg.subTitle).TextColor(t.TextMuted).FontSize(t.FontSize)
 		}
 		if cfg.extra != nil {
-			row := ui.Row(c).Gap(t.Space(2)).Padding(t.Space(2), 0, 0, 0)
+			row := ui.Row(c).Gap(t.Space(2)).Padding(t.Space(4), 0, 0, 0)
 			row.Children(func() { cfg.extra(c) })
 		}
 	})

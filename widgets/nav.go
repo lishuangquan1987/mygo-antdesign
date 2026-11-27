@@ -1,9 +1,9 @@
 package ant
 
 import (
-	"github.com/egoist/mygo/ui"
+	"fmt"
 
-	"github.com/lishuangquan1987/mygo-antdesign/internal"
+	"github.com/egoist/mygo/ui"
 )
 
 // Breadcrumb 面包屑（antd Breadcrumb）。chosen 为当前层级下标：
@@ -128,6 +128,9 @@ func OnPageChange(fn func(page int)) PaginationOption {
 // Pagination 分页器（antd Pagination）。current 由调用方持有（1 起）：
 //
 //	ant.Pagination(c, &page, 42, ant.OnPageChange(app.loadPage))
+//
+// 样式对齐 antd v5：32×32 页码、6px 圆角、选中主色底白字、非选中悬停
+// 显示主色描边，首尾带上一页/下一页箭头。
 func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption) ui.Element {
 	cfg := &paginationConfig{}
 	for _, o := range opts {
@@ -140,37 +143,63 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 			cfg.onChange(*current)
 		}
 	}
-
-	row := ui.Row(c).Gap(t.Space(1)).AlignItems(ui.Center)
-	row.Children(func() {
-		// 页码窗口：总数少则全展示，多则 1 … 窗口 … 总数。
-		pages := pageWindow(*current, total)
-		for _, p := range pages {
-			if p == 0 { // 省略号
-				ui.Text(c, "…").TextColor(t.TextMuted)
-				continue
-			}
-			btn := ui.ButtonBase(c).
-				Height(internal.ControlHeight(t, internal.SizeSmall)).
-				MinWidth(internal.ControlHeight(t, internal.SizeSmall)).
-				Padding(0, t.Space(1)).
-				Radius(t.Radius).
-				Center()
-			if p == *current {
-				btn.Background(t.Accent)
-				btn.Children(func() {
-					ui.Textf(c, "%d", p).TextColor(t.AccentText).SingleLine()
-				})
-			} else {
-				btn.Children(func() {
-					ui.Textf(c, "%d", p).TextColor(t.Text).SingleLine()
-				})
-			}
-			if btn.Clicked() && p != *current {
-				*current = p
-				fire()
+	item := func(label string, active, disabled bool, onClick func()) ui.Element {
+		btn := ui.ButtonBase(c).
+			Height(t.Space(8)).
+			MinWidth(t.Space(8)).
+			Padding(0, t.Space(2)).
+			Radius(t.Radius).
+			Center()
+		fg := t.Text
+		if active {
+			btn.Background(t.Accent)
+			fg = t.AccentText
+		} else {
+			btn.Border(1, ui.Transparent)
+			if btn.Hovered() && !disabled {
+				btn.Border(1, t.Accent)
+				fg = t.Accent
 			}
 		}
+		if disabled {
+			fg = t.TextMuted
+		}
+		btn.Children(func() {
+			ui.Text(c, label).TextColor(fg).FontSize(t.FontSize).SingleLine()
+		})
+		if !disabled && btn.Clicked() && onClick != nil {
+			onClick()
+		}
+		return btn
+	}
+
+	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
+	row.Children(func() {
+		row.Children(func() {
+			item("‹", false, *current <= 1, func() {
+				*current--
+				fire()
+			})
+		})
+		pages := pageWindow(*current, total)
+		for _, p := range pages {
+			p := p
+			if p == 0 { // 省略号
+				box := ui.Box(c).Size(t.Space(8), t.Space(8)).Center()
+				box.Children(func() {
+					ui.Text(c, "…").TextColor(t.TextMuted).FontSize(t.FontSize)
+				})
+				continue
+			}
+			item(fmt.Sprintf("%d", p), p == *current, false, func() {
+				*current = p
+				fire()
+			})
+		}
+		item("›", false, *current >= total, func() {
+			*current++
+			fire()
+		})
 	})
 	return row
 }
@@ -204,12 +233,12 @@ func pageWindow(cur, total int) []int {
 func Steps(c *ui.Context, current *int, labels []string) ui.Element {
 	t := c.Theme()
 
-	row := ui.Row(c).FillWidth().AlignItems(ui.Center)
+	row := ui.Row(c).FillWidth().Padding(0, t.Space(4)).AlignItems(ui.Center)
 	row.Children(func() {
 		for i, label := range labels {
 			if i > 0 {
 				// 连接线：完成的实心，未完成的描边。
-				line := ui.Box(c).Grow(1).Height(t.Space(1)).Border(1, t.Border)
+				line := ui.Box(c).Grow(1).Height(t.Space(0.5)).Border(1, t.Border)
 				if i <= *current {
 					line.BorderStyle(ui.BorderSolid)
 					line.Border(1, t.Accent)
@@ -222,7 +251,7 @@ func Steps(c *ui.Context, current *int, labels []string) ui.Element {
 
 			item := ui.Column(c).Gap(t.Space(1)).AlignItems(ui.Center)
 			item.Children(func() {
-				circle := ui.Box(c).Size(t.Space(6), t.Space(6)).Radius(t.Space(3)).Center()
+				circle := ui.Box(c).Size(t.Space(8), t.Space(8)).Radius(t.Space(4)).Center()
 				switch {
 				case done:
 					circle.Background(t.Accent)
@@ -233,19 +262,19 @@ func Steps(c *ui.Context, current *int, labels []string) ui.Element {
 					circle.Background(t.Accent.Mix(t.Background, 0.85))
 					circle.Border(1, t.Accent)
 					circle.Children(func() {
-						ui.Textf(c, "%d", i+1).TextColor(t.Accent)
+						ui.Textf(c, "%d", i+1).TextColor(t.Accent).FontSize(t.Rem(1.14))
 					})
 				default:
 					circle.Background(t.Background.Mix(t.Text, 0.05))
 					circle.Children(func() {
-						ui.Textf(c, "%d", i+1).TextColor(t.TextMuted)
+						ui.Textf(c, "%d", i+1).TextColor(t.TextMuted).FontSize(t.Rem(1.14))
 					})
 				}
 				color := t.TextMuted
 				if now || done {
 					color = t.Text
 				}
-				ui.Text(c, label).TextColor(color).FontSize(t.Rem(0.86)).SingleLine()
+				ui.Text(c, label).TextColor(color).FontSize(t.FontSize).SingleLine()
 			})
 		}
 	})

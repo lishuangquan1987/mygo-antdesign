@@ -98,7 +98,7 @@ func Collapse(c *ui.Context, items []CollapseItem, opts ...CollapseOption) ui.El
 						arrow = icon.Down
 					}
 					icon.Icon(c, arrow, t.Space(4), icon.WithColor(t.TextMuted))
-					ui.Text(c, it.Header).TextColor(t.Text).FontSize(t.Rem(0.95))
+					ui.Text(c, it.Header).TextColor(t.Text).FontSize(t.FontSize).FontWeight(500)
 				})
 			})
 			if head.Clicked() {

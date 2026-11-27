@@ -40,9 +40,28 @@ func Checkbox(c *ui.Context, checked *bool, label string, opts ...ControlOption)
 	for _, o := range opts {
 		o(cfg)
 	}
-	el := ui.Checkbox(c, checked, label)
-	applyControl(el, cfg)
-	return el
+	t := c.Theme()
+
+	// antd 的复选框与文字间距 8px（原生控件内部间距不可调，这里自绘一行）。
+	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
+	var box ui.Element
+	row.Children(func() {
+		box = ui.Checkbox(c, checked, "")
+		if cfg.disabled {
+			box.Disabled(true)
+		}
+		lbl := ui.Text(c, label).TextColor(t.Text).FontSize(t.FontSize)
+		if !cfg.disabled && lbl.Clicked() {
+			*checked = !*checked
+			if cfg.onChg != nil {
+				cfg.onChg()
+			}
+		}
+	})
+	if cfg.onChg != nil && box.Changed() {
+		cfg.onChg()
+	}
+	return row
 }
 
 // RadioGroupItem 供 RadioGroup 内使用的单项。泛型对齐 antd 的受控值。

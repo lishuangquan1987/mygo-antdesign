@@ -4,10 +4,9 @@
 
 ## [Unreleased]
 
-### 变更
+## [0.5.0] - 2026-11-27
 
-- **表格数值排序**：`ant.Table` 的 Sortable 列对数字单元格（含千分位逗号与 `%` 后缀）按数值比较，其余按字符串比较；新增 `TestTableNumericSort`。
-- **版本状态同步**：v0.4.0 已发布（5 平台安装包），README/AGENTS 版本号与构建示例更新到 v0.4.0。
+### 变更
 
 - **UI 细节对齐 antd v5**：自绘 Table（表头底色/16px 内边距/行分隔线/悬停选中/排序 caret）、自绘 Tabs（32px 间距/主色下划线）、Input 双边框与焦点环修复、Progress 线形换算与环形 120px、Alert 语义图标、Card/Modal 间距与阴影、Gallery 整体重构（品牌区/搜索/分类目录/工具条/卡片/暗色截图）。详见 [docs/09](docs/09-antd-parity.md)。
 - **第二批控件校准**：Pagination（32×32 页码 + 翻页箭头 + 悬停主色描边）、Steps（32px 图标/2px 连线）、Empty/Result（64/72px 插画、14/24px 文字）、FormItem（纵向标签 + 红色必填星号 + 24px 项距）、Collapse（44px 头 + `#fafafa` 底）、Checkbox（8px 间距 + 标签可点击）。

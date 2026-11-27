@@ -70,11 +70,11 @@ go run ./gallery
 
 ```bash
 # Linux / macOS
-go build -trimpath -ldflags "-X main.version=v0.4.0" -o bin/gallery ./gallery
+go build -trimpath -ldflags "-X main.version=v0.5.0" -o bin/gallery ./gallery
 ./bin/gallery
 
 # Windows（PowerShell / cmd）
-go build -trimpath -ldflags "-X main.version=v0.4.0" -o bin/gallery.exe ./gallery
+go build -trimpath -ldflags "-X main.version=v0.5.0" -o bin/gallery.exe ./gallery
 bin\gallery.exe
 ```
 
@@ -89,7 +89,7 @@ bin\gallery.exe
 ## 安装
 
 ```bash
-go get github.com/lishuangquan1987/mygo-antdesign@v0.4.0
+go get github.com/lishuangquan1987/mygo-antdesign@v0.5.0
 ```
 
 ## 快速开始
@@ -240,7 +240,7 @@ go run ./scripts/visualcheck -group 反馈 -theme dark -out .visualcheck
 
 ## 版本与发布
 
-- 遵循 [语义化版本](https://semver.org/lang/zh-CN/)；当前版本 **v0.4.0**（[Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases/tag/v0.4.0) 已含 5 平台安装包）。
+- 遵循 [语义化版本](https://semver.org/lang/zh-CN/)；当前版本 **v0.5.0**。
 - 发布流程：创建 Release → [Release 工作流](.github/workflows/release.yml) 自动为 5 个平台构建 Gallery 安装包并上传到该 Release 附件；也可在 Actions 页面手动触发（`workflow_dispatch`）并填入已存在的 tag。
 - **注意**：`release` 事件使用的是 **tag 内的 workflow 文件**。如果某个旧 tag 的工作流版本较老（例如 v0.2.0 之前），它的 Release 构建可能失败；此时请在 Actions 页面手动触发 `Release`（workflow 取 main 上的最新版本），填入该 tag 重新上传，或基于最新 main 打新 tag 发布。
 - 历史版本与变更见 [CHANGELOG.md](CHANGELOG.md) 与 [Releases](https://github.com/lishuangquan1987/mygo-antdesign/releases)。

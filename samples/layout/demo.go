@@ -83,7 +83,8 @@ func SpaceDemo(c *ui.Context) {
 			widgets.Button(c, "默认")
 			widgets.Button(c, "确定", widgets.Primary())
 		})
-		small := widgets.Space(c, widgets.Gap(widgets.SpaceSmall), widgets.SpaceVertical())
+		small := widgets.Space(c, widgets.Gap(widgets.SpaceSmall), widgets.SpaceVertical(),
+			widgets.SpaceAlign(ui.Start), widgets.SpaceFillWidth())
 		small.Children(func() {
 			widgets.Paragraph(c, "纵向小间距一")
 			widgets.Paragraph(c, "纵向小间距二")

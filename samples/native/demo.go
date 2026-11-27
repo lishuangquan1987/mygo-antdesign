@@ -107,16 +107,19 @@ func ToolbarDemo(c *ui.Context) {
 
 // sample:splitbutton
 func SplitButtonDemo(c *ui.Context) {
-	save := widgets.SplitButton(c, "保存")
-	save.Button.OnClick(func() {})
-	save.Arrow.Menu(func(m *ui.Menu) {
-		m.Item("另存为")
-		m.Separator()
-		m.Item("导出为 PDF")
-	})
-	widgets.PrimarySplitButton(c, "发布").Arrow.Menu(func(m *ui.Menu) {
-		m.Item("发布到测试环境")
-		m.Item("发布到生产环境")
+	row := ui.Row(c).Gap(8)
+	row.Children(func() {
+		save := widgets.SplitButton(c, "保存")
+		save.Button.OnClick(func() {})
+		save.Arrow.Menu(func(m *ui.Menu) {
+			m.Item("另存为")
+			m.Separator()
+			m.Item("导出为 PDF")
+		})
+		widgets.PrimarySplitButton(c, "发布").Arrow.Menu(func(m *ui.Menu) {
+			m.Item("发布到测试环境")
+			m.Item("发布到生产环境")
+		})
 	})
 }
 

@@ -155,14 +155,23 @@ func TransferDemo(c *ui.Context) {
 
 // sample:carousel
 func CarouselDemo(c *ui.Context) {
-	col := ui.Column(c).FillWidth()
+	t := c.Theme()
+	col := ui.Column(c).FillWidth().Gap(t.Space(5))
 	col.Children(func() {
 		extra.Carousel(c, []func(*ui.Context){
 			func(c *ui.Context) { widgets.Title(c, "欢迎使用", widgets.H3) },
 			func(c *ui.Context) { widgets.Title(c, "第二页", widgets.H3) },
 			func(c *ui.Context) { widgets.Title(c, "第三页", widgets.H3) },
 		}, extra.CarouselHeight(96))
-		extra.QRCode(c, "https://github.com/lishuangquan1987/mygo-antdesign", extra.QRCodeSize(88))
+		row := ui.Row(c).Gap(t.Space(5)).AlignItems(ui.Center)
+		row.Children(func() {
+			extra.QRCode(c, "https://github.com/lishuangquan1987/mygo-antdesign", extra.QRCodeSize(88))
+			info := ui.Column(c).Gap(t.Space(1))
+			info.Children(func() {
+				widgets.Title(c, "扫码访问项目仓库", widgets.H5)
+				widgets.Paragraph(c, "github.com/lishuangquan1987/mygo-antdesign", widgets.Secondary())
+			})
+		})
 	})
 }
 

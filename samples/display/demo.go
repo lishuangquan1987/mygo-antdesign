@@ -6,7 +6,6 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
 )
@@ -246,16 +245,19 @@ func ListDemo(c *ui.Context) {
 
 // /sample
 
+// pictureSVG 是 Image 示例用的风景占位图（蓝天、太阳与山丘）。
+const pictureSVG = `<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120"><rect width="160" height="120" fill="#e6f4ff"/><circle cx="118" cy="34" r="16" fill="#ffd666"/><path d="M0 96 L44 50 L84 96 Z" fill="#95de64"/><path d="M50 96 L100 38 L160 96 Z" fill="#52c41a"/><rect y="96" width="160" height="24" fill="#d9f7be"/></svg>`
+
 // sample:image
 func ImageDemo(c *ui.Context) {
-	svg, err := ui.ParseSVG([]byte(icon.Search))
+	svg, err := ui.ParseSVG([]byte(pictureSVG))
 	if err != nil {
 		return
 	}
 	row := ui.Row(c).Gap(c.Theme().Space(4)).AlignItems(ui.Center)
 	row.Children(func() {
-		widgets.ImageEl(c, svg, widgets.ImageWidth(6))
-		widgets.ImageEl(c, svg, widgets.ImageWidth(10), widgets.ImagePreview(false))
+		widgets.ImageEl(c, svg, widgets.ImageWidth(14))
+		widgets.ImageEl(c, svg, widgets.ImageWidth(22), widgets.ImagePreview(false))
 	})
 }
 
@@ -289,7 +291,7 @@ func MasonryDemo(c *ui.Context) {
 	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
 	active := ui.Local(host, "ant.sample.display.anchor", func() int { return 0 })
 	host.Children(func() {
-		row := ui.Row(c).Gap(c.Theme().Space(4)).AlignItems(ui.Start)
+		row := ui.Row(c).FillWidth().Gap(c.Theme().Space(4)).AlignItems(ui.Start)
 		row.Children(func() {
 			widgets.Anchor(c, []widgets.AnchorItem{
 				{ID: "intro", Label: "介绍"},
@@ -302,7 +304,7 @@ func MasonryDemo(c *ui.Context) {
 					func(c *ui.Context) { widgets.Card(c, "卡片二", func() { widgets.Paragraph(c, "瀑布流内容") }) },
 					func(c *ui.Context) { widgets.Card(c, "卡片三", func() { widgets.Paragraph(c, "瀑布流内容") }) },
 				})
-			})
+			}).Grow(1)
 		})
 	})
 }

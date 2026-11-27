@@ -410,90 +410,106 @@ func (g *Gallery) header(c *ui.Context) {
 	})
 }
 
+// truncateCode 把代码按整行截断到 maxLines 行，并追加一行提示注释；
+// 配合 editor.State.FitContent 使用，高度永远与内容行数一致，
+// 不出现半行截断，也不依赖具体行高像素。
+func truncateCode(code string, maxLines int, hint string) string {
+	ls := strings.Split(code, "\n")
+	if len(ls) <= maxLines {
+		return code
+	}
+	return strings.Join(ls[:maxLines], "\n") + "\n\n// … " + hint
+}
+
 // tools 主题/密度/尺寸/字号/品牌色/对比 的全局工具条（首页与控件页共用）。
+// 固定两行：第一行主题/密度/尺寸/字号，第二行品牌色/对比——
+// 不用单行 Wrap，窄窗口下换行行会被裁剪。
 func (g *Gallery) tools(c *ui.Context) {
 	t := c.Theme()
-	tools := ui.Row(c).FillWidth().
-		AlignItems(ui.Center).
-		Gap(t.Space(3)).
-		Wrap().
+	tools := ui.Column(c).FillWidth().
+		Gap(t.Space(2)).
 		Margin(t.Space(1), 0, 0, 0)
 	tools.Children(func() {
-		toolGroup(c, "主题", func() {
-			segmented(c,
-				segItem{label: "亮", on: !g.dark, onClick: func() { g.dark = false }},
-				segItem{label: "暗", on: g.dark, onClick: func() { g.dark = true }},
-			)
-		})
-		widgets.VerticalDivider(c)
-		toolGroup(c, "密度", func() {
-			segmented(c,
-				segItem{label: "标准", on: g.density == theme.Comfortable, onClick: func() { g.density = theme.Comfortable }},
-				segItem{label: "紧凑", on: g.density == theme.Compact, onClick: func() { g.density = theme.Compact }},
-			)
-		})
-		widgets.VerticalDivider(c)
-		toolGroup(c, "尺寸", func() {
-			segmented(c,
-				segItem{label: "小", on: g.size == sizeSmall, onClick: func() { g.size = sizeSmall }},
-				segItem{label: "中", on: g.size == sizeMedium, onClick: func() { g.size = sizeMedium }},
-				segItem{label: "大", on: g.size == sizeLarge, onClick: func() { g.size = sizeLarge }},
-			)
-		})
-		widgets.VerticalDivider(c)
-		toolGroup(c, "字号", func() {
-			segmented(c,
-				segItem{label: "12", on: g.fontSize == 12, onClick: func() { g.fontSize = 12 }},
-				segItem{label: "14", on: g.fontSize == 0, onClick: func() { g.fontSize = 0 }},
-				segItem{label: "16", on: g.fontSize == 16, onClick: func() { g.fontSize = 16 }},
-			)
-		})
-		widgets.VerticalDivider(c)
-		toolGroup(c, "品牌色", func() {
-			swatches := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(1))
-			swatches.Children(func() {
-				for _, bc := range brandColors {
-					bc := bc
-					sw := ui.ButtonBase(c).
-						Size(t.Space(5), t.Space(5)).
-						Radius(t.Space(2.5)).
-						Background(ui.Hex(bc.hex)).
-						Center()
-					on := g.brand == bc.hex
-					if on {
-						// 选中态对齐 antd ColorPicker：白色对勾 + 1px 描边环。
-						sw.Shadow(0, 0, 0, 1, t.Border)
-					}
-					sw.Children(func() {
-						if on {
-							ui.Text(c, "✓").TextColor(ui.Hex("#fff")).FontSize(t.Rem(0.7)).FontWeight(700)
-						}
-					})
-					if sw.Clicked() {
-						g.brand = bc.hex
-					}
-				}
+		row1 := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(3))
+		row1.Children(func() {
+			toolGroup(c, "主题", func() {
+				segmented(c,
+					segItem{label: "亮", on: !g.dark, onClick: func() { g.dark = false }},
+					segItem{label: "暗", on: g.dark, onClick: func() { g.dark = true }},
+				)
+			})
+			widgets.VerticalDivider(c)
+			toolGroup(c, "密度", func() {
+				segmented(c,
+					segItem{label: "标准", on: g.density == theme.Comfortable, onClick: func() { g.density = theme.Comfortable }},
+					segItem{label: "紧凑", on: g.density == theme.Compact, onClick: func() { g.density = theme.Compact }},
+				)
+			})
+			widgets.VerticalDivider(c)
+			toolGroup(c, "尺寸", func() {
+				segmented(c,
+					segItem{label: "小", on: g.size == sizeSmall, onClick: func() { g.size = sizeSmall }},
+					segItem{label: "中", on: g.size == sizeMedium, onClick: func() { g.size = sizeMedium }},
+					segItem{label: "大", on: g.size == sizeLarge, onClick: func() { g.size = sizeLarge }},
+				)
+			})
+			widgets.VerticalDivider(c)
+			toolGroup(c, "字号", func() {
+				segmented(c,
+					segItem{label: "12", on: g.fontSize == 12, onClick: func() { g.fontSize = 12 }},
+					segItem{label: "14", on: g.fontSize == 0, onClick: func() { g.fontSize = 0 }},
+					segItem{label: "16", on: g.fontSize == 16, onClick: func() { g.fontSize = 16 }},
+				)
 			})
 		})
-		widgets.VerticalDivider(c)
-		toolGroup(c, "对比", func() {
-			segmented(c,
-				segItem{label: "无", on: g.compare == compareNone, onClick: func() { g.compare = compareNone }},
-				segItem{label: "亮暗对比", on: g.compare == compareTheme, onClick: func() {
-					if g.compare == compareTheme {
-						g.compare = compareNone
-					} else {
-						g.compare = compareTheme
+		row2 := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(3))
+		row2.Children(func() {
+			toolGroup(c, "品牌色", func() {
+				swatches := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(1))
+				swatches.Children(func() {
+					for _, bc := range brandColors {
+						bc := bc
+						sw := ui.ButtonBase(c).
+							Size(t.Space(5), t.Space(5)).
+							Radius(t.Space(2.5)).
+							Background(ui.Hex(bc.hex)).
+							Center()
+						on := g.brand == bc.hex
+						if on {
+							// 选中态对齐 antd ColorPicker：白色对勾 + 1px 描边环。
+							sw.Shadow(0, 0, 0, 1, t.Border)
+						}
+						sw.Children(func() {
+							if on {
+								ui.Text(c, "✓").TextColor(ui.Hex("#fff")).FontSize(t.Rem(0.7)).FontWeight(700)
+							}
+						})
+						if sw.Clicked() {
+							g.brand = bc.hex
+						}
 					}
-				}},
-				segItem{label: "密度对比", on: g.compare == compareDensity, onClick: func() {
-					if g.compare == compareDensity {
-						g.compare = compareNone
-					} else {
-						g.compare = compareDensity
-					}
-				}},
-			)
+				})
+			})
+			widgets.VerticalDivider(c)
+			toolGroup(c, "对比", func() {
+				segmented(c,
+					segItem{label: "无", on: g.compare == compareNone, onClick: func() { g.compare = compareNone }},
+					segItem{label: "亮暗对比", on: g.compare == compareTheme, onClick: func() {
+						if g.compare == compareTheme {
+							g.compare = compareNone
+						} else {
+							g.compare = compareTheme
+						}
+					}},
+					segItem{label: "密度对比", on: g.compare == compareDensity, onClick: func() {
+						if g.compare == compareDensity {
+							g.compare = compareNone
+						} else {
+							g.compare = compareDensity
+						}
+					}},
+				)
+			})
 		})
 	})
 }
@@ -624,7 +640,7 @@ func (g *Gallery) homePage(c *ui.Context) {
 			})
 		})
 
-		// 快速开始：语法高亮的只读代码视图。
+		// 快速开始：语法高亮的只读代码视图（预览前 14 行，完整示例见 README）。
 		col.Children(func() {
 			code := ui.Column(c).FillWidth().
 				Radius(t.Radius+t.Space(0.5)).
@@ -644,21 +660,17 @@ func (g *Gallery) homePage(c *ui.Context) {
 						Radius(t.Space(2)).
 						Background(t.Background)
 				})
-				body := ui.Scroll(c).FillWidth().Background(t.Background)
+				body := ui.Column(c).FillWidth().Background(t.Background)
 				body.Children(func() {
 					st := ui.Local(code, "gallery.quickstart", func() editor.State {
 						return editor.State{
-							Buffer:       editor.NewBuffer(quickStartCode),
+							Buffer:       editor.NewBuffer(truncateCode(quickStartCode, 14, "完整示例见 README 快速开始")),
 							ReadOnly:     true,
 							NoActiveLine: true,
+							FitContent:   true,
 						}
 					})
-					lines := strings.Count(quickStartCode, "\n") + 1
-					h := t.Space(2.2)*float32(lines) + t.Space(2)
-					if h > t.Space(36) {
-						h = t.Space(36)
-					}
-					widgets.CodeEditor(c, st).FillWidth().Height(h)
+					widgets.CodeEditor(c, st).FillWidth()
 				})
 			})
 		})
@@ -747,29 +759,28 @@ func (g *Gallery) sampleCard(c *ui.Context, index int, s samples.Sample) {
 					*expanded = !*expanded
 				}
 			})
-			// 代码正文：ui/editor 只读代码视图（语法高亮 + 行号），
-			// 用 Scroll 承载，超出部分滚动而不是溢出卡片。
-			body := ui.Scroll(c).FillWidth().Background(t.Background)
-			if !*expanded {
-				body.MaxHeight(t.Space(30))
-			}
+			// 代码正文：ui/editor 只读代码视图（语法高亮 + 行号）。
+			// 收起时只把前 6 行放进 buffer、展开时放全部，
+			// 配合 FitContent 高度与内容行数一致，永不半行截断。
+			body := ui.Column(c).FillWidth().Background(t.Background)
 			body.Children(func() {
-				st := ui.Local(card, "gallery.codeed."+s.Title, func() editor.State {
+				codeKey := "gallery.codeed." + s.Title
+				if *expanded {
+					codeKey += ".full"
+				}
+				st := ui.Local(card, codeKey, func() editor.State {
+					buf := s.Code
+					if !*expanded {
+						buf = truncateCode(s.Code, 6, fmt.Sprintf("展开查看全部 %d 行", strings.Count(s.Code, "\n")+1))
+					}
 					return editor.State{
-						Buffer:       editor.NewBuffer(s.Code),
+						Buffer:       editor.NewBuffer(buf),
 						ReadOnly:     true,
 						NoActiveLine: true,
+						FitContent:   true,
 					}
 				})
-				lines := strings.Count(s.Code, "\n") + 1
-				h := t.Space(2.2)*float32(lines) + t.Space(2)
-				if h < t.Space(8) {
-					h = t.Space(8)
-				}
-				if h > t.Space(40) {
-					h = t.Space(40)
-				}
-				widgets.CodeEditor(c, st).FillWidth().Height(h)
+				widgets.CodeEditor(c, st).FillWidth()
 			})
 		})
 	})

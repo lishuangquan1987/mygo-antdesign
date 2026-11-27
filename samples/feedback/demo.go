@@ -203,7 +203,10 @@ func DrawerDemo(c *ui.Context) {
 	host := ui.Column(c).FillWidth()
 	open := ui.Local(host, "ant.sample.feedback.drawer", func() bool { return false })
 	host.Children(func() {
-		widgets.Button(c, "打开抽屉", widgets.Primary(), widgets.OnClick(func() { *open = true }))
+		row := ui.Row(c).Gap(8)
+		row.Children(func() {
+			widgets.Button(c, "打开抽屉", widgets.Primary(), widgets.OnClick(func() { *open = true }))
+		})
 		widgets.Drawer(c, open, "设置", func() {
 			widgets.Paragraph(c, "抽屉内容：可以放任意控件。")
 			widgets.Paragraph(c, "点遮罩、Esc 或右上角 ✕ 关闭。", widgets.Secondary())
@@ -273,7 +276,13 @@ func ConfirmDemo(c *ui.Context) {
 	open := ui.Local(host, "ant.sample.feedback.confirmopen", func() bool { return false })
 	result := ui.Local(host, "ant.sample.feedback.confirmresult", func() string { return "" })
 	host.Children(func() {
-		widgets.Button(c, "删除项目", widgets.Danger(), widgets.OnClick(func() { *open = true }))
+		row := ui.Row(c).Gap(8)
+		row.Children(func() {
+			widgets.Button(c, "删除项目", widgets.Danger(), widgets.OnClick(func() { *open = true }))
+			if *result != "" {
+				widgets.Tag(c, *result)
+			}
+		})
 		widgets.Confirm(c, open, "删除项目", "此操作不可撤销，是否继续？",
 			func() { *result = "已删除" })
 		if *result != "" {

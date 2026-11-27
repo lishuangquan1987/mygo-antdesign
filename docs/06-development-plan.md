@@ -41,7 +41,7 @@
 | 换肤 + 缺口控件构造函数 | ≥ 55 | **106**（`widgets/` 99 + `extra/` 7，另有 `icon.Icon`） |
 | 缺口控件 | ≥ 12 | `extra/` **7** + `widgets/` 内 **27**（Pagination / Steps / Alert / Card / Tag / Badge / Empty / Result / Skeleton / Statistic / Descriptions / Timeline / List / Spin / Confirm / Tooltip / Popconfirm / Collapse / Form / Drawer / Image / ColorPicker / ColorPanel / 环形 Progress / Toggle / Affix 等） |
 | 主题预设 | 4 套（亮/暗 × 标准/紧凑） | ✅ 通过 `Light/Dark × Comfortable/Compact` 组合得到 |
-| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **13 个示例分组 / 79 个示例片段**，按 docs/02 §九 全覆盖矩阵继续补齐 |
+| 示例覆盖率 | 每个控件 ≥ 1 个示例页 | **13 个示例分组 / 80 个示例片段**，按 docs/02 §九 全覆盖矩阵继续补齐 |
 | 视觉回归 | 每个示例 × 3 种主题组合 | **3 张 Gallery 级基线**（`samples/golden/gallery-*.png`，按平台生效），尚未逐示例 |
 
 > 现状与目标之间的差距是明确的待办项，见 §10，不再宣称「100% 覆盖」。
@@ -218,7 +218,7 @@ theme.Apply(c, theme.Light(theme.WithPrimary(ui.Hex("#1677ff")), theme.WithDensi
 | F3 | 代码视图（真实源码 + 只读展示） | 2 | ✅ | 只读源码 + 复制代码按钮（`ui/editor` 未接） |
 | F4 | 示例注册表 + 分类 | 1 | ✅ | `samples/registry.go` |
 | F5 | `go:embed` 片段提取 | 2 | ✅ | `samples/extract.go` |
-| F6 | 截图生成与回归 | 3 | ✅ | 3 张 Gallery 级 + 308 张逐示例基线（4 组合）；README 嵌图手工维护 |
+| F6 | 截图生成与回归 | 3 | ✅ | 3 张 Gallery 级 + 312 张逐示例基线（4 组合）；README 嵌图手工维护 |
 | | **小计** | **14** | | |
 
 **总计估算：约 121 人日**（立项估算；示例编写约 21 人日摊入各控件）。单人约 6 个月，2 人并行约 3.5 个月。

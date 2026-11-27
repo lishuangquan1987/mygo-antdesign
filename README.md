@@ -41,8 +41,8 @@ MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`�
 - **双密度**：标准（antd 默认）与紧凑（`Spacing` 4→3、`Radius` 6→4、`FontSize` 14→13），一套代码运行时切换。
 - **运行时换肤**：`theme.Apply` 全局、`theme.Sub` 局部；亮/暗、品牌色、密度可任意组合，弹层/菜单/Tooltip 自动跟随。
 - **可选跟随系统**：`theme.WithFollowSystem()` 叠加系统强调色、高对比与文字缩放（默认关闭，保证品牌色忠实）。
-- **示例即交付物**：13 个示例分组 / 79 个示例片段，全部是可编译的真实代码；`go:embed` 提取后与 Gallery 预览一一对应。
-- **视觉回归**：3 张 Gallery 级 + 308 张逐示例截图基线（亮/暗 × 标准/紧凑），CI 逐字节比对。
+- **示例即交付物**：13 个示例分组 / 80 个示例片段，全部是可编译的真实代码；`go:embed` 提取后与 Gallery 预览一一对应。
+- **视觉回归**：3 张 Gallery 级 + 312 张逐示例截图基线（亮/暗 × 标准/紧凑），CI 逐字节比对。
 - **细节对齐 antd v5**：表格、页签、输入焦点环、进度、卡片、弹窗等按 antd Token 校准（见 [docs/09](docs/09-antd-parity.md)）。
 - **纯 Go**：无 cgo，可交叉编译到 Windows / macOS / Linux（amd64、arm64）。
 

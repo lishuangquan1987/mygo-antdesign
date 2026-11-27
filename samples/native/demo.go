@@ -51,6 +51,12 @@ func Demo() samples.WidgetDemo {
 				Code:        samples.Extract(demoSrc, "colorwell"),
 				View:        ColorWellDemo,
 			},
+			{
+				Title:       "Markdown 文档",
+				Description: "MyGo ui/markdown 子包适配：标题、列表、行内代码与链接。",
+				Code:        samples.Extract(demoSrc, "markdown"),
+				View:        MarkdownDemo,
+			},
 		},
 	}
 }
@@ -128,6 +134,12 @@ func ColorWellDemo(c *ui.Context) {
 		widgets.ColorWell(c, &color)
 		ui.Text(c, "点击色块打开取色器").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 	})
+}
+
+// /sample
+// sample:markdown
+func MarkdownDemo(c *ui.Context) {
+	widgets.Markdown(c, "## 版本说明\n\n- 新增 `Toolbar` / `GridView`\n- 修正 **Select** 内边距\n\n> 详见 [文档](https://example.com)\n", nil)
 }
 
 // /sample

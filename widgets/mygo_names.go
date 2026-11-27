@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
 // 本文件集中提供与 MyGo 原生控件同名的入口（项目约定：mygo 与 antd 有
@@ -152,6 +154,79 @@ func RichText(c *ui.Context, spans ...ui.Span) ui.Element {
 // Icon 图标（MyGo `ui.Icon` 命名）：颜色跟随文本色，尺寸由 FontSize 或显式尺寸决定。
 func Icon(c *ui.Context, svg *ui.SVG) ui.Element {
 	return ui.Icon(c, svg)
+}
+
+// TextInputBuffer 大文本单行输入（MyGo 命名）：复用 Input 的外框与焦点环，
+// 内部使用索引化 TextBuffer，适合百万行文档的局部编辑。
+func TextInputBuffer(c *ui.Context, value *ui.TextBuffer, opts ...InputOption) ui.Element {
+	cfg := &inputConfig{size: internal.SizeMiddle}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+
+	el := inputFrame(c, t, cfg)
+	var inp ui.Element
+	el.Children(func() {
+		inp = ui.TextInputBuffer(c, value).Grow(1).Background(t.Surface).
+			FontSize(internal.ControlFont(t, cfg.size)).
+			Border(0, ui.Transparent).Padding(0).Radius(0)
+		if cfg.label != "" {
+			inp.Label(cfg.label)
+		}
+	})
+	el.Disabled(cfg.disabled)
+	if cfg.readonly {
+		el.ReadOnly(true)
+	}
+	if !cfg.disabled && inp.Focused() {
+		el.Border(2, t.Focus)
+	}
+	fireInputEvents(inp, cfg)
+	return el
+}
+
+// TextAreaBuffer 大文本多行输入（MyGo 命名）：复用 TextArea 的外框与焦点环。
+func TextAreaBuffer(c *ui.Context, value *ui.TextBuffer, opts ...InputOption) ui.Element {
+	cfg := &inputConfig{size: internal.SizeMiddle}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+
+	rows := cfg.rows
+	if rows < 2 {
+		rows = 2
+	}
+	el := ui.Row(c).
+		MinHeight(t.Space(2)+t.Rem(1.7)*float32(rows)).
+		Padding(t.Space(1), internal.ControlPaddingX(t, cfg.size)).
+		Radius(t.Radius).
+		Background(t.Surface).
+		AlignItems(ui.Start)
+	if cfg.disabled {
+		el.Background(t.Background).Border(1, t.Border)
+	} else {
+		el.Border(1, t.Border)
+	}
+	var inp ui.Element
+	el.Children(func() {
+		inp = ui.TextAreaBuffer(c, value).Grow(1).FillWidth().Background(t.Surface).
+			Border(0, ui.Transparent).Padding(0).Radius(0).
+			FontSize(internal.ControlFont(t, cfg.size))
+		if cfg.label != "" {
+			inp.Label(cfg.label)
+		}
+	})
+	el.Disabled(cfg.disabled)
+	if cfg.readonly {
+		el.ReadOnly(true)
+	}
+	if !cfg.disabled && inp.Focused() {
+		el.Border(2, t.Focus)
+	}
+	fireInputEvents(inp, cfg)
+	return el
 }
 
 // Scroll 纵向滚动容器（MyGo 命名）。

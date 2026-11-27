@@ -238,7 +238,7 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 | --- | --- | --- | --- |
 | `TextInput` / `TextArea` | `ant.Input` / `TextArea` | ✅ | 自绘外框，聚焦环 1px 主色 + 2px 阴影 |
 | `TextInputBase` / `TextAreaBase` / `TextAreaBufferBase` / `TextInputBufferBase` | — | 🧱 | 无外观底座 |
-| `TextInputBuffer` / `TextAreaBuffer` | — | ⏳ | 大文本索引编辑；计划套用 Input/TextArea 外框 |
+| `TextInputBuffer` / `TextAreaBuffer` | `ant.TextInputBuffer` / `TextAreaBuffer` | ✅ | 本轮补齐：复用 Input/TextArea 外框与焦点环，内部索引化编辑 |
 | `NumberInput` | `ant.NumberInput`（别名 `NumberInputV`） | ✅ | 本轮补齐 MyGo 命名 |
 | `DecimalInput` | `ant.DecimalInput` | ✅ | 金额/精度场景 |
 | `SearchField` | `ant.SearchField` | ✅ | 原生放大镜/清除/Esc |
@@ -291,12 +291,19 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 
 | 项 | 状态 | 说明 |
 | --- | --- | --- |
-| `ui/chart`、`ui/editor`、`ui/markdown`、`ui/richtext`、`ui/shader`、`ui/video`、`ui/mobile`、`ui/netimage` | ⏳ | 独立子包，不是 `package ui` 根包；v0.x 暂不包装，后续按需在 `extra/` 增加适配层 |
+| `ui/markdown` | ✅ | `ant.Markdown`（`MarkdownOptions` 别名） |
+| `ui/editor` | ✅ | `ant.CodeEditor` / `DiffView`（`CodeEditorState` / `EditorDiffState` 别名） |
+| `ui/chart` | ✅ | `ant.ChartPlot`（`ChartAxes` / `ChartTick` 别名） |
+| `ui/richtext` | ✅ | `ant.RichTextEditor`（`RichTextDocument` / `RichTextEditorOptions` 别名） |
+| `ui/netimage` | ✅ | `ant.RemoteImage`（`RemoteImageOptions` 别名） |
+| `ui/video` | ✅ | `ant.OpenVideo` + `ant.Video` |
+| `ui/mobile` | ➖ | 移动端专用（BottomBar/Drawer/Sheet/PageView 等），桌面库不包装 |
+| `ui/shader` | ➖ | 自定义 GPU 着色器绘制，非控件；需要时直接用 `ui/shader` |
 | `ui.Inspector`、`ui.Outline`、`ui.Drawing`、`ui.Diff` 等（文档主题/平台能力） | ➖ | MyGo 平台专属或调试工具，antd 无对应，保留原生 |
 
-### 9.3 本轮（第九轮）实际落地
+### 9.3 已落地的补齐批次
 
-- 新增 `widgets/mygo_names.go`：`Breadcrumbs`、`Avatar`、`Autocomplete`、`Image`、`NumberInput`、`Progress`、`RangeSlider`、`Rating`、`Spinner`、`PrimaryButton`、`CheckboxState`、`CheckboxGroup`、`ColorWell`、`Toolbar`、`GridView`、`FindBar`、`BackButton`、`ForwardButton`、`RichText`、`Icon`、`Scroll*`、`Split*`、`Video`/`WebView`/`NativeView`、`SplitButton`、`PrimarySplitButton`、`MenuButton`、`PopoverMenuButton`、`AlertDialog`、`TimeInput`/`DateInput`、`ToggleBase`、`StepSlider`。
-- 新增 `samples/native` 分组（5 个示例）并注册 Gallery。
-- 测试：`widgets/mygo_names_test.go` 覆盖别名渲染、SplitButton 点击、GridView、CheckboxGroup。
-- 待补（⏳）：`TextInputBuffer`/`TextAreaBuffer`、各 `XxxBase` 的主题化底座封装、子包控件适配。
+- 第九轮：新增 `widgets/mygo_names.go`：`Breadcrumbs`、`Avatar`、`Autocomplete`、`Image`、`NumberInput`、`Progress`、`RangeSlider`、`Rating`、`Spinner`、`PrimaryButton`、`CheckboxState`、`CheckboxGroup`、`ColorWell`、`Toolbar`、`GridView`、`FindBar`、`BackButton`、`ForwardButton`、`RichText`、`Icon`、`Scroll*`、`Split*`、`Video`/`WebView`/`NativeView`、`SplitButton`、`PrimarySplitButton`、`MenuButton`、`PopoverMenuButton`、`AlertDialog`、`TimeInput`/`DateInput`、`ToggleBase`、`StepSlider`。
+- 第十轮：`TextInputBuffer` / `TextAreaBuffer`（复用 Input/TextArea 外框）；新增 `widgets/native_packages.go` 适配 `ui/markdown`、`ui/editor`、`ui/chart`、`ui/richtext`、`ui/netimage`、`ui/video`；`samples/native` 增加 Markdown 示例（共 6 个）。
+- 测试：`widgets/mygo_names_test.go`、`widgets/native_packages_test.go` 覆盖别名渲染、SplitButton 点击、GridView、CheckboxGroup、TextBuffer、Markdown、ChartPlot。
+- 根包 `package ui` 已无 ⏳ 项；`XxxBase` 按设计以 🧱 直接使用 `ui.*Base`；子包覆盖状态见 9.2 平台/子包表。

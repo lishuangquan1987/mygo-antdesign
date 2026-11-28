@@ -556,8 +556,11 @@ func (g *Gallery) content(c *ui.Context) {
 
 // previews 上方预览区：该控件全部示例（状态）的实时预览，
 // 两列一行、行高均分，撑满整个预览面板，不留空白。
+// 网格四周留 Padding、卡片之间留 Gap（antd Card gutter 16px），
+// 避免卡片贴着面板边缘或相互粘连。
 func (g *Gallery) previews(c *ui.Context, d samples.ControlPage) {
-	grid := ui.Column(c).Fill().Gap(c.Theme().Space(2))
+	t := c.Theme()
+	grid := ui.Column(c).Fill().Padding(t.Space(4)).Gap(t.Space(4))
 	n := len(d.Samples)
 	if n == 0 {
 		grid.Children(func() {
@@ -574,7 +577,7 @@ func (g *Gallery) previews(c *ui.Context, d samples.ControlPage) {
 			if end > n {
 				end = n
 			}
-			row := ui.Row(c).FillWidth().Gap(c.Theme().Space(2)).AlignItems(ui.Stretch)
+			row := ui.Row(c).FillWidth().Gap(t.Space(4)).AlignItems(ui.Stretch)
 			if rows == 1 {
 				// 仅一行时撑满整个预览区，避免上下留白。
 				row.Fill()
@@ -596,7 +599,7 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 	t := c.Theme()
 	panel := ui.Column(c).Grow(1).
 		Background(t.Surface).
-		Radius(t.Radius + t.Space(0.5)).
+		Radius(t.Radius+t.Space(0.5)).
 		Border(1, t.Border).
 		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
 	panel.Children(func() {
@@ -652,7 +655,7 @@ func (g *Gallery) codePanel(c *ui.Context, d samples.ControlPage) {
 	t := c.Theme()
 	panel := ui.Column(c).Fill().
 		Background(t.Surface).
-		Radius(t.Radius + t.Space(0.5)).
+		Radius(t.Radius+t.Space(0.5)).
 		Border(1, t.Border).
 		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
 	panel.Children(func() {
@@ -685,8 +688,12 @@ func (g *Gallery) codePanel(c *ui.Context, d samples.ControlPage) {
 		body.Children(func() {
 			s := d.Samples[g.codeTab]
 			st := ui.Local(panel, "gallery.codeview."+d.Name+"."+s.Title, func() editor.State {
+				buf := editor.NewBuffer(s.Code)
+				// 示例代码均为 Go：设置语言启用语法高亮
+				//（关键字/字符串/注释等按编辑器默认 GitHub 配色着色）。
+				buf.SetLanguage(editor.LanguageNamed("go"))
 				return editor.State{
-					Buffer:       editor.NewBuffer(s.Code),
+					Buffer:       buf,
 					ReadOnly:     true,
 					NoActiveLine: true,
 				}
@@ -836,8 +843,10 @@ func (g *Gallery) homePage(c *ui.Context) {
 				body := ui.Column(c).FillWidth().Background(t.Background)
 				body.Children(func() {
 					st := ui.Local(code, "gallery.quickstart", func() editor.State {
+						buf := editor.NewBuffer(truncateCode(quickStartCode, 14, "完整示例见 README 快速开始"))
+						buf.SetLanguage(editor.LanguageNamed("go"))
 						return editor.State{
-							Buffer:       editor.NewBuffer(truncateCode(quickStartCode, 14, "完整示例见 README 快速开始")),
+							Buffer:       buf,
 							ReadOnly:     true,
 							NoActiveLine: true,
 							FitContent:   true,
@@ -849,7 +858,6 @@ func (g *Gallery) homePage(c *ui.Context) {
 		})
 	})
 }
-
 
 // comparePane 并排对比中的一栏：小标题 + 局部主题容器。
 func (g *Gallery) comparePane(c *ui.Context, label string, dark bool, density theme.Density, view func(*ui.Context)) {

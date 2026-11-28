@@ -46,8 +46,10 @@ func registerAllDemos() {
 }
 
 // TestGalleryAuditScreenshots 在 GALLERY_CAPTURE=1 时把 Gallery 首页与
-// 每个控件页渲染成 PNG，输出到 images/gallery/，供视觉审查
-// （.workbuddy/skills/visual-audit 的工作流 C）。
+// 每个控件页（samples.Pages() 全量）渲染成 PNG，输出到 images/gallery/，
+// 供视觉审查（.agents/skills/visual-audit 的工作流 C）。
+// 注意必须按 Pages() 的控件页名选页：demo 分组名（如「输入框」）不是页名，
+// 用它设置 g.selected 会匹配失败、回退到首页，导致多页截图内容重复。
 //
 // 用法：
 //
@@ -81,21 +83,21 @@ func TestGalleryAuditScreenshots(t *testing.T) {
 		g := NewGallery()
 		g.dark = cb.dark
 		g.brand = ""
-		pages += capturePage(t, g, "", "gallery-home-"+cb.name, out, width, height)
+		pages += capturePage(t, g, "gallery-home-"+cb.name, out, width, height)
 
-		// 每个控件页。
-		for _, d := range samples.All() {
+		// 每个控件页（samples.Pages 展开后的全部页面）。
+		for _, d := range samples.Pages() {
 			g := NewGallery()
 			g.dark = cb.dark
 			g.brand = ""
 			g.selected = d.Name
-			pages += capturePage(t, g, d.Name, "gallery-"+d.Name+"-"+cb.name, out, width, height)
+			pages += capturePage(t, g, "gallery-"+d.Name+"-"+cb.name, out, width, height)
 		}
 	}
 	t.Logf("已输出 %d 张 Gallery 审查截图到 %s", pages, out)
 }
 
-func capturePage(t *testing.T, g *Gallery, page, name, out string, w, h int) int {
+func capturePage(t *testing.T, g *Gallery, name, out string, w, h int) int {
 	t.Helper()
 	tt := ui.NewTester(g.View, w, h)
 	tt.Frame()

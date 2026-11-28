@@ -10,15 +10,12 @@ package main
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/egoist/mygo/ui"
-	"github.com/egoist/mygo/ui/editor"
-
 	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	"github.com/lishuangquan1987/mygo-antdesign/theme"
 	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
+	"strings"
 )
 
 // 品牌色候选（antd 常用色系演示）。
@@ -31,37 +28,6 @@ var brandColors = []struct {
 	{"青柠", "#13c2c2"},
 	{"洋红", "#eb2f96"},
 }
-
-// quickStartCode 首页「快速开始」展示的最小示例（与 README 快速开始同源）。
-const quickStartCode = `go get github.com/lishuangquan1987/mygo-antdesign@v0.5.0
-
-// 运行示例应用：go run ./gallery
-package main
-
-import (
-	"github.com/egoist/mygo"
-	"github.com/egoist/mygo/ui"
-
-	"github.com/lishuangquan1987/mygo-antdesign/theme"
-	widgets "github.com/lishuangquan1987/mygo-antdesign/widgets"
-)
-
-func main() {
-	remember := false
-	mygo.App.WhenReady(func() {
-		mygo.NewWindow(mygo.WindowOptions{Title: "登录", Width: 420, Height: 320,
-			Content: ui.View(func(c *ui.Context) {
-				theme.Apply(c, theme.Light())
-				widgets.Title(c, "登录", widgets.H2)
-				widgets.Checkbox(c, &remember, "记住我")
-				widgets.Button(c, "登录", widgets.Primary())
-			}),
-		})
-	})
-	if err := mygo.App.Run(); err != nil {
-		log.Fatal(err)
-	}
-}`
 
 // 对比模式。
 const (
@@ -243,149 +209,6 @@ func toolGroup(c *ui.Context, label string, body func()) ui.Element {
 		body()
 	})
 	return group
-}
-
-// sidebar 左侧：品牌、搜索、分类目录与统计。
-func (g *Gallery) sidebar(c *ui.Context) {
-	t := c.Theme()
-	side := ui.Column(c).Width(t.Space(64)).FillHeight().
-		Background(t.Surface).
-		Border(1, t.Border).BorderWidth(0, 1, 0, 0)
-
-	side.Children(func() {
-		// 品牌区：Logo 标 + 双色字标 + 副标语。
-		brand := ui.Column(c).FillWidth().
-			Padding(t.Space(5), t.Space(4), t.Space(4), t.Space(4)).
-			Gap(t.Space(2))
-		brand.Children(func() {
-			row := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
-			row.Children(func() {
-				logo := ui.Column(c).Size(t.Space(7), t.Space(7)).
-					Radius(t.Radius + t.Space(0.5)).
-					Background(t.Accent).
-					Center()
-				logo.Children(func() {
-					icon.Icon(c, icon.Appstore, t.Space(4), icon.WithColor(ui.Hex("#fff")))
-				})
-				ui.Text(c, "mygo").FontWeight(700).FontSize(t.Rem(1.21)).TextColor(t.Text)
-				ui.Text(c, "antdesign").FontWeight(700).FontSize(t.Rem(1.21)).TextColor(t.Accent)
-			})
-			ui.Text(c, "Ant Design · MyGo 原生 UI").TextColor(t.TextMuted).FontSize(t.Rem(0.72))
-		})
-
-		// 搜索框：复用库自身的 Input（antd Input 规范：容器底描边、
-		// 聚焦主色描边 + 2px 焦点环），前缀搜索图标，后缀 allowClear。
-		// 宽度用显式值（侧栏 Space(64) - 左右各 Space(4)）：
-		// FillWidth 百分比按父容器全宽解析，Margin/Padding 都约束不住，
-		// 会右侧溢出、边框压到分隔线。
-		widgets.Input(c, &g.query,
-			widgets.InputPrefix(func(c *ui.Context) {
-				icon.Icon(c, icon.Search, t.Space(4), icon.WithColor(t.TextMuted))
-				pad := ui.Box(c).Width(t.Space(1))
-				pad.Children(func() {})
-			}),
-			widgets.InputSuffix(func(c *ui.Context) {
-				if g.query == "" {
-					return
-				}
-				clr := ui.ButtonBase(c).Size(t.Space(4), t.Space(4)).Center().Radius(t.Space(2)).Label("清空搜索")
-				clr.Children(func() {
-					icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted))
-				})
-				if clr.Clicked() {
-					g.query = ""
-				}
-			}),
-			widgets.PlaceholderText("搜索控件 / 分类"),
-			widgets.InputLabel("搜索控件"),
-		).Width(t.Space(56)).Margin(0, t.Space(4))
-
-		// 目录。
-		ui.Scroll(c).Fill().Grow(1).Children(func() {
-			nav := ui.Column(c).FillWidth().
-				Padding(0, t.Space(1)).
-				Gap(t.Space(0.5))
-			nav.Children(func() {
-				filtered := g.filtered()
-
-				// 「开始」入口固定在目录最上方。
-				g.navItem(c, homeName, homeName == g.selected, 0)
-
-				if len(filtered) == 0 {
-					empty := ui.Column(c).FillWidth().Padding(t.Space(4), t.Space(2)).Gap(t.Space(1))
-					empty.Children(func() {
-						ui.Text(c, "未找到匹配的控件").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
-						ui.Text(c, "试试「Button」「表格」「反馈」").TextColor(t.TextMuted).FontSize(t.Rem(0.72))
-					})
-					return
-				}
-				for _, cat := range categories {
-					var group []samples.ControlPage
-					for _, p := range filtered {
-						if p.Category == cat {
-							group = append(group, p)
-						}
-					}
-					if len(group) == 0 {
-						continue
-					}
-					head := ui.Row(c).FillWidth().
-						Justify(ui.SpaceBetween).
-						Padding(t.Space(2), t.Space(3), t.Space(1), t.Space(3))
-					head.Children(func() {
-						ui.Text(c, string(cat)).TextColor(t.TextMuted).FontSize(t.Rem(0.75)).FontWeight(600)
-						ui.Textf(c, "%d 控件", len(group)).TextColor(t.TextMuted).FontSize(t.Rem(0.72))
-					})
-					for _, p := range group {
-						g.navItem(c, p.Name, p.Name == g.selected, len(p.Samples))
-					}
-				}
-			})
-		})
-
-		// 底部统计。
-		footer := ui.Column(c).FillWidth().
-			Padding(t.Space(3), t.Space(5)).
-			Gap(t.Space(0.5)).
-			Border(1, t.Border).BorderWidth(1, 0, 0, 0)
-		footer.Children(func() {
-			ui.Textf(c, "%d 个控件 · %d 个示例", len(samples.Pages()), samples.FragmentCount()).
-				TextColor(t.TextMuted).FontSize(t.Rem(0.7))
-			ui.Text(c, "MIT License · "+version).TextColor(t.TextMuted).FontSize(t.Rem(0.7))
-		})
-	})
-}
-
-// navItem 侧栏目录里的一项（对齐 antd Menu：40px 项高、8px 圆角、
-// 选中浅主色底 + 主色文字，hover 出浅填充；无左侧指示条）。
-func (g *Gallery) navItem(c *ui.Context, name string, selected bool, samples int) {
-	t := c.Theme()
-	item := ui.ButtonBase(c).FillWidth().
-		Height(t.Space(10)).
-		Padding(0, t.Space(3)).
-		Radius(t.Radius + t.Space(0.5)).
-		AlignItems(ui.Center)
-	if selected {
-		item.Background(t.Selection)
-	} else if item.Hovered() {
-		item.Background(t.SurfaceHover)
-	}
-	item.Children(func() {
-		ui.Text(c, name).
-			TextColor(map[bool]ui.Color{true: t.Accent, false: t.Text}[selected]).
-			FontSize(t.Rem(0.9)).
-			SingleLine().
-			Grow(1)
-		if samples > 0 {
-			ui.Textf(c, "%d 例", samples).
-				TextColor(t.TextMuted).
-				FontSize(t.Rem(0.7))
-		}
-	})
-	if item.Clicked() {
-		g.selected = name
-		g.codeTab = 0
-	}
 }
 
 // header 右侧标题区：面包屑、标题、简介与工具条。
@@ -571,6 +394,18 @@ func (g *Gallery) previews(c *ui.Context, d samples.ControlPage) {
 		return
 	}
 	grid.Children(func() {
+		// 对比模式：一次只展示当前示例（上下两栏各占一半面板），否则
+		// 一格卡片高度不足以同时放下两种主题的预览。示例用下方页签切换。
+		if g.compare != compareNone {
+			if g.codeTab >= n {
+				g.codeTab = 0
+			}
+			row := ui.Row(c).FillWidth().Fill()
+			row.Children(func() {
+				g.statePanel(c, g.codeTab, d.Samples[g.codeTab])
+			})
+			return
+		}
 		rows := (n + 1) / 2
 		for i := 0; i < n; i += 2 {
 			end := i + 2
@@ -619,8 +454,8 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 		body.Children(func() {
 			switch g.compare {
 			case compareTheme:
-				// 两个子面板上下堆叠（横排每面板仅约 264px，宽内容必截断），
-				// 整体超高由 body 层的滚动兜底（见 body 定义处）。
+				// 两个子面板上下平分高度（横排每面板仅约 264px，宽内容必截断）；
+				// 各自内容超出时由 comparePane 内部的 Scroll 滚动，不再截断。
 				col := ui.Column(c).Fill().Gap(t.Space(2))
 				col.Children(func() {
 					g.comparePane(c, "亮色", false, g.density, s.View)
@@ -645,241 +480,6 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 					})
 				}
 			}
-		})
-	})
-}
-
-// codePanel 下方代码区：antd Tabs 切换该控件的全部示例，选中示例的
-// 完整代码在编辑器中展示，编辑器撑满剩余高度（内部滚动）。
-func (g *Gallery) codePanel(c *ui.Context, d samples.ControlPage) {
-	t := c.Theme()
-	panel := ui.Column(c).Fill().
-		Background(t.Surface).
-		Radius(t.Radius+t.Space(0.5)).
-		Border(1, t.Border).
-		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
-	panel.Children(func() {
-		// 页头：示例标签页 + 复制按钮。
-		if g.codeTab >= len(d.Samples) {
-			g.codeTab = 0
-		}
-		head := ui.Row(c).FillWidth().
-			Padding(t.Space(1), t.Space(4), 0, t.Space(4)).
-			AlignItems(ui.Center).
-			Justify(ui.SpaceBetween).
-			Border(1, t.Border).BorderWidth(0, 0, 1, 0)
-		head.Children(func() {
-			titles := make([]string, len(d.Samples))
-			for i, s := range d.Samples {
-				titles[i] = s.Title
-			}
-			widgets.Tabs(c, &g.codeTab, titles...)
-			if widgets.Button(c, "复制代码", widgets.Size(widgets.Small), widgets.Text()).Clicked() {
-				c.WriteClipboard(d.Samples[g.codeTab].Code)
-				c.Toast("代码已复制")
-			}
-		})
-
-		// 代码正文：完整代码，编辑器撑满剩余空间（内部滚动）。
-		// 编辑器原语固定绘制主题 Background（暗色为页面底 #000），
-		// 这里对暗色用局部主题把编辑器底切到容器色 #141414，
-		// 对齐 antd dark 的容器层级（代码区属于容器，不该比页面更暗）。
-		body := ui.Column(c).Fill().Grow(1)
-		body.Children(func() {
-			s := d.Samples[g.codeTab]
-			st := ui.Local(panel, "gallery.codeview."+d.Name+"."+s.Title, func() editor.State {
-				buf := editor.NewBuffer(s.Code)
-				// 示例代码均为 Go：设置语言启用语法高亮
-				//（关键字/字符串/注释等按编辑器默认 GitHub 配色着色）。
-				buf.SetLanguage(editor.LanguageNamed("go"))
-				return editor.State{
-					Buffer:       buf,
-					ReadOnly:     true,
-					NoActiveLine: true,
-				}
-			})
-			if t.Dark {
-				// 编辑器原语绘制主题 Background（暗色=页面底 #000），
-				// 代码区属于容器层级：用局部主题把 BgLayout 提到容器色
-				// #141414（不能拷贝 ui.Theme 结构体——会使编辑器渲染
-				// 异常，必须走 AntToken → theme.Sub 正规通道）。
-				etk := g.token()
-				etk.BgLayout = etk.BgContainer
-				theme.Sub(c, etk).Fill().Children(func() {
-					widgets.CodeEditor(c, st).Fill()
-				})
-			} else {
-				widgets.CodeEditor(c, st).Fill()
-			}
-		})
-	})
-}
-
-// homePage 首页：品牌主视觉 + 特性卡片 + 统计 + 快速开始。
-func (g *Gallery) homePage(c *ui.Context) {
-	t := c.Theme()
-	controls := len(samples.Pages())
-	fragments := samples.FragmentCount()
-
-	ui.Scroll(c).Fill().Children(func() {
-		col := ui.Column(c).FillWidth().Padding(t.Space(10), t.Space(14)).Gap(t.Space(8))
-
-		// 主视觉：品牌色浅底 Hero 横幅（对齐 antd 首页 hero 形制）。
-		col.Children(func() {
-			hero := ui.Column(c).FillWidth().
-				Padding(t.Space(10), t.Space(9)).
-				Radius(t.Radius+t.Space(0.5)).
-				Background(t.Accent.Alpha(0.05)).
-				Border(1, t.Accent.Alpha(0.14)).
-				Gap(t.Space(3))
-			hero.Children(func() {
-				meta := ui.Row(c)
-				meta.Children(func() {
-					widgets.Tag(c, "v"+version+" · MIT · 开箱即用", widgets.TagPrimary())
-				})
-				row := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
-				row.Children(func() {
-					ui.Text(c, "mygo").FontWeight(700).FontSize(t.Rem(2.86)).TextColor(t.Text)
-					ui.Text(c, "antdesign").FontWeight(700).FontSize(t.Rem(2.86)).TextColor(t.Accent)
-				})
-				ui.Text(c, "Ant Design 风格的 MyGo 原生控件库").FontSize(t.Rem(1.29)).TextColor(t.TextMuted)
-				ui.Text(c, "为 MyGo 原生 UI 提供 antd v5 视觉与交互，补齐 antd 有而 MyGo 没有的控件；亮暗双主题、标准/紧凑双密度，全部控件配真实代码示例与截图基线。").
-					TextColor(t.TextMuted).FontSize(t.Rem(1.0))
-				actions := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(3)).Margin(t.Space(2), 0, 0, 0)
-				actions.Children(func() {
-					if widgets.Button(c, "浏览控件", widgets.Primary(), widgets.Size(widgets.Large)).Clicked() {
-						g.selected = "Button"
-					}
-					widgets.Hyperlink(c, "GitHub 仓库", "https://github.com/lishuangquan1987/mygo-antdesign").
-						FontSize(t.Rem(1.0))
-				})
-			})
-		})
-
-		// 统计数值：antd Statistic 左对齐形制。
-		col.Children(func() {
-			row := ui.Row(c).FillWidth().Gap(t.Space(4))
-			row.Children(func() {
-				for _, st := range []struct {
-					title string
-					value float64
-				}{
-					{"控件构造函数", 144},
-					{"控件示例页", float64(controls)},
-					{"示例片段", float64(fragments)},
-					{"截图基线", 324},
-				} {
-					card := ui.Column(c).Grow(1).
-						Padding(t.Space(6), t.Space(5)).
-						Radius(t.Radius+t.Space(0.5)).
-						Background(t.Surface).
-						Border(1, t.Border).
-						Gap(t.Space(1))
-					card.Children(func() {
-						widgets.Statistic(c, st.title, st.value)
-					})
-				}
-			})
-		})
-
-		// 特性卡片：图标色块 + 2×2 等宽网格。
-		col.Children(func() {
-			row := ui.Row(c).FillWidth().Gap(t.Space(4)).Wrap()
-			row.Children(func() {
-				for _, f := range []struct {
-					icon  string
-					title string
-					desc  string
-				}{
-					{icon.Eye, "主题切换", "亮/暗、品牌色、字号运行时切换，所有控件同步生效。"},
-					{icon.Menu, "双密度", "标准 32px / 紧凑 28px 控件高度，适配上位机与 IDE 场景。"},
-					{icon.Appstore, "缺口补齐", "antd 有而 MyGo 没有的 35 个控件全部自建实现。"},
-					{icon.Copy, "视觉回归", "3 张 Gallery + 324 张逐示例截图基线，CI 逐字节比对。"},
-				} {
-					card := ui.Column(c).Grow(1).Width(t.Space(96)).
-						Padding(t.Space(6)).
-						Radius(t.Radius+t.Space(0.5)).
-						Background(t.Surface).
-						Border(1, t.Border).
-						Gap(t.Space(2))
-					card.Children(func() {
-						head := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
-						head.Children(func() {
-							tile := ui.Column(c).Size(t.Space(7), t.Space(7)).
-								Radius(t.Radius).
-								Background(t.Accent.Alpha(0.1)).
-								Center()
-							tile.Children(func() {
-								icon.Icon(c, f.icon, t.Space(4), icon.WithColor(t.Accent))
-							})
-							ui.Text(c, f.title).FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
-						})
-						ui.Text(c, f.desc).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
-					})
-				}
-			})
-		})
-
-		// 快速开始：语法高亮的只读代码视图（预览前 14 行，完整示例见 README）。
-		col.Children(func() {
-			code := ui.Column(c).FillWidth().
-				Radius(t.Radius+t.Space(0.5)).
-				Background(t.Surface).
-				Border(1, t.Border).
-				Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
-			code.Children(func() {
-				head := ui.Row(c).FillWidth().
-					Padding(t.Space(3), t.Space(6)).
-					Justify(ui.SpaceBetween).
-					AlignItems(ui.Center).
-					Border(1, t.Border).BorderWidth(0, 0, 1, 0)
-				head.Children(func() {
-					ui.Text(c, "快速开始").FontSize(t.Rem(1.14)).FontWeight(600).TextColor(t.Text)
-					ui.Text(c, "Go").TextColor(t.TextMuted).FontSize(t.Rem(0.75)).FontWeight(600).
-						Padding(t.Space(0.5), t.Space(2)).
-						Radius(t.Space(2)).
-						Background(t.Background)
-				})
-				body := ui.Column(c).FillWidth().Background(t.Background)
-				body.Children(func() {
-					st := ui.Local(code, "gallery.quickstart", func() editor.State {
-						buf := editor.NewBuffer(truncateCode(quickStartCode, 14, "完整示例见 README 快速开始"))
-						buf.SetLanguage(editor.LanguageNamed("go"))
-						return editor.State{
-							Buffer:       buf,
-							ReadOnly:     true,
-							NoActiveLine: true,
-							FitContent:   true,
-						}
-					})
-					widgets.CodeEditor(c, st).FillWidth()
-				})
-			})
-		})
-	})
-}
-
-// comparePane 并排对比中的一栏：小标题 + 局部主题容器。
-func (g *Gallery) comparePane(c *ui.Context, label string, dark bool, density theme.Density, view func(*ui.Context)) {
-	t := c.Theme()
-	tk := g.tokenOf(dark, density)
-	pane := ui.Column(c).FillWidth().Grow(1).Gap(t.Space(1))
-	pane.Children(func() {
-		ui.Text(c, label).TextColor(t.TextMuted).FontSize(t.Rem(0.8)).FontWeight(500)
-		// 子主题面板：底色/描边跟随各自主题（暗色面板用 BgContainer，
-		// 不再用外层 Surface，避免暗色内容衬白底）；纵向撑满面板剩余
-		// 空间，内容水平居中。
-		// 纵向内边距收紧（子面板高度有限，Space(4) 上下会让内容溢出
-		// 底边），内容水平+垂直居中。
-		sub := theme.Sub(c, tk).
-			FillWidth().Grow(1).
-			Padding(t.Space(0.5), t.Space(4)).
-			Radius(t.Radius).
-			Background(tk.BgContainer).
-			Border(1, tk.Border)
-		sub.AlignItems(ui.Center).Justify(ui.Center)
-		sub.Children(func() {
-			view(c)
 		})
 	})
 }

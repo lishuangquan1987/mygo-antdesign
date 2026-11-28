@@ -133,11 +133,15 @@ func SidebarDemo(c *ui.Context) {
 	host := ui.Column(c).FillWidth().Height(c.Theme().Space(44))
 	chosen := ui.Local(host, "ant.sample.nav.sidebar", func() string { return "inbox" })
 	host.Children(func() {
-		widgets.Sidebar(c, chosen, func() {
-			widgets.SidebarSection(c, "邮件", nil, func() {
-				widgets.SidebarItem(c, "inbox", "收件箱")
-				widgets.SidebarItem(c, "sent", "已发送")
-				widgets.SidebarItem(c, "draft", "草稿箱")
+		// 侧栏宽 192px，居中摆放避免贴左、右侧大面积空白。
+		row := ui.Row(c).FillWidth().FillHeight().Justify(ui.Center)
+		row.Children(func() {
+			widgets.Sidebar(c, chosen, func() {
+				widgets.SidebarSection(c, "邮件", nil, func() {
+					widgets.SidebarItem(c, "inbox", "收件箱")
+					widgets.SidebarItem(c, "sent", "已发送")
+					widgets.SidebarItem(c, "draft", "草稿箱")
+				})
 			})
 		})
 	})

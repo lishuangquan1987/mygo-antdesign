@@ -126,9 +126,9 @@ func Result(c *ui.Context, status ResultStatus, title string, opts ...ResultOpti
 		holder.Children(func() {
 			icon.Icon(c, tip, t.Space(9), icon.WithColor(color))
 		})
-		ui.Text(c, title).FontSize(t.Rem(1.71)).FontWeight(600).TextColor(t.Text)
+		ui.Text(c, title).FontSize(t.Rem(1.71)).FontWeight(600).TextColor(t.Text).SingleLine()
 		if cfg.subTitle != "" {
-			ui.Text(c, cfg.subTitle).TextColor(t.TextMuted).FontSize(t.FontSize)
+			ui.Text(c, cfg.subTitle).TextColor(t.TextMuted).FontSize(t.FontSize).SingleLine()
 		}
 		if cfg.extra != nil {
 			row := ui.Row(c).Gap(t.Space(2)).Padding(t.Space(4), 0, 0, 0)

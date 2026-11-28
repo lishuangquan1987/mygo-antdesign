@@ -100,7 +100,9 @@ const (
 
 // NewGallery 创建 Gallery。
 func NewGallery() *Gallery {
-	return &Gallery{density: theme.Comfortable, brand: brandColors[0].hex, selected: homeName}
+	// brand 为空表示跟随 antd 预设主色（亮 #1677ff / 暗 #1668dc），
+	// 不固定为拂晓蓝，否则暗色下主色无法切换到规范值。
+	return &Gallery{density: theme.Comfortable, selected: homeName}
 }
 
 // homeName 首页在侧栏中的名字（g.selected == homeName 时展示首页）。
@@ -179,7 +181,9 @@ func (g *Gallery) View(c *ui.Context) {
 	theme.Apply(c, g.token())
 	ui.Row(c).Fill().Children(func() {
 		g.sidebar(c)
-		ui.Column(c).Fill().Grow(1).Children(func() {
+		// 内容区显式用页面底色（antd colorBgLayout：亮 #f5f5f5 / 暗 #000），
+		// 让面板容器（Surface：白 / #141414）形成层级对比。
+		ui.Column(c).Fill().Grow(1).Background(c.Theme().Background).Children(func() {
 			if g.selected == homeName {
 				g.homePage(c)
 				return
@@ -472,7 +476,7 @@ func (g *Gallery) tools(c *ui.Context) {
 			toolGroup(c, "品牌色", func() {
 				swatches := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(1))
 				swatches.Children(func() {
-					for _, bc := range brandColors {
+					for i, bc := range brandColors {
 						bc := bc
 						sw := ui.ButtonBase(c).
 							Size(t.Space(5), t.Space(5)).
@@ -480,7 +484,9 @@ func (g *Gallery) tools(c *ui.Context) {
 							Background(ui.Hex(bc.hex)).
 							Center().
 							Label("品牌色·" + bc.name)
-						on := g.brand == bc.hex
+						// 第一个色板（拂晓蓝）即 antd 默认：选中它等于清空
+						// 覆盖，跟随主题预设（暗色自动切 #1668dc）。
+						on := (i == 0 && g.brand == "") || g.brand == bc.hex
 						if on {
 							// 选中态对齐 antd ColorPicker：白色对勾 + 1px 描边环。
 							sw.Shadow(0, 0, 0, 1, t.Border)
@@ -491,7 +497,11 @@ func (g *Gallery) tools(c *ui.Context) {
 							}
 						})
 						if sw.Clicked() {
-							g.brand = bc.hex
+							if i == 0 {
+								g.brand = ""
+							} else {
+								g.brand = bc.hex
+							}
 						}
 					}
 				})
@@ -602,19 +612,20 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 				SingleLine().Grow(1)
 		})
 		body := ui.Column(c).Fill().Grow(1).
-			Padding(t.Space(5)).
-			Center()
+			Padding(t.Space(5))
 		body.Children(func() {
 			switch g.compare {
 			case compareTheme:
-				row := ui.Row(c).FillWidth().FillHeight().Gap(t.Space(4)).AlignItems(ui.Stretch)
-				row.Children(func() {
+				// 两个子面板上下堆叠（横排每面板仅约 264px，宽内容必截断），
+				// 整体超高由 body 层的滚动兜底（见 body 定义处）。
+				col := ui.Column(c).Fill().Gap(t.Space(2))
+				col.Children(func() {
 					g.comparePane(c, "亮色", false, g.density, s.View)
 					g.comparePane(c, "暗色", true, g.density, s.View)
 				})
 			case compareDensity:
-				row := ui.Row(c).FillWidth().FillHeight().Gap(t.Space(4)).AlignItems(ui.Stretch)
-				row.Children(func() {
+				col := ui.Column(c).Fill().Gap(t.Space(2))
+				col.Children(func() {
 					g.comparePane(c, "标准密度", g.dark, theme.Comfortable, s.View)
 					g.comparePane(c, "紧凑密度", g.dark, theme.Compact, s.View)
 				})
@@ -625,7 +636,10 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 						s.View(c)
 					})
 				} else {
-					s.View(c)
+					host := ui.Column(c).Fill().Center()
+					host.Children(func() {
+						s.View(c)
+					})
 				}
 			}
 		})
@@ -664,7 +678,10 @@ func (g *Gallery) codePanel(c *ui.Context, d samples.ControlPage) {
 		})
 
 		// 代码正文：完整代码，编辑器撑满剩余空间（内部滚动）。
-		body := ui.Column(c).Fill().Grow(1).Background(t.Background)
+		// 编辑器原语固定绘制主题 Background（暗色为页面底 #000），
+		// 这里对暗色用局部主题把编辑器底切到容器色 #141414，
+		// 对齐 antd dark 的容器层级（代码区属于容器，不该比页面更暗）。
+		body := ui.Column(c).Fill().Grow(1)
 		body.Children(func() {
 			s := d.Samples[g.codeTab]
 			st := ui.Local(panel, "gallery.codeview."+d.Name+"."+s.Title, func() editor.State {
@@ -674,7 +691,19 @@ func (g *Gallery) codePanel(c *ui.Context, d samples.ControlPage) {
 					NoActiveLine: true,
 				}
 			})
-			widgets.CodeEditor(c, st).Fill()
+			if t.Dark {
+				// 编辑器原语绘制主题 Background（暗色=页面底 #000），
+				// 代码区属于容器层级：用局部主题把 BgLayout 提到容器色
+				// #141414（不能拷贝 ui.Theme 结构体——会使编辑器渲染
+				// 异常，必须走 AntToken → theme.Sub 正规通道）。
+				etk := g.token()
+				etk.BgLayout = etk.BgContainer
+				theme.Sub(c, etk).Fill().Children(func() {
+					widgets.CodeEditor(c, st).Fill()
+				})
+			} else {
+				widgets.CodeEditor(c, st).Fill()
+			}
 		})
 	})
 }
@@ -825,15 +854,24 @@ func (g *Gallery) homePage(c *ui.Context) {
 // comparePane 并排对比中的一栏：小标题 + 局部主题容器。
 func (g *Gallery) comparePane(c *ui.Context, label string, dark bool, density theme.Density, view func(*ui.Context)) {
 	t := c.Theme()
-	pane := ui.Column(c).Grow(1).Gap(t.Space(1))
+	tk := g.tokenOf(dark, density)
+	pane := ui.Column(c).FillWidth().Grow(1).Gap(t.Space(1))
 	pane.Children(func() {
 		ui.Text(c, label).TextColor(t.TextMuted).FontSize(t.Rem(0.8)).FontWeight(500)
-		theme.Sub(c, g.tokenOf(dark, density)).
-			FillWidth().
-			Padding(t.Space(4)).
+		// 子主题面板：底色/描边跟随各自主题（暗色面板用 BgContainer，
+		// 不再用外层 Surface，避免暗色内容衬白底）；纵向撑满面板剩余
+		// 空间，内容水平居中。
+		// 纵向内边距收紧（子面板高度有限，Space(4) 上下会让内容溢出
+		// 底边），内容水平+垂直居中。
+		sub := theme.Sub(c, tk).
+			FillWidth().Grow(1).
+			Padding(t.Space(0.5), t.Space(4)).
 			Radius(t.Radius).
-			Background(t.Surface).
-			Border(1, t.Border).
-			Children(func() { view(c) })
+			Background(tk.BgContainer).
+			Border(1, tk.Border)
+		sub.AlignItems(ui.Center).Justify(ui.Center)
+		sub.Children(func() {
+			view(c)
+		})
 	})
 }

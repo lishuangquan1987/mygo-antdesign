@@ -51,7 +51,12 @@ func Checkbox(c *ui.Context, checked *bool, label string, opts ...ControlOption)
 		if cfg.disabled {
 			box.Disabled(true)
 		}
-		lbl := ui.Text(c, label).TextColor(t.Text).FontSize(t.FontSize)
+		// antd：禁用控件的标签降为次要色。
+		lblColor := t.Text
+		if cfg.disabled {
+			lblColor = t.TextMuted
+		}
+		lbl := ui.Text(c, label).TextColor(lblColor).FontSize(t.FontSize)
 		if !cfg.disabled && lbl.Clicked() {
 			*checked = !*checked
 			if cfg.onChg != nil {
@@ -145,7 +150,12 @@ func SwitchWithLabel(c *ui.Context, on *bool, label string, opts ...ControlOptio
 	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
 	row.Children(func() {
 		switchControl(c, on, cfg)
-		lbl := ui.Text(c, label).TextColor(t.Text).FontSize(t.FontSize)
+		// antd：禁用控件的标签降为次要色。
+		lblColor := t.Text
+		if cfg.disabled {
+			lblColor = t.TextMuted
+		}
+		lbl := ui.Text(c, label).TextColor(lblColor).FontSize(t.FontSize)
 		if !cfg.disabled && lbl.Clicked() {
 			*on = !*on
 			if cfg.onChg != nil {
@@ -202,9 +212,44 @@ func Segmented(c *ui.Context, selected *int, labels []string, opts ...ControlOpt
 	for _, o := range opts {
 		o(cfg)
 	}
-	el := ui.Segmented(c, selected, labels...)
-	applyControl(el, cfg)
-	return el
+	// 自绘 antd Segmented：灰底承托容器、选中项白底 + 描边 + 轻阴影
+	// （MyGo 原生 Segmented 为系统样式：白底容器、选中灰底，与 antd 相反）。
+	t := c.Theme()
+	group := ui.Row(c).
+		Padding(t.Space(0.5)).
+		Radius(t.Radius + t.Space(0.5)).
+		Background(t.Background).
+		AlignItems(ui.Center)
+	group.Children(func() {
+		for i, lb := range labels {
+			i, lb := i, lb
+			it := ui.ButtonBase(c).
+				Height(t.Space(7)).
+				Padding(0, t.Space(3)).
+				Radius(t.Radius * 0.67).
+				Center()
+			if *selected == i {
+				it.Background(t.Surface)
+				it.Border(1, t.Border)
+				it.Shadow(0, 1, 2, 0, t.Text.Alpha(0.08))
+				it.Children(func() {
+					ui.Text(c, lb).TextColor(t.Text).FontSize(t.FontSize).FontWeight(500)
+				})
+			} else {
+				it.Children(func() {
+					ui.Text(c, lb).TextColor(t.TextMuted).FontSize(t.FontSize)
+				})
+			}
+			if it.Clicked() {
+				*selected = i
+				if cfg.onChg != nil {
+					cfg.onChg()
+				}
+			}
+		}
+	})
+	applyControl(group, cfg)
+	return group
 }
 
 // Select 下拉选择（antd Select）。selected 与 options 由调用方持有；自绘

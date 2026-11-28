@@ -117,8 +117,10 @@ func SearchDemo(c *ui.Context) {
 	q := ui.Local(col, "ant.sample.input.q", func() string { return "" })
 	port := ui.Local(col, "ant.sample.input.port", func() float64 { return 8080 })
 	col.Children(func() {
-		widgets.SearchInput(c, q, widgets.PlaceholderText("搜索…"), widgets.InputLabel("搜索"), widgets.OnSubmit(func() {}))
-		widgets.NumberInputV(c, port, 1, 65535, 1, widgets.InputLabel("端口"))
+		widgets.SearchInput(c, q, widgets.PlaceholderText("搜索…"), widgets.OnSubmit(func() {}))
+		widgets.NumberInputV(c, port, 1, 65535, 1, widgets.InputPrefix(func(c *ui.Context) {
+			ui.Text(c, "端口").TextColor(c.Theme().TextMuted).Shrink(0)
+		}))
 	})
 }
 

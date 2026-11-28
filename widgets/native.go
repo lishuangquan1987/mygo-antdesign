@@ -1,9 +1,12 @@
 package ant
 
 import (
+	"math"
 	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
 // Hyperlink 文字链接（antd Typography.Link）：主色文字，点击打开 URL。
@@ -43,7 +46,43 @@ func SearchField(c *ui.Context, query *string, opts ...ControlOption) ui.Element
 //
 //	ant.Stepper(c, &app.count, 0, 100, 1)
 func Stepper(c *ui.Context, value *float64, lo, hi, step float64, opts ...ControlOption) ui.Element {
-	return applyControlOpts(ui.Stepper(c, value, lo, hi, step), opts)
+	t := c.Theme()
+	// antd InputNumber 形态：左侧数值 + 右侧上下箭头（MyGo 原生
+	// Stepper 是 macOS 风格 20px 竖排箭头、无数值区，与 antd 相差大）。
+	clamp := func(v float64) float64 {
+		v = math.Max(lo, math.Min(hi, v))
+		return math.Round(v/step)*step - 0 // 吸附步长
+	}
+	row := ui.Row(c).
+		Height(internal.ControlHeight(t, internal.SizeMiddle)).
+		Padding(0, t.Space(1), 0, t.Space(2)).
+		Radius(t.Radius).
+		Border(1, t.Border).
+		Background(t.Surface).
+		AlignItems(ui.Center).
+		Gap(t.Space(1))
+	row.Children(func() {
+		ui.Textf(c, "%g", *value).TextColor(t.Text).FontSize(t.FontSize).Grow(1)
+		arrows := ui.Column(c)
+		arrows.Children(func() {
+			up := ui.ButtonBase(c).Size(t.Space(4), t.Space(3)).Center().Label("增加")
+			up.Children(func() {
+				ui.Text(c, "▲").TextColor(t.TextMuted).FontSize(t.Rem(0.6)).SingleLine()
+			})
+			if up.Clicked() {
+				*value = clamp(*value + step)
+			}
+			down := ui.ButtonBase(c).Size(t.Space(4), t.Space(3)).Center().Label("减少")
+			down.Children(func() {
+				ui.Text(c, "▼").TextColor(t.TextMuted).FontSize(t.Rem(0.6)).SingleLine()
+			})
+			if down.Clicked() {
+				*value = clamp(*value - step)
+			}
+		})
+	})
+	applyControlOpts(row, opts)
+	return row
 }
 
 // Calendar 月历（antd Calendar）：浏览 + 选择日期：

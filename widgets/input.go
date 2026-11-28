@@ -69,7 +69,8 @@ func inputFrame(c *ui.Context, t *ui.Theme, cfg *inputConfig) ui.Element {
 		Padding(0, internal.ControlPaddingX(t, cfg.size)).
 		Radius(t.Radius).
 		Background(t.Surface).
-		AlignItems(ui.Center)
+		AlignItems(ui.Center).
+		Gap(t.Space(1))
 	if cfg.disabled {
 		el.Background(t.Background).Border(1, t.Border)
 	} else {
@@ -226,6 +227,9 @@ func NumberInputV(c *ui.Context, value *float64, lo, hi, step float64, opts ...I
 	el := inputFrame(c, t, cfg)
 	var inp ui.Element
 	el.Children(func() {
+		if cfg.prefix != nil {
+			cfg.prefix(c)
+		}
 		// 外层 inputFrame 负责边框与内边距。
 		inp = ui.NumberInput(c, value, lo, hi, step).Grow(1).
 			Border(0, ui.Transparent).Padding(0).Radius(0).

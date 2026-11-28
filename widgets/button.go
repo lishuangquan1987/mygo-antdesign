@@ -91,12 +91,17 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 
 	t := c.Theme()
 	pal := internal.ButtonColors(t, string(cfg.typ), cfg.danger)
-	disabled := cfg.disabled || cfg.loading
+	// loading 态对齐 antd：按钮颜色（文字/背景）保持正常态，仅不可点；
+	// 置灰只用于真正的 disabled。
+	disabled := cfg.disabled
+	guard := disabled || cfg.loading
 
 	el := ui.ButtonBase(c).
 		Height(internal.ControlHeight(t, cfg.size)).
 		Padding(0, internal.ControlPaddingX(t, cfg.size)).
 		Radius(t.Radius).
+		// 图标（loading Spinner / 图标按钮）与文字的间距，antd 为 8px。
+		Gap(t.Space(2)).
 		Center()
 
 	if cfg.block {
@@ -104,8 +109,9 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 	}
 
 	// 即时模式状态：每帧查询 hover / pressed 后取对应颜色。
+	// loading 态不响应 hover/pressed（antd loading 按钮无状态反馈）。
 	bg, fg, border := pal.Bg, pal.Fg, pal.Border
-	if !disabled {
+	if !guard {
 		switch {
 		case el.Pressed():
 			bg, fg, border = pal.BgPressed, pal.FgPressed, pal.BorderPressed
@@ -137,7 +143,7 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 	if cfg.onClick != nil {
 		prev := ui.Local(el, "ant.button.clicked", func() bool { return false })
 		cur := el.Clicked()
-		if cur && !*prev && !disabled {
+		if cur && !*prev && !guard {
 			cfg.onClick()
 		}
 		*prev = cur

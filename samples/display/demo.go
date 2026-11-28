@@ -159,8 +159,10 @@ func CardDemo(c *ui.Context) {
 // sample:emptyresult
 func EmptyResultDemo(c *ui.Context) {
 	t := c.Theme()
-	row := ui.Row(c).Gap(t.Space(6)).AlignItems(ui.Start)
-	row.Children(func() {
+	// 纵向堆叠：Row 内百分比宽度子元素会被压缩，标题被迫截断；
+	// 堆叠后每个 Result 占满整行宽度。
+	col := ui.Column(c).FillWidth().Gap(t.Space(4))
+	col.Children(func() {
 		widgets.Empty(c, widgets.EmptyFooter(func(c *ui.Context) {
 			widgets.Button(c, "新建", widgets.Primary())
 		}))
@@ -197,7 +199,9 @@ func SkeletonStatDemo(c *ui.Context) {
 // sample:desctimeline
 func DescTimelineDemo(c *ui.Context) {
 	t := c.Theme()
-	col := ui.Column(c).Gap(t.Space(4))
+	// 紧凑间距：Descriptions + Timeline 合计高度需在预览面板内完整
+	// 展示（含末项），不留被底边截断的半行。
+	col := ui.Column(c).Gap(t.Space(2))
 	col.Children(func() {
 		widgets.Descriptions(c, []widgets.DescriptionItem{
 			{Label: "用户名", Value: "张三"},

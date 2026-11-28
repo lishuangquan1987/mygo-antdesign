@@ -164,11 +164,13 @@ func ProgressDemo(c *ui.Context) {
 // sample:spin
 func SpinDemo(c *ui.Context) {
 	t := c.Theme()
-	col := ui.Column(c).Gap(t.Space(4))
+	col := ui.Column(c).FillWidth().Gap(t.Space(4))
 	col.Children(func() {
-		widgets.Spin(c, widgets.SpinTip("加载中…"))
+		widgets.Spin(c, widgets.SpinCenter(), widgets.SpinTip("加载中…"))
+		// 容器显式居中：SpinCenter 让图标+文字在容器内水平居中，
+		// Box.Center() 补垂直居中（此前内容顶置在容器上缘）。
 		box := ui.Box(c).FillWidth().Height(t.Space(20)).
-			Radius(t.Radius).Background(t.SurfaceHover)
+			Radius(t.Radius).Background(t.SurfaceHover).Center()
 		box.Children(func() {
 			widgets.Spin(c, widgets.SpinCenter(), widgets.SpinTip("正在保存"))
 		})

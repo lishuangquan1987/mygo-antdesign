@@ -26,7 +26,7 @@ func Demo() samples.WidgetDemo {
 		Samples: []samples.Sample{
 			{
 				Title:       "紧凑型 IDE 布局",
-				Description: "局部使用紧凑密度（theme.Sub + Compact），顶部标签页、左侧文件树、右侧大纲、底部状态栏。",
+				Description: "theme.Sub + Compact 局部紧凑：文件树、编辑区、大纲、状态栏。",
 				Code:        samples.Extract(demoSrc, "layout"),
 				View:        Layout,
 				Fill:        true,
@@ -66,8 +66,9 @@ func Layout(c *ui.Context) {
 							{"theme.go", icon.File},
 							{"widgets.go", icon.File},
 						} {
-							row := ui.ButtonBase(c).FillWidth().Height(t.Space(6)).
-								Padding(0, t.Space(1)).Radius(t.Radius * 0.5)
+						row := ui.ButtonBase(c).FillWidth().Height(t.Space(6)).
+							Padding(0, t.Space(1)).Radius(t.Radius * 0.5).
+							Gap(t.Space(1.5)).AlignItems(ui.Center)
 							if f.name == "theme.go" {
 								row.Background(t.Selection)
 							}

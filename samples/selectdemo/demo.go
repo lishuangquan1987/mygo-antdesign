@@ -82,8 +82,10 @@ func Demo() samples.WidgetDemo {
 // sample:checkbox
 func CheckboxDemo(c *ui.Context) {
 	col := ui.Column(c).Gap(6)
-	agree := ui.Local(col, "ant.sample.select.agree", func() bool { return false })
-	all := ui.Local(col, "ant.sample.select.all", func() ui.CheckState { return ui.CheckOff })
+	// 初始即展示三种状态：选中（协议）、禁用选中（隐私政策）、半选（全选）。
+	// 初始即展示三种状态：选中（协议）、禁用选中（隐私政策）、半选（全选）。
+	agree := ui.Local(col, "ant.sample.select.agree", func() bool { return true })
+	all := ui.Local(col, "ant.sample.select.all", func() ui.CheckState { return ui.CheckMixed })
 	col.Children(func() {
 		widgets.Checkbox(c, agree, "同意用户协议")
 		widgets.Checkbox(c, agree, "同意隐私政策", widgets.ControlDisabled(true))
@@ -111,7 +113,7 @@ func RadioDemo(c *ui.Context) {
 // sample:switch
 func SwitchDemo(c *ui.Context) {
 	row := ui.Row(c).Gap(16).AlignItems(ui.Center)
-	on := ui.Local(row, "ant.sample.switch.on", func() bool { return true })
+	on := ui.Local(row, "ant.sample.switch.on", func() bool { return false })
 	row.Children(func() {
 		widgets.Switch(c, on)
 		widgets.SwitchWithLabel(c, on, "自动保存")
@@ -160,7 +162,7 @@ func SelectDemo(c *ui.Context) {
 // sample:toggle
 func ToggleDemo(c *ui.Context) {
 	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(2))
-	bold := ui.Local(host, "ant.sample.select.bold", func() bool { return true })
+	bold := ui.Local(host, "ant.sample.select.bold", func() bool { return false })
 	italic := ui.Local(host, "ant.sample.select.italic", func() bool { return false })
 	host.Children(func() {
 		row := ui.Row(c).Gap(c.Theme().Space(2)).AlignItems(ui.Center)

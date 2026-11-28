@@ -97,8 +97,14 @@ func Alert(c *ui.Context, title string, opts ...AlertOption) ui.Element {
 			Border(1, color.Mix(t.Background, 0.6)).
 			AlignItems(ui.Center)
 		el.Children(func() {
-			// antd v5：语义色图标 16px，无圆形底。
-			ui.Text(c, alertIcon(cfg.typ)).TextColor(color).FontSize(t.Rem(1.14)).SingleLine()
+			// antd v5：实心圆形语义图标。图标库无 Filled SVG，
+			// 用语义色圆底 + 白色字符合成（对齐 InfoCircleFilled 观感）。
+			badge := ui.Box(c).Size(t.Space(4), t.Space(4)).
+				Radius(t.Space(2)).Background(color).Center()
+			badge.Children(func() {
+				ui.Text(c, alertIcon(cfg.typ)).TextColor(ui.Hex("#fff")).
+					FontSize(t.Rem(0.72)).SingleLine()
+			})
 			body := ui.Column(c).Grow(1).Gap(t.Space(1))
 			body.Children(func() {
 				ui.Text(c, title).TextColor(t.Text).FontSize(t.FontSize).FontWeight(500)

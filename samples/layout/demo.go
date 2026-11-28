@@ -61,7 +61,7 @@ func Demo() samples.WidgetDemo {
 			{
 				Title:       "百分比与垂直分隔",
 				Description: "SplitterPercent 百分比分栏；SplitterVerticalPercent 上下按比例分栏。",
-				Code:        samples.Extract(demoSrc, "splitter"),
+				Code:        samples.Extract(demoSrc, "splitterpercent"),
 				View:        SplitterDemo2,
 			},
 			{
@@ -174,25 +174,28 @@ func AffixDemo(c *ui.Context) {
 
 // /sample
 
-// sample:splitter
+// sample:splitterpercent
 func SplitterDemo2(c *ui.Context) {
+	t := c.Theme()
 	host := ui.Column(c).FillWidth().Height(c.Theme().Space(40)).Gap(c.Theme().Space(2))
 	percent := ui.Local(host, "ant.sample.layout.splitpercent", func() float32 { return 30 })
 	verticalPercent := ui.Local(host, "ant.sample.layout.splitverticalpercent", func() float32 { return 50 })
 	host.Children(func() {
-		row := ui.Row(c).Fill().AlignItems(ui.Stretch)
+		// 横向分栏占上部（Grow 撑满剩余高度），竖向分栏固定高度，
+		// 避免 Fill 百分比在无界方向上解析异常。
+		row := ui.Row(c).FillWidth().Grow(1).AlignItems(ui.Stretch)
 		row.Children(func() {
 			widgets.SplitterPercent(c, percent, func() {
-				widgets.Paragraph(c, "左栏（30%）")
+				widgets.Paragraph(c, "左栏 30%")
 			}, func() {
 				widgets.Paragraph(c, "右栏")
-			})
+			}).Fill()
 		})
 		widgets.SplitterVerticalPercent(c, verticalPercent, func() {
 			widgets.Paragraph(c, "上栏（50%）")
 		}, func() {
 			widgets.Paragraph(c, "下栏")
-		})
+		}).FillWidth().Height(t.Space(20))
 	})
 }
 

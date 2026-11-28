@@ -47,7 +47,7 @@ MyGo 是纯 Go、无 cgo 的桌面 UI 框架（即时模式，`view = f(state)`�
 - **双密度**：标准（antd 默认）与紧凑（`Spacing` 4→3、`Radius` 6→4、`FontSize` 14→13），一套代码运行时切换。
 - **运行时换肤**：`theme.Apply` 全局、`theme.Sub` 局部；亮/暗、品牌色、密度可任意组合，弹层/菜单/Tooltip 自动跟随。
 - **可选跟随系统**：`theme.WithFollowSystem()` 叠加系统强调色、高对比与文字缩放（默认关闭，保证品牌色忠实）。
-- **示例即交付物**：**99 个控件示例页**（13 个源分组 / 84 个片段聚合，每控件一页，对照 [docs/10 checklist](docs/10-checklist.md) 全覆盖），全部是可编译的真实代码；`go:embed` 提取后与 Gallery 预览一一对应。
+- **示例即交付物**：**99 个控件示例页**（13 个源分组 / 93 个片段聚合，每控件一页，对照 [docs/10 checklist](docs/10-checklist.md) 全覆盖），全部是可编译的真实代码；`go:embed` 提取后与 Gallery 预览一一对应。
 - **视觉回归**：3 张 Gallery 级 + 324 张逐示例截图基线（亮/暗 × 标准/紧凑），CI 逐字节比对。
 - **细节对齐 antd v5**：表格、页签、输入焦点环、进度、卡片、弹窗等按 antd Token 校准（见 [docs/09](docs/09-antd-parity.md)）。
 - **纯 Go**：无 cgo，可交叉编译到 Windows / macOS / Linux（amd64、arm64）。
@@ -203,6 +203,11 @@ go test ./...             # 单元测试 + 截图基线
 go vet ./...              # 静态检查
 go run ./internal/check   # 样式铁律：禁止 widgets/extra 裸颜色、裸间距
 ```
+
+> **截图基线只在基线平台（Linux）逐字节比对**：`samples/golden/manifest.json`
+> 记录生成平台，macOS / Windows 上只断言可渲染、不比对像素（系统字体栈不同）。
+> 贡献者在非 Linux 平台改动视觉后，请在 Linux/CI 上运行 `make baselines` 更新基线，
+> 详见 [docs/07](docs/07-samples-gallery.md) 第 8 节。
 
 使用 Make（可选）：
 

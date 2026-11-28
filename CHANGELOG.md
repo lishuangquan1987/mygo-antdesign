@@ -4,12 +4,29 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-28
+
 ### 新增
 
+- **能力补全（对齐 antd v5）**：Table 自定义单元格 `TableRender` + 分页 `TablePagination` + 虚拟滚动 `TableVirtual`；Form 即时校验 `FormItemValue`/`FormItemRules`（必填/长度/正则/自定义）；`SelectMulti` 多选、`SelectSearch` 可搜索下拉；Tabs `TabsOnChange`/`TabsCard`；Pagination `Disabled`/`ShowTotal`/`PageSize`；Carousel `Autoplay`/`Arrows`/`Dots`；Upload `Extensions`/`MaxCount`；Transfer `Searchable`；`BadgeStatus` 状态点；Statistic `Formatter` 与千分位；Timeline `Pending` 待办节点；Message/Notify 类型与时长；Notification 类型图标；选择类控件统一占位 `ControlPlaceholder`。
+- **Gallery 示例**：为新能力补齐 14 个示例（Tabs 卡片式页签、Pagination 选项、Select 多选与可搜索、Badge 状态徽标、Timeline 待办节点、Statistic 格式化、Form 即时校验、Notification 类型、Table 行多选与自定义单元格、Upload 类型与数量限制、Transfer 搜索、Carousel 箭头与自动播放），全部随页入库、代码即源码。
 - **控件改造清单** `docs/10-checklist.md`：MyGo 原生控件（111 个构造函数，含 Base 底座结论）与 antd 缺口控件（35 个）的双清单打勾总览，全部完成；后续新增控件先加 `[ ]` 再打勾。
+
+### 修复
+
+- `Watermark` 把水印铺满整个窗口（含侧栏与工具条）：覆盖层改用宿主矩形，只在包裹内容内平铺。
+- `FormItemRequired` 只画必填星号、不参与校验（标了必填却放行空值）：星号同时作为「必填」规则，空值即报错。
+- `Pagination` 禁用态看不出禁用（选中页码仍是主色实底）：文字与选中底色一并置灰。
+- `Select` 触发器右侧下拉箭头被单行文本挤出可视区：文本改 `Grow(1)`，箭头稳定贴右端。
+- `UploadExtensions` 需要写「.png」才匹配：改为带点/不带点等价，均不区分大小写。
+- Gallery 的 Form 示例用函数内局部变量存值，每帧重建导致输入被清空：改用 `ui.Local` 跨帧保存。
+- `TableVirtual` 的 30 行门槛去掉：现在等价于 antd 的 `scroll.y`（任何行数都可限高滚动）。
 
 ### 变更
 
+- **性能**：`icon.Icon` 增加解析缓存（mygo 的图片缓存以 `*SVG` 指针为键，此前每帧重复解析且栅格化缓存全程 miss）。
+- **视觉统一**：Button loading 走 `ant.Spin`；Alert/Notification 图标改为 SVG + 矢量字形；Stepper/Statistic 趋势/搜索框/表格排序/级联箭头改用 icon 包 SVG。
+- **一致性与可维护性**：`Confirm` 改用自绘 Modal（与 Modal 同一观感）；`sample.Register` 重名 panic、`All()` 返回副本、新增 `Sample.Page` 声明式页归属；Gallery 拆分为 app/sidebar/home/codepanel/compare，对比模式补 Scroll 兜底；快速开始与 README 逐字同源（测试守卫）。
 - **Gallery 每控件一页**：`samples/pages.go` 把 13 组 / 84 片段聚合为 **99 个控件示例页**（页名对齐 antd 官网、MyGo 命名优先，同控件多片段合并、一片段多控件展开共享代码）；侧栏「开始」首页入口 + 每控件条目（含示例数）；新增首页（主视觉 / 特性卡片 / 统计 / 快速开始）；新增 `docs/images/home.png`。
 
 ## [0.5.0] - 2026-11-27

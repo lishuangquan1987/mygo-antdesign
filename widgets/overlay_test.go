@@ -138,10 +138,14 @@ func TestFormItems(t *testing.T) {
 	}
 	tt := ui.NewTester(view, 560, 320)
 	tt.Frame()
-	for _, want := range []string{"用户名", "邮箱", "用于接收通知", "邮箱格式不正确", "其他", "备注"} {
+	for _, want := range []string{"用户名", "邮箱", "邮箱格式不正确", "其他", "备注"} {
 		if !tt.HasText(want) {
 			t.Errorf("表单元素 %q 未渲染", want)
 		}
+	}
+	// antd：进入错误态后帮助文字让位给错误文案。
+	if tt.HasText("用于接收通知") {
+		t.Error("错误态不应再显示帮助文字")
 	}
 }
 

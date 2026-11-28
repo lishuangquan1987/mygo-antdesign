@@ -3,6 +3,7 @@ package feedback
 
 import (
 	_ "embed"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -76,6 +77,13 @@ func Demo() samples.WidgetDemo {
 				View:        GuideDemo,
 			},
 			{
+				Title:       "通知类型",
+				Description: "NotificationType 给通知配上语义色图标。",
+				Code:        samples.Extract(demoSrc, "notificationtype"),
+				View:        NotificationTypeDemo,
+				Page:        "Notification",
+			},
+			{
 				Title:       "确认对话",
 				Description: "Confirm 的危险操作二次确认（删除）。",
 				Code:        samples.Extract(demoSrc, "confirm"),
@@ -128,10 +136,10 @@ func MessageDemo(c *ui.Context) {
 			widgets.Message(c, "已保存")
 		}))
 		widgets.Button(c, "成功消息", widgets.OnClick(func() {
-			widgets.MessageTypeTyped(c, "success", "操作成功")
+			widgets.Message(c, "操作成功", widgets.MessageType("success"))
 		}))
 		widgets.Button(c, "错误消息", widgets.OnClick(func() {
-			widgets.MessageTypeTyped(c, "error", "操作失败")
+			widgets.Message(c, "操作失败", widgets.MessageType("error"), widgets.MessageDuration(6*time.Second))
 		}))
 		widgets.Button(c, "通知", widgets.OnClick(func() {
 			widgets.Notify(c, "部署完成", "v0.3.1 已上线", "查看日志", func() {})
@@ -182,12 +190,19 @@ func SpinDemo(c *ui.Context) {
 // sample:overlay
 func OverlayDemo(c *ui.Context) {
 	t := c.Theme()
-	row := ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center)
+	row := ui.Row(c).Gap(t.Space(3)).AlignItems(ui.Center).Wrap()
 	removed := ui.Local(row, "ant.sample.feedback.removed", func() bool { return false })
 	row.Children(func() {
 		widgets.Tooltip(c, "删除后不可恢复", func(c *ui.Context) {
 			widgets.Button(c, "悬停提示")
 		})
+		widgets.Tooltip(c, "这是一段较长的提示文案，超过最大宽度后会自动换行展示。",
+			func(c *ui.Context) {
+				widgets.Button(c, "长文案提示")
+			}, widgets.TooltipMaxWidth(160))
+		widgets.Tooltip(c, "自定义底色", func(c *ui.Context) {
+			widgets.Button(c, "主色气泡")
+		}, widgets.TooltipColor(t.Accent))
 		widgets.Popconfirm(c, func(c *ui.Context) ui.Element {
 			return widgets.Button(c, "删除", widgets.Danger())
 		}, "确定删除这一项？", func() { *removed = true },
@@ -267,6 +282,38 @@ func GuideDemo(c *ui.Context) {
 			{Title: "继续", Description: "点「下一步」继续。"},
 		}, step)
 		widgets.Notification(c, notice, "部署完成", "v0.3.0 已上线")
+	})
+}
+
+// /sample
+
+// sample:notificationtype
+func NotificationTypeDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	open := ui.Local(host, "ant.sample.feedback.ntopen", func() bool { return false })
+	kind := ui.Local(host, "ant.sample.feedback.ntkind", func() widgets.AlertType { return widgets.AlertSuccess })
+	kinds := []widgets.AlertType{
+		widgets.AlertSuccess, widgets.AlertInfo, widgets.AlertWarning, widgets.AlertError,
+	}
+	titles := map[widgets.AlertType]string{
+		widgets.AlertSuccess: "部署完成",
+		widgets.AlertInfo:    "有可用更新",
+		widgets.AlertWarning: "磁盘空间不足",
+		widgets.AlertError:   "构建失败",
+	}
+	host.Children(func() {
+		row := ui.Row(c).Gap(c.Theme().Space(2)).Wrap()
+		row.Children(func() {
+			for _, k := range kinds {
+				k := k
+				widgets.Button(c, titles[k], widgets.OnClick(func() {
+					*kind = k
+					*open = true
+				}))
+			}
+		})
+		widgets.Notification(c, open, titles[*kind], "点击上方不同按钮查看图标与色调变化。",
+			widgets.NotificationType(*kind))
 	})
 }
 

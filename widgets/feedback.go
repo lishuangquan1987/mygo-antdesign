@@ -32,17 +32,31 @@ func alertColor(t *ui.Theme, typ AlertType) ui.Color {
 	}
 }
 
-// alertIcons 级别 → 图标字符。
-func alertIcon(typ AlertType) string {
+// alertGlyph 绘制级别图标：成功/错误用 icon 包的 SVG，警告/信息用
+// Painter 画矢量字形（不依赖系统字体，避免字形缺失或基线漂移）。
+func alertGlyph(c *ui.Context, typ AlertType, fg ui.Color) {
+	t := c.Theme()
 	switch typ {
 	case AlertSuccess:
-		return "✓"
-	case AlertWarning:
-		return "!"
+		icon.Icon(c, icon.Check, t.Space(2.6), icon.WithColor(fg))
 	case AlertError:
-		return "✕"
+		icon.Icon(c, icon.Close, t.Space(2.4), icon.WithColor(fg))
+	case AlertWarning:
+		g := ui.Box(c).Fill().Draw(func(p *ui.Painter, r ui.Rect) {
+			w := r.W * 0.13
+			p.Fill(ui.Rect{X: r.X + (r.W-w)/2, Y: r.Y + r.H*0.18, W: w, H: r.H * 0.4}, fg, w/2)
+			d := r.H * 0.15
+			p.Fill(ui.Rect{X: r.X + (r.W-d)/2, Y: r.Y + r.H*0.7, W: d, H: d}, fg, d/2)
+		})
+		g.Children(func() {})
 	default:
-		return "i"
+		g := ui.Box(c).Fill().Draw(func(p *ui.Painter, r ui.Rect) {
+			d := r.H * 0.15
+			p.Fill(ui.Rect{X: r.X + (r.W-d)/2, Y: r.Y + r.H*0.2, W: d, H: d}, fg, d/2)
+			w := r.W * 0.13
+			p.Fill(ui.Rect{X: r.X + (r.W-w)/2, Y: r.Y + r.H*0.42, W: w, H: r.H * 0.4}, fg, w/2)
+		})
+		g.Children(func() {})
 	}
 }
 
@@ -97,13 +111,12 @@ func Alert(c *ui.Context, title string, opts ...AlertOption) ui.Element {
 			Border(1, color.Mix(t.Background, 0.6)).
 			AlignItems(ui.Center)
 		el.Children(func() {
-			// antd v5：实心圆形语义图标。图标库无 Filled SVG，
-			// 用语义色圆底 + 白色字符合成（对齐 InfoCircleFilled 观感）。
+			// antd v5：实心圆形语义图标。图标库的 Check/Close 为 SVG，
+			// 警告/信息用 Painter 画矢量字形（不依赖系统字体字形）。
 			badge := ui.Box(c).Size(t.Space(4), t.Space(4)).
 				Radius(t.Space(2)).Background(color).Center()
 			badge.Children(func() {
-				ui.Text(c, alertIcon(cfg.typ)).TextColor(t.AccentText).
-					FontSize(t.Rem(0.72)).SingleLine()
+				alertGlyph(c, cfg.typ, t.AccentText)
 			})
 			body := ui.Column(c).Grow(1).Gap(t.Space(1))
 			body.Children(func() {
@@ -236,11 +249,37 @@ func Modal(c *ui.Context, open *bool, title string, body func(), opts ...ModalOp
 	return host
 }
 
+// MessageOption 定制 Message。
+type MessageOption func(*messageConfig)
+
+type messageConfig struct {
+	typ     string
+	timeout time.Duration
+}
+
+// MessageType 消息类型（success / warning / error / info，决定图标与色调）。
+func MessageType(typ string) MessageOption {
+	return func(c *messageConfig) { c.typ = typ }
+}
+
+// MessageDuration 显示时长（默认 4 秒；负数表示常驻直到手动关闭）。
+func MessageDuration(d time.Duration) MessageOption {
+	return func(c *messageConfig) { c.timeout = d }
+}
+
 // Message 轻提示（antd message）：底部短暂出现的全局消息。
 //
-//	ant.Message(c, "已保存")
-func Message(c *ui.Context, text string) {
-	c.Toast(text)
+//	ant.Message(c, "已保存", ant.MessageType("success"))
+func Message(c *ui.Context, text string, opts ...MessageOption) {
+	cfg := &messageConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	if cfg.typ == "" && cfg.timeout == 0 {
+		c.Toast(text)
+		return
+	}
+	c.AddToast(ui.Toast{ID: text, Title: text, Type: cfg.typ, Timeout: cfg.timeout})
 }
 
 // MessageTypeTyped 带类型的轻提示（success / warning / error / info）。
@@ -248,16 +287,41 @@ func MessageTypeTyped(c *ui.Context, typ, text string) {
 	c.AddToast(ui.Toast{ID: text, Title: text, Type: typ})
 }
 
+// NotifyOption 定制 Notify。
+type NotifyOption func(*notifyConfig)
+
+type notifyConfig struct {
+	typ     string
+	timeout time.Duration
+}
+
+// NotifyType 通知类型（success / warning / error / info）。
+func NotifyType(typ string) NotifyOption {
+	return func(c *notifyConfig) { c.typ = typ }
+}
+
+// NotifyDuration 通知显示时长（默认 4 秒；负数表示常驻）。
+func NotifyDuration(d time.Duration) NotifyOption {
+	return func(c *notifyConfig) { c.timeout = d }
+}
+
 // Notify 通知（antd notification）：带标题、描述与可选操作按钮。
 //
-//	ant.Notify(c, "部署完成", "v0.3.1 已上线", "查看", app.openLog)
-func Notify(c *ui.Context, title, description, action string, onAction func()) {
+//	ant.Notify(c, "部署完成", "v0.3.1 已上线", "查看", app.openLog,
+//	    ant.NotifyType("success"))
+func Notify(c *ui.Context, title, description, action string, onAction func(), opts ...NotifyOption) {
+	cfg := &notifyConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
 	c.AddToast(ui.Toast{
 		ID:          title,
 		Title:       title,
 		Description: description,
 		Action:      action,
 		OnAction:    onAction,
+		Type:        cfg.typ,
+		Timeout:     cfg.timeout,
 	})
 }
 
@@ -304,12 +368,13 @@ func ProgressLine(c *ui.Context, value float64, opts ...ProgressOption) ui.Eleme
 	return row
 }
 
-// Confirm 确认对话框的便捷封装：取消 + 确认两个按钮。
+// Confirm 确认对话框的便捷封装（antd Modal.confirm 观感，与 ant.Modal
+// 同一套自绘样式）：取消 + 确认两个按钮。
 func Confirm(c *ui.Context, open *bool, title, message string, onOk func()) {
-	// ui.AlertDialog 返回被点按钮的下标（0 = 取消，1 = 确定）。
-	if ui.AlertDialog(c, open, title, message, "取消", "确定") == 1 && onOk != nil {
-		onOk()
-	}
+	t := c.Theme()
+	Modal(c, open, title, func() {
+		ui.Text(c, message).TextColor(t.Text).FontSize(t.FontSize)
+	}, OnOk(onOk))
 }
 
 // SpinOption 定制 Spin。

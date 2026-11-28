@@ -3,7 +3,11 @@
 // 注册并展示；示例代码用 go:embed 嵌入真实源码，保证「代码即示例」。
 package sample
 
-import "github.com/egoist/mygo/ui"
+import (
+	"slices"
+
+	"github.com/egoist/mygo/ui"
+)
 
 // Category 示例的分类（Gallery 侧栏按此分组）。
 type Category string
@@ -29,6 +33,9 @@ type Sample struct {
 	// Fill 标记布局型示例（如 IDE 风格）：Gallery 与截图工具中
 	// 撑满可用区域而非居中，避免四周留白。
 	Fill bool
+	// Page 目标控件页名（如 "Button"）；留空时沿用所属分组的 Name，
+	// 或 pages.go 的 pageOverrides 映射（旧式多控件片段）。
+	Page string
 }
 
 // WidgetDemo 一个控件的示例集合。
@@ -43,11 +50,18 @@ type WidgetDemo struct {
 var registry []WidgetDemo
 
 // Register 登记一个控件的示例集合（在 Gallery 启动时调用）。
+// 控件名重复属于集成错误（两个包用了同一个 Name），直接 panic，
+// 避免静默追加导致侧栏出现两个同名页。
 func Register(d WidgetDemo) {
+	for _, e := range registry {
+		if e.Name == d.Name {
+			panic("sample: 控件 " + d.Name + " 重复注册（检查 samples/*/demo.go 的 Name）")
+		}
+	}
 	registry = append(registry, d)
 }
 
-// All 返回全部已注册示例（只读顺序）。
+// All 返回全部已注册示例的快照（调用方修改返回切片不影响注册表）。
 func All() []WidgetDemo {
-	return registry
+	return slices.Clone(registry)
 }

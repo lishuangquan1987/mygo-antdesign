@@ -16,44 +16,95 @@ func Breadcrumb(c *ui.Context, items []string, chosen *int) ui.Element {
 	return ui.Breadcrumbs(c, items, chosen)
 }
 
+// TabsOption 定制 Tabs。
+type TabsOption func(*tabsConfig)
+
+type tabsConfig struct {
+	onChange func(index int)
+	card     bool
+}
+
+// TabsOnChange 页签切换回调（antd Tabs onChange）。
+func TabsOnChange(fn func(index int)) TabsOption {
+	return func(c *tabsConfig) { c.onChange = fn }
+}
+
+// TabsCard 卡片式页签（antd Tabs type="card"）：页签带描边与浅底，
+// 选中项白底并盖住下边线。
+func TabsCard() TabsOption { return func(c *tabsConfig) { c.card = true } }
+
 // Tabs 页签（antd Tabs）。selected 为选中下标，Changed 报告切换：
 //
-//	ant.Tabs(c, &tab, "常规", "外观", "高级")
+//	ant.Tabs(c, &tab, []string{"常规", "外观", "高级"}, ant.TabsOnChange(app.load))
 //
 // 样式对齐 antd v5：页签间距 32px、选中项主色 + 2px 下划线、悬停变主色，
 // 整行底部 1px 分隔线。
-func Tabs(c *ui.Context, selected *int, labels ...string) ui.Element {
+func Tabs(c *ui.Context, selected *int, labels []string, opts ...TabsOption) ui.Element {
+	cfg := &tabsConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
 	t := c.Theme()
 	row := ui.Row(c).FillWidth().
 		Gap(t.Space(8)).
 		Border(1, t.Border).
 		BorderWidth(0, 0, 1, 0)
+	if cfg.card {
+		row.Gap(0).AlignItems(ui.End)
+	}
 	row.Children(func() {
 		for i, label := range labels {
 			i := i
 			active := i == *selected
-			tab := ui.ButtonBase(c).Padding(t.Space(3), 0, 0, 0)
-			tab.Children(func() {
-				col := ui.Column(c).Gap(t.Space(1))
-				col.Children(func() {
-					color := t.Text
+			var tab ui.Element
+			if cfg.card {
+				tab = ui.ButtonBase(c).
+					Height(t.Space(8)).
+					Padding(0, t.Space(4))
+				tab.Border(1, t.Border)
+				if active {
+					tab.Background(t.Surface)
+					tab.BorderWidth(0, 0, 0, 0)
+					tab.Margin(0, 0, t.Space(-0.5), 0)
+				} else {
+					tab.Background(t.Background.Mix(t.Surface, 0.5))
+				}
+				tab.Children(func() {
+					color := t.TextMuted
 					if active {
-						color = t.Accent
-					} else if tab.Hovered() {
-						color = t.AccentHover
+						color = t.Text
 					}
 					ui.Text(c, label).TextColor(color).FontSize(t.FontSize).SingleLine()
-					bar := ui.Box(c).FillWidth().Height(t.Space(0.5))
-					if active {
-						bar.Background(t.Accent)
-					} else {
-						bar.Background(ui.Transparent)
-					}
-					bar.Children(func() {})
 				})
-			})
+			} else {
+				tab = ui.ButtonBase(c).Padding(t.Space(3), 0, 0, 0)
+				tab.Children(func() {
+					col := ui.Column(c).Gap(t.Space(1))
+					col.Children(func() {
+						color := t.Text
+						if active {
+							color = t.Accent
+						} else if tab.Hovered() {
+							color = t.AccentHover
+						}
+						ui.Text(c, label).TextColor(color).FontSize(t.FontSize).SingleLine()
+						bar := ui.Box(c).FillWidth().Height(t.Space(0.5))
+						if active {
+							bar.Background(t.Accent)
+						} else {
+							bar.Background(ui.Transparent)
+						}
+						bar.Children(func() {})
+					})
+				})
+			}
 			if tab.Clicked() {
-				*selected = i
+				if *selected != i {
+					*selected = i
+					if cfg.onChange != nil {
+						cfg.onChange(i)
+					}
+				}
 			}
 		}
 	})
@@ -120,12 +171,31 @@ func Dropdown(c *ui.Context, label string, items []MenuItemData, opts ...Dropdow
 type PaginationOption func(*paginationConfig)
 
 type paginationConfig struct {
-	onChange func(page int)
+	onChange  func(page int)
+	disabled  bool
+	showTotal bool
+	pageSize  *int
 }
 
 // OnPageChange 页码变化回调。
 func OnPageChange(fn func(page int)) PaginationOption {
 	return func(c *paginationConfig) { c.onChange = fn }
+}
+
+// PaginationDisabled 禁用整个分页器（antd disabled）。
+func PaginationDisabled(b bool) PaginationOption {
+	return func(c *paginationConfig) { c.disabled = b }
+}
+
+// PaginationShowTotal 显示总数文案（antd showTotal「共 N 页」）。
+func PaginationShowTotal() PaginationOption {
+	return func(c *paginationConfig) { c.showTotal = true }
+}
+
+// PaginationPageSize 启用每页条数（antd showSizeChanger）：此时 total 视为
+// 条目总数（而非页数），页数按 *pageSize 折算，并提供 10/20/50/100 的选择。
+func PaginationPageSize(size *int) PaginationOption {
+	return func(c *paginationConfig) { c.pageSize = size }
 }
 
 // Pagination 分页器（antd Pagination）。current 由调用方持有（1 起）：
@@ -141,12 +211,30 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 	}
 	t := c.Theme()
 
+	// 页数：默认 total 即页数；启用每页条数时 total 视为条目总数。
+	pageCount := total
+	itemTotal := 0
+	if cfg.pageSize != nil && *cfg.pageSize > 0 {
+		itemTotal = total
+		pageCount = (total + *cfg.pageSize - 1) / *cfg.pageSize
+	}
+	if pageCount < 1 {
+		pageCount = 1
+	}
+	if *current < 1 {
+		*current = 1
+	}
+	if *current > pageCount {
+		*current = pageCount
+	}
+
 	fire := func() {
 		if cfg.onChange != nil {
 			cfg.onChange(*current)
 		}
 	}
 	item := func(label string, active, disabled bool, onClick func()) ui.Element {
+		disabled = disabled || cfg.disabled
 		btn := ui.ButtonBase(c).
 			Height(t.Space(8)).
 			MinWidth(t.Space(8)).
@@ -165,7 +253,12 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 			}
 		}
 		if disabled {
+			// antd disabled 分页整体置灰：文字变弱，选中项不再是主色实底
+			//（否则看起来仍可点）。
 			fg = t.TextMuted
+			if active {
+				btn.Background(t.Background.Mix(t.Surface, 0.5))
+			}
 		}
 		btn.Children(func() {
 			ui.Text(c, label).TextColor(fg).FontSize(t.FontSize).SingleLine()
@@ -178,6 +271,7 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 
 	// 箭头页（‹ ›）：用 SVG 图标替代字符，保证在方形按钮内居中。
 	itemIcon := func(svg string, disabled bool, onClick func()) {
+		disabled = disabled || cfg.disabled
 		btn := ui.ButtonBase(c).Size(t.Space(8), t.Space(8)).
 			Padding(0, t.Space(2)).
 			Radius(t.Radius).
@@ -200,13 +294,22 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 
 	row := ui.Row(c).Gap(t.Space(2)).AlignItems(ui.Center)
 	row.Children(func() {
+		if cfg.showTotal {
+			if itemTotal > 0 {
+				ui.Textf(c, "共 %d 条", itemTotal).TextColor(t.TextMuted).
+					FontSize(t.FontSize).SingleLine()
+			} else {
+				ui.Textf(c, "共 %d 页", pageCount).TextColor(t.TextMuted).
+					FontSize(t.FontSize).SingleLine()
+			}
+		}
 		row.Children(func() {
 			itemIcon(icon.Left, *current <= 1, func() {
 				*current--
 				fire()
 			})
 		})
-		pages := pageWindow(*current, total)
+		pages := pageWindow(*current, pageCount)
 		for _, p := range pages {
 			p := p
 			if p == 0 { // 省略号
@@ -221,10 +324,24 @@ func Pagination(c *ui.Context, current *int, total int, opts ...PaginationOption
 				fire()
 			})
 		}
-		itemIcon(icon.Right, *current >= total, func() {
+		itemIcon(icon.Right, *current >= pageCount, func() {
 			*current++
 			fire()
 		})
+		// 每页条数选择（antd showSizeChanger）。
+		if cfg.pageSize != nil && *cfg.pageSize > 0 {
+			cur := fmt.Sprintf("%d 条/页", *cfg.pageSize)
+			sel := Select(c, &cur, []string{"10 条/页", "20 条/页", "50 条/页", "100 条/页"})
+			if cur != fmt.Sprintf("%d 条/页", *cfg.pageSize) {
+				var n int
+				if _, err := fmt.Sscanf(cur, "%d", &n); err == nil && n > 0 {
+					*cfg.pageSize = n
+					*current = 1
+					fire()
+				}
+			}
+			_ = sel
+		}
 	})
 	return row
 }

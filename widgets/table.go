@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo/ui"
+
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 )
 
 // TableColumn 表格列定义（antd Table 的 columns）。
@@ -26,8 +28,41 @@ type TableColumn struct {
 type TableOption func(*tableConfig)
 
 type tableConfig struct {
-	selection *ui.Selection[int]
-	onSort    func()
+	selection    *ui.Selection[int]
+	onSort       func()
+	render       func(c *ui.Context, row, col int) ui.Element
+	pageSize     int
+	current      *int
+	onPageChange func(page int)
+	virtualH     float32
+}
+
+// TableRender 自定义单元格内容（antd column.render）：传入原始行下标与
+// 列下标，调用方在 cell 内构建任意元素（图标、标签、按钮等）：
+//
+//	ant.Table(c, cols, rows, ant.TableRender(func(c *ui.Context, row, col int) ui.Element {
+//	    if col == 1 {
+//	        return ant.Tag(c, rows[row][col], ant.TagSuccess())
+//	    }
+//	    return ant.Text(c, rows[row][col])
+//	}))
+func TableRender(fn func(c *ui.Context, row, col int) ui.Element) TableOption {
+	return func(c *tableConfig) { c.render = fn }
+}
+
+// TablePagination 分页展示（antd pagination）：pageSize 每页行数，current
+// 为当前页（1 起，由调用方持有），切换时回调。
+func TablePagination(pageSize int, current *int, onPageChange func(page int)) TableOption {
+	return func(c *tableConfig) {
+		c.pageSize, c.current, c.onPageChange = pageSize, current, onPageChange
+	}
+}
+
+// TableVirtual 虚拟滚动（行数多时只构建可见行）：height 为表格主体最大
+// 高度，超出后滚动。启用行多选时自动退回全量渲染（多选需要全部行的
+// 命中区）。
+func TableVirtual(height float32) TableOption {
+	return func(c *tableConfig) { c.virtualH = height }
 }
 
 // TableSelection 启用行多选（点击行选中/再点取消），选中集由调用方持有，
@@ -108,15 +143,15 @@ func Table(c *ui.Context, columns []TableColumn, rows [][]string, opts ...TableO
 							FontWeight(600).
 							FontSize(t.FontSize)
 						if col.Sortable {
-							caret := "▲"
+							caret := icon.Up
 							color := t.TextMuted
 							if sortOrder.Column == id {
 								if sortOrder.Descending {
-									caret = "▼"
+									caret = icon.Down
 								}
 								color = t.Accent
 							}
-							ui.Text(c, caret).TextColor(color).FontSize(t.Rem(0.6))
+							icon.Icon(c, caret, t.Rem(0.6), icon.WithColor(color))
 						}
 					})
 					if col.Sortable && cell.Clicked() {
@@ -129,30 +164,61 @@ func Table(c *ui.Context, columns []TableColumn, rows [][]string, opts ...TableO
 				}
 			})
 
-			// 数据行：1px 底部分隔线（最后一行不画），可选选中/悬停底色。
+			// 可见行：排序后的原始行下标，按分页切片。
+			view := make([]int, 0, len(rows))
 			for r := range rows {
 				idx := r
 				if r < len(*order) {
 					idx = (*order)[r]
 				}
-				last := r == len(rows)-1
-				var rowEl ui.Element
-				if cfg.selection != nil {
-					rowEl = ui.ButtonBase(c).FillWidth()
-				} else {
-					rowEl = ui.Row(c).FillWidth()
+				view = append(view, idx)
+			}
+			if cfg.pageSize > 0 {
+				pages := (len(rows) + cfg.pageSize - 1) / cfg.pageSize
+				if pages < 1 {
+					pages = 1
 				}
-				rowEl.Border(1, t.Border).BorderWidth(0, 0, 1, 0)
-				selected := cfg.selection != nil && cfg.selection.Has(idx)
-				switch {
-				case selected:
-					rowEl.Background(t.Selection)
-				case cfg.selection != nil && rowEl.Hovered():
-					rowEl.Background(t.Background.Mix(t.Surface, 0.5))
+				if cfg.current != nil {
+					if *cfg.current < 1 {
+						*cfg.current = 1
+					}
+					if *cfg.current > pages {
+						*cfg.current = pages
+					}
 				}
+				page := 1
+				if cfg.current != nil {
+					page = *cfg.current
+				}
+				start := (page - 1) * cfg.pageSize
+				end := start + cfg.pageSize
+				if start > len(view) {
+					start = len(view)
+				}
+				if end > len(view) {
+					end = len(view)
+				}
+				view = view[start:end]
+			}
+
+			// 行内容：普通行与虚拟滚动行共用。
+			buildCells := func(idx int, rowEl ui.Element) {
 				rowEl.Children(func() {
 					for col := range columns {
 						col := col
+						if cfg.render != nil {
+							cell := ui.Row(c).
+								Padding(t.Space(4), t.Space(4)).
+								AlignItems(ui.Center)
+							if columns[col].Width > 0 {
+								cell.Width(columns[col].Width)
+							} else {
+								cell.Grow(1)
+							}
+							applyCellAlign(cell, columns[col].Align)
+							cell.Children(func() { cfg.render(c, idx, col) })
+							continue
+						}
 						value := ""
 						if col < len(rows[idx]) {
 							value = rows[idx][col]
@@ -171,22 +237,61 @@ func Table(c *ui.Context, columns []TableColumn, rows [][]string, opts ...TableO
 						})
 					}
 				})
-				if cfg.selection != nil && rowEl.Clicked() {
-					// antd rowSelection：普通单击替换选择；Cmd/Shift 单击切换
-					// 该行（web 网格习惯用 Shift，macOS 用 Cmd）。
-					if rowEl.ClickModifiers()&(ui.Cmd|ui.Shift) != 0 {
-						if cfg.selection.Has(idx) {
-							cfg.selection.Remove(idx)
+			}
+
+			// 限高滚动：设置了 TableVirtual 且未启用多选时只构建可见行
+			// （antd scroll.y）。行数很少时同样走这条路——此时等价于给
+			// 表格加一个固定高度的滚动区，不会带来额外开销。
+			if cfg.virtualH > 0 && cfg.selection == nil {
+				lst := ui.List(c, nil, len(view), func(i int) {
+					idx := view[i]
+					rowEl := ui.Row(c).FillWidth().
+						Border(1, t.Border).BorderWidth(0, 0, 1, 0)
+					if i == len(view)-1 {
+						rowEl.BorderWidth(0, 0, 0, 0)
+					}
+					if rowEl.Hovered() {
+						rowEl.Background(t.Background.Mix(t.Surface, 0.5))
+					}
+					buildCells(idx, rowEl)
+				}).Height(cfg.virtualH)
+				lst.FillWidth()
+			} else {
+				// 数据行：1px 底部分隔线（最后一行不画），可选选中/悬停底色。
+				for r, idx := range view {
+					last := r == len(view)-1
+					var rowEl ui.Element
+					if cfg.selection != nil {
+						rowEl = ui.ButtonBase(c).FillWidth()
+					} else {
+						rowEl = ui.Row(c).FillWidth()
+					}
+					rowEl.Border(1, t.Border).BorderWidth(0, 0, 1, 0)
+					selected := cfg.selection != nil && cfg.selection.Has(idx)
+					switch {
+					case selected:
+						rowEl.Background(t.Selection)
+					case cfg.selection != nil && rowEl.Hovered():
+						rowEl.Background(t.Background.Mix(t.Surface, 0.5))
+					}
+					buildCells(idx, rowEl)
+					if cfg.selection != nil && rowEl.Clicked() {
+						// antd rowSelection：普通单击替换选择；Cmd/Shift 单击切换
+						// 该行（web 网格习惯用 Shift，macOS 用 Cmd）。
+						if rowEl.ClickModifiers()&(ui.Cmd|ui.Shift) != 0 {
+							if cfg.selection.Has(idx) {
+								cfg.selection.Remove(idx)
+							} else {
+								cfg.selection.Add(idx)
+							}
 						} else {
+							cfg.selection.Clear()
 							cfg.selection.Add(idx)
 						}
-					} else {
-						cfg.selection.Clear()
-						cfg.selection.Add(idx)
 					}
-				}
-				if last {
-					rowEl.BorderWidth(0, 0, 0, 0)
+					if last {
+						rowEl.BorderWidth(0, 0, 0, 0)
+					}
 				}
 			}
 			if len(rows) == 0 {
@@ -197,6 +302,20 @@ func Table(c *ui.Context, columns []TableColumn, rows [][]string, opts ...TableO
 					Center()
 			}
 		})
+
+		// 分页器：表格外框下方（antd Table pagination 位置）。
+		if cfg.pageSize > 0 && cfg.current != nil && len(rows) > cfg.pageSize {
+			pages := (len(rows) + cfg.pageSize - 1) / cfg.pageSize
+			ui.Row(c).FillWidth().Justify(ui.End).
+				Padding(t.Space(3), 0, 0, 0).
+				Children(func() {
+					Pagination(c, cfg.current, pages, OnPageChange(func(page int) {
+						if cfg.onPageChange != nil {
+							cfg.onPageChange(page)
+						}
+					}))
+				})
+		}
 	})
 	return host
 }
@@ -211,16 +330,6 @@ func applyCellAlign(el ui.Element, align ui.Align) {
 	default:
 		el.Justify(ui.Start)
 	}
-}
-
-// colAlign 返回第 col 列的对齐方式。
-func colAlign(columns []TableColumn, col int) ui.Align {
-	for i := range columns {
-		if i == col {
-			return columns[i].Align
-		}
-	}
-	return ui.Start
 }
 
 // sortIndexes 返回按 sortOrder 排好的行下标；无有效排序列时保持原序。

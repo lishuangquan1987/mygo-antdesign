@@ -179,6 +179,49 @@ func BadgeDot(c *ui.Context, fn func()) ui.Element {
 	return host
 }
 
+// BadgeStatusKind 状态徽标类型（antd Badge status）。
+type BadgeStatusKind int
+
+const (
+	BadgeStatusSuccess BadgeStatusKind = iota + 1
+	BadgeStatusProcessing
+	BadgeStatusDefault
+	BadgeStatusError
+	BadgeStatusWarning
+)
+
+// badgeStatusColor 状态色：成功绿、进行中主色、默认灰、错误红、警告橙。
+func badgeStatusColor(t *ui.Theme, k BadgeStatusKind) ui.Color {
+	switch k {
+	case BadgeStatusSuccess:
+		return t.Success
+	case BadgeStatusProcessing:
+		return t.Accent
+	case BadgeStatusError:
+		return t.Danger
+	case BadgeStatusWarning:
+		return t.Warning
+	default:
+		return t.TextMuted
+	}
+}
+
+// BadgeStatus 状态徽标（antd Badge status）：彩色圆点 + 状态文字，用于
+// 列表行的状态展示：
+//
+//	ant.BadgeStatus(c, ant.BadgeStatusSuccess, "运行中")
+func BadgeStatus(c *ui.Context, kind BadgeStatusKind, text string) ui.Element {
+	t := c.Theme()
+	row := ui.Row(c).Gap(t.Space(1.5)).AlignItems(ui.Center)
+	row.Children(func() {
+		dot := ui.Box(c).Size(t.Space(1.5), t.Space(1.5)).Radius(t.Space(0.75)).
+			Background(badgeStatusColor(t, kind))
+		dot.Children(func() {})
+		ui.Text(c, text).TextColor(t.Text).FontSize(t.FontSize).SingleLine()
+	})
+	return row
+}
+
 // AvatarEl 头像（antd Avatar）。name 提供首字符回退，image 可为 nil：
 //
 //	ant.AvatarEl(c, "李")

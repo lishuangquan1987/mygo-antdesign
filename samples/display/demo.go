@@ -3,6 +3,7 @@ package display
 
 import (
 	_ "embed"
+	"fmt"
 
 	"github.com/egoist/mygo/ui"
 
@@ -34,12 +35,18 @@ func Demo() samples.WidgetDemo {
 				View:        BadgeDemo,
 			},
 			{
+				Title:       "状态徽标",
+				Description: "BadgeStatus 彩点 + 文字表达行状态。",
+				Code:        samples.Extract(demoSrc, "badgestatus"),
+				View:        BadgeStatusDemo,
+				Page:        "Badge",
+			},
+			{
 				Title:       "头像",
 				Description: "文字头像，尺寸随密度缩放。",
 				Code:        samples.Extract(demoSrc, "avatar"),
 				View:        AvatarDemo,
-			},
-			{
+			}, {
 				Title:       "卡片",
 				Description: "标题 + 内容 + 头部附加 + 底部操作区。",
 				Code:        samples.Extract(demoSrc, "card"),
@@ -62,6 +69,20 @@ func Demo() samples.WidgetDemo {
 				Description: "Descriptions 标签/值成对布局（可带外框）；Timeline 节点与连接线。",
 				Code:        samples.Extract(demoSrc, "desctimeline"),
 				View:        DescTimelineDemo,
+			},
+			{
+				Title:       "时间轴待办节点",
+				Description: "末尾追加空心灰点，表示尚未发生的步骤。",
+				Code:        samples.Extract(demoSrc, "timelinepending"),
+				View:        TimelinePendingDemo,
+				Page:        "Timeline",
+			},
+			{
+				Title:       "数值格式化",
+				Description: "StatisticFormatter 接管数值渲染（字节单位）。",
+				Code:        samples.Extract(demoSrc, "statisticformat"),
+				View:        StatisticFormatDemo,
+				Page:        "Statistic",
 			},
 			{
 				Title:       "折叠面板",
@@ -121,6 +142,20 @@ func BadgeDemo(c *ui.Context) {
 		widgets.Badge(c, 5, func() { widgets.Button(c, "消息") })
 		widgets.Badge(c, 120, func() { widgets.Button(c, "通知") })
 		widgets.BadgeDot(c, func() { widgets.AvatarEl(c, "李") })
+	})
+}
+
+// /sample
+
+// sample:badgestatus
+func BadgeStatusDemo(c *ui.Context) {
+	col := ui.Column(c).Gap(c.Theme().Space(2))
+	col.Children(func() {
+		widgets.BadgeStatus(c, widgets.BadgeStatusSuccess, "运行中")
+		widgets.BadgeStatus(c, widgets.BadgeStatusProcessing, "部署中")
+		widgets.BadgeStatus(c, widgets.BadgeStatusWarning, "待审核")
+		widgets.BadgeStatus(c, widgets.BadgeStatusError, "已失败")
+		widgets.BadgeStatus(c, widgets.BadgeStatusDefault, "已下线")
 	})
 }
 
@@ -215,6 +250,39 @@ func DescTimelineDemo(c *ui.Context) {
 			{Title: "已支付", Description: "2026-11-27 09:05", Color: widgets.TimelineGreen},
 			{Title: "已完成", Color: widgets.TimelineGray},
 		})
+	})
+}
+
+// /sample
+
+// sample:timelinepending
+func TimelinePendingDemo(c *ui.Context) {
+	widgets.Timeline(c, []widgets.TimelineItem{
+		{Title: "提交订单", Description: "09:00"},
+		{Title: "支付完成", Description: "09:05", Color: widgets.TimelineGreen},
+		{Title: "仓库拣货", Description: "10:20", Color: widgets.TimelineBlue},
+	}, widgets.TimelinePending("待收货"))
+}
+
+// /sample
+
+// sample:statisticformat
+func StatisticFormatDemo(c *ui.Context) {
+	t := c.Theme()
+	// 自定义格式化：字节数按 1024 进位，保留一位小数。
+	humanBytes := func(v float64) string {
+		units := []string{"B", "KB", "MB", "GB"}
+		i := 0
+		for v >= 1024 && i < len(units)-1 {
+			v /= 1024
+			i++
+		}
+		return fmt.Sprintf("%.1f %s", v, units[i])
+	}
+	row := ui.Row(c).Gap(t.Space(6))
+	row.Children(func() {
+		widgets.Statistic(c, "磁盘占用", 3565158.4, widgets.StatisticFormatter(humanBytes))
+		widgets.Statistic(c, "订单数", 126560, widgets.StatisticTrendUp())
 	})
 }
 

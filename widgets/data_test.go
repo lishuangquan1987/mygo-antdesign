@@ -61,7 +61,7 @@ func TestSkeletonAndStatistic(t *testing.T) {
 	}
 	tt := ui.NewTester(view, 640, 400)
 	tt.Frame()
-	for _, want := range []string{"销售额", "¥", "126560", "转化率", "12.3", "订单数", "88"} {
+	for _, want := range []string{"销售额", "¥", "126,560", "转化率", "12.3", "订单数", "88"} {
 		if !tt.HasText(want) {
 			t.Errorf("未渲染 %q", want)
 		}

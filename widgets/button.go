@@ -130,7 +130,8 @@ func Button(c *ui.Context, label string, opts ...ButtonOption) ui.Element {
 
 	el.Children(func() {
 		if cfg.loading {
-			ui.Spinner(c)
+			// 加载指示走 ant.Spin（主题色旋转器），与 Spin 控件观感一致。
+			Spin(c)
 		}
 		ui.Text(c, label).
 			TextColor(fg).

@@ -27,9 +27,6 @@ var CategoryOrder = []Category{
 // 未列出的片段归属到所在分组的 Name。
 var pageOverrides = map[string][]string{
 	// Typography
-	"Typography|标题":      {"Title"},
-	"Typography|文本与文本组件": {"Paragraph"},
-	"Typography|行内代码":    {"Code"},
 	// Divider（4 个片段同属一个控件）
 	// 布局
 	"布局|Space 间距容器": {"Space"},
@@ -61,8 +58,7 @@ var pageOverrides = map[string][]string{
 	"选择控件|开关按钮":   {"Toggle"},
 	"选择控件|双滑块范围":  {"RangeSlider"},
 	"选择控件|开关按钮组":  {"ToggleGroup"},
-	// 表格
-	"表格|基础表格": {"Table"},
+	// 表格（片段用 Sample.Page 声明页名，不再需要 override）
 	// 数据展示
 	"数据展示|标签":          {"Tag"},
 	"数据展示|徽标":          {"Badge"},
@@ -139,7 +135,7 @@ var pageSummary = map[string]string{
 	"NumberInput":  "数字输入框：范围与步进约束。",
 	"DateInput":    "日期选择框，受控 *time.Time（antd DatePicker）。",
 	"TimeInput":    "时间选择框，12/24 小时制随区域（antd TimePicker）。",
-	"Form":         "表单：纵向标签 + 必填星号 + 帮助/错误文字。",
+	"Form":         "表单：纵向标签 + 必填校验 + 帮助/错误文字。",
 	"Autocomplete": "自动补全：保留键入内容并给出候选。",
 	"ColorPicker":  "颜色选择器：色块展开面板 / 常驻面板。",
 	"Mentions":     "提及：输入 @ 触发候选并插入。",
@@ -162,7 +158,7 @@ var pageSummary = map[string]string{
 	"ToggleGroup":  "开关按钮组：一组互斥的状态按钮。",
 	// 数据展示
 	"Tag":          "标签：7 色系语义色 + 可关闭。",
-	"Badge":        "徽标：计数与红点，右上角骑角展示。",
+	"Badge":        "徽标：计数与红点，右上角骑角展示；另有状态徽标。",
 	"Avatar":       "头像：姓名首字回退，支持图片。",
 	"Card":         "卡片：头部 extra 与底部 actions，8px 圆角轻阴影。",
 	"Empty":        "空状态：默认插画 + 描述 + 操作区。",
@@ -170,7 +166,7 @@ var pageSummary = map[string]string{
 	"Skeleton":     "骨架屏：内容加载前的占位。",
 	"Statistic":    "统计数值：大字号 + 涨跌趋势色。",
 	"Descriptions": "描述列表：键值成对展示，支持多列与外框。",
-	"Timeline":     "时间轴：节点色（蓝/绿/红/灰）+ 标题描述。",
+	"Timeline":     "时间轴：节点色（蓝/绿/红/灰）+ 标题描述，支持末尾待办节点。",
 	"Collapse":     "折叠面板：头部点击展开/收起，支持手风琴。",
 	"List":         "列表：虚拟滚动 + 行分隔线 + 选中/多选。",
 	"Image":        "图片：可指定宽度，点击放大预览。",
@@ -180,12 +176,12 @@ var pageSummary = map[string]string{
 	"Anchor":       "锚点目录：高亮当前项。",
 	"Masonry":      "瀑布流：按列均衡分配。",
 	"BorderBeam":   "边框流光：主题色渐变描边。",
-	"Table":        "表格：列定义、表头排序（数值列按数值）、行多选，虚拟滚动。",
+	"Table":        "表格：列定义、表头排序（数值列按数值）、行多选、限高滚动。",
 	// 导航
 	"Breadcrumb": "面包屑：指示当前页面在层级结构中的位置。",
-	"Tabs":       "页签：32px 间距 + 主色下划线，自绘对齐 antd。",
+	"Tabs":       "页签：32px 间距 + 主色下划线，支持卡片式（card）样式。",
 	"Dropdown":   "下拉菜单：声明式菜单项、分隔线与危险项。",
-	"Pagination": "分页器：32×32 页码、翻页箭头与窗口折叠。",
+	"Pagination": "分页器：32×32 页码、翻页箭头、窗口折叠、总数文案与每页条数。",
 	"Steps":      "步骤条：完成/进行/等待三态。",
 	"Sidebar":    "侧栏导航：分区 + 条目 + 选中态，键盘可导航。",
 	// 反馈
@@ -229,6 +225,15 @@ func pageKey(group, title string) string {
 	return group + "|" + title
 }
 
+// OverrideKeys 返回 pageOverrides 的全部 key（测试用于发现失效映射）。
+func OverrideKeys() []string {
+	out := make([]string, 0, len(pageOverrides))
+	for k := range pageOverrides {
+		out = append(out, k)
+	}
+	return out
+}
+
 // Pages 把注册表展开为「每控件一页」：同控件的片段聚合为一页，
 // 一个片段演示多个控件时按 override 展开为多页（共享同一 Code/View）。
 // 顺序按 CategoryOrder 与注册顺序；同页名的片段合并。
@@ -249,9 +254,13 @@ func Pages() []ControlPage {
 				continue
 			}
 			for _, s := range d.Samples {
-				names, ok := pageOverrides[pageKey(d.Name, s.Title)]
-				if !ok || len(names) == 0 {
-					names = []string{d.Name}
+				// 目标页优先取 Sample.Page（声明式，推荐）；
+				// 旧式多控件片段仍可用 pageOverrides 按「分组|标题」映射。
+				names := []string{d.Name}
+				if s.Page != "" {
+					names = []string{s.Page}
+				} else if over, ok := pageOverrides[pageKey(d.Name, s.Title)]; ok && len(over) > 0 {
+					names = over
 				}
 				for _, name := range names {
 					summary := d.Summary

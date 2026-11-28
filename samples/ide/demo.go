@@ -87,7 +87,7 @@ func Layout(c *ui.Context) {
 							Background(t.Background).Border(1, t.Border)
 						tabs.BorderWidth(0, 0, 1, 0)
 						tabs.Children(func() {
-							widgets.Tabs(c, tab, "main.go", "theme.go", "widgets.go")
+							widgets.Tabs(c, tab, []string{"main.go", "theme.go", "widgets.go"})
 						})
 						code := ui.Column(c).Fill().Padding(t.Space(2)).Gap(t.Space(1))
 						code.Children(func() {

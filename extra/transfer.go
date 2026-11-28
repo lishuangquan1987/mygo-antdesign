@@ -1,6 +1,8 @@
 package extra
 
 import (
+	"strings"
+
 	"github.com/egoist/mygo/ui"
 
 	"github.com/lishuangquan1987/mygo-antdesign/icon"
@@ -21,11 +23,17 @@ type transferConfig struct {
 	leftTitle  string
 	rightTitle string
 	onChange   func(right []string)
+	searchable bool
 }
 
 // TransferTitles 两列标题（默认「未选」/「已选」）。
 func TransferTitles(left, right string) TransferOption {
 	return func(c *transferConfig) { c.leftTitle, c.rightTitle = left, right }
+}
+
+// TransferSearchable 两列都显示搜索框（antd showSearch），按 Label 过滤。
+func TransferSearchable(b bool) TransferOption {
+	return func(c *transferConfig) { c.searchable = b }
 }
 
 // TransferOnChange 右列（已选 Key 列表）变化回调。
@@ -53,6 +61,8 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 		return map[string]bool{}
 	})
 	initialized := ui.Local(host, "ant.extra.transfer.init", func() bool { return false })
+	queryLeft := ui.Local(host, "ant.extra.transfer.q.left", func() string { return "" })
+	queryRight := ui.Local(host, "ant.extra.transfer.q.right", func() string { return "" })
 
 	// 首帧：以调用方传入的 right 初始化已选集合。
 	if !*initialized {
@@ -102,7 +112,7 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 		}
 	}
 
-	panel := func(title string, list []TransferItem) ui.Element {
+	panel := func(title string, list []TransferItem, query *string) ui.Element {
 		col := ui.Column(c).Width(t.Space(44)).
 			Radius(t.Radius).
 			Background(t.Surface).
@@ -120,7 +130,27 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 				ui.Text(c, title).FontWeight(600).FontSize(t.FontSize).TextColor(t.Text)
 				ui.Textf(c, "%d 项", len(list)).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 			})
-			for _, it := range list {
+			if cfg.searchable {
+				ui.TextInput(c, query).Placeholder("搜索").Search().
+					FillWidth().
+					Height(t.Space(7)).
+					Margin(t.Space(2)).
+					Padding(0, t.Space(2)).
+					Radius(t.Radius).
+					Border(1, t.Border).
+					FontSize(t.FontSize)
+			}
+			q := strings.ToLower(strings.TrimSpace(*query))
+			shown := list
+			if cfg.searchable && q != "" {
+				shown = nil
+				for _, it := range list {
+					if strings.Contains(strings.ToLower(it.Label), q) {
+						shown = append(shown, it)
+					}
+				}
+			}
+			for _, it := range shown {
 				key, label := it.Key, it.Label
 				row := ui.ButtonBase(c).FillWidth().Height(t.Space(8)).
 					Padding(0, t.Space(4)).
@@ -155,7 +185,7 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 					}
 				}
 			}
-			if len(list) == 0 {
+			if len(shown) == 0 {
 				empty := ui.Row(c).FillWidth().Height(t.Space(12)).Center()
 				empty.Children(func() {
 					ui.Text(c, "暂无数据").TextColor(t.TextMuted).FontSize(t.Rem(0.86))
@@ -166,7 +196,7 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 	}
 
 	host.Children(func() {
-		panel(cfg.leftTitle, leftItems)
+		panel(cfg.leftTitle, leftItems, queryLeft)
 		mid := ui.Column(c).Gap(t.Space(2)).AlignItems(ui.Center)
 		mid.Children(func() {
 			// antd Transfer 中间操作：32×32 描边按钮 + 箭头。
@@ -196,7 +226,7 @@ func Transfer(c *ui.Context, items []TransferItem, right *[]string, opts ...Tran
 			arrow(icon.Right, true)
 			arrow(icon.Left, false)
 		})
-		panel(cfg.rightTitle, rightItems)
+		panel(cfg.rightTitle, rightItems, queryRight)
 	})
 	return host
 }

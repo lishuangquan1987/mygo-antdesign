@@ -13,13 +13,24 @@ import (
 // Watermark 水印（antd Watermark）：在内容之上平铺半透明文字，且不拦截输入：
 //
 //	ant.Watermark(c, "内部资料", func() { ant.Paragraph(c, "正文") })
+//
+// 水印只覆盖内容自身的矩形（antd 同样限制在包裹容器内），不铺满整窗：
+// 覆盖层是窗口级的（ui.Overlay），用它绘制时必须按宿主矩形取范围，
+// 否则整页（含侧栏、工具条）都会被铺满。
 func Watermark(c *ui.Context, text string, content func()) ui.Element {
 	t := c.Theme()
 	host := ui.Column(c).FillWidth()
+	// 宿主矩形在绘制阶段回写：覆盖层之后绘制，同帧即可读到。
+	area := ui.Local(host, "ant.watermark.area", func() ui.Rect { return ui.Rect{} })
+	host.Draw(func(_ *ui.Painter, r ui.Rect) { *area = r })
 	host.Children(content)
 	ui.Overlay(c, func() {
 		layer := ui.Box(c).Fill().IgnoreInput(true).PassThrough()
-		layer.Draw(func(p *ui.Painter, r ui.Rect) {
+		layer.Draw(func(p *ui.Painter, _ ui.Rect) {
+			r := *area
+			if r.W <= 0 || r.H <= 0 {
+				return
+			}
 			size := t.Rem(0.9)
 			col := t.Text.Alpha(0.08)
 			stepX := t.Space(30)
@@ -199,13 +210,23 @@ func Tour(c *ui.Context, open *bool, steps []TourStep, current *int, opts ...Tou
 // NotificationOption 定制 Notification。
 type NotificationOption func(*notificationConfig)
 
-type notificationConfig struct{}
+type notificationConfig struct{ typ AlertType }
+
+// NotificationType 通知类型（antd notification type）：显示语义色图标，
+// 取值同 Alert（AlertSuccess / AlertInfo / AlertWarning / AlertError）。
+func NotificationType(typ AlertType) NotificationOption {
+	return func(c *notificationConfig) { c.typ = typ }
+}
 
 // Notification 通知卡片（antd Notification）：右上角浮层，带标题、描述与
 // 关闭按钮；与底部轻提示 ant.Notify 的区别是位置与样式：
 //
 //	ant.Notification(c, &app.showNotice, "部署完成", "v0.3.0 已上线")
 func Notification(c *ui.Context, open *bool, title, description string, opts ...NotificationOption) ui.Element {
+	cfg := &notificationConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
 	t := c.Theme()
 	host := ui.Row(c)
 	if !*open {
@@ -219,16 +240,25 @@ func Notification(c *ui.Context, open *bool, title, description string, opts ...
 			Background(t.Surface).
 			Border(1, t.Border)
 		card.Children(func() {
-			row := ui.Row(c).FillWidth().Justify(ui.SpaceBetween).AlignItems(ui.Start)
+			row := ui.Row(c).FillWidth().Gap(t.Space(2)).AlignItems(ui.Start)
 			row.Children(func() {
-				ui.Text(c, title).TextColor(t.Text).FontSize(t.Rem(0.95)).FontWeight(600)
+				// 类型图标：语义色圆底 + 矢量字形（与 Alert 同一套画法）。
+				if cfg.typ != "" {
+					badge := ui.Box(c).Size(t.Space(4), t.Space(4)).
+						Radius(t.Space(2)).Background(alertColor(t, cfg.typ)).Center()
+					badge.Children(func() { alertGlyph(c, cfg.typ, t.AccentText) })
+				}
+				body := ui.Column(c).Grow(1).Gap(t.Space(1))
+				body.Children(func() {
+					ui.Text(c, title).TextColor(t.Text).FontSize(t.Rem(0.95)).FontWeight(600)
+					ui.Text(c, description).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
+				})
 				closeBtn := ui.ButtonBase(c).Size(t.Space(5), t.Space(5)).Center().Label("关闭")
 				closeBtn.Children(func() { icon.Icon(c, icon.Close, t.Space(2.5), icon.WithColor(t.TextMuted)) })
 				if closeBtn.Clicked() {
 					*open = false
 				}
 			})
-			ui.Text(c, description).TextColor(t.TextMuted).FontSize(t.Rem(0.86))
 		})
 	})
 	return host

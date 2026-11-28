@@ -6,6 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
@@ -67,14 +68,14 @@ func Stepper(c *ui.Context, value *float64, lo, hi, step float64, opts ...Contro
 		arrows.Children(func() {
 			up := ui.ButtonBase(c).Size(t.Space(4), t.Space(3)).Center().Label("增加")
 			up.Children(func() {
-				ui.Text(c, "▲").TextColor(t.TextMuted).FontSize(t.Rem(0.6)).SingleLine()
+				icon.Icon(c, icon.Up, t.Rem(0.6), icon.WithColor(t.TextMuted))
 			})
 			if up.Clicked() {
 				*value = clamp(*value + step)
 			}
 			down := ui.ButtonBase(c).Size(t.Space(4), t.Space(3)).Center().Label("减少")
 			down.Children(func() {
-				ui.Text(c, "▼").TextColor(t.TextMuted).FontSize(t.Rem(0.6)).SingleLine()
+				icon.Icon(c, icon.Down, t.Rem(0.6), icon.WithColor(t.TextMuted))
 			})
 			if down.Clicked() {
 				*value = clamp(*value - step)

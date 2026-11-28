@@ -4,6 +4,7 @@ package extrademo
 import (
 	_ "embed"
 	"strings"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -134,8 +135,11 @@ func UploadDemo(c *ui.Context) {
 	col := ui.Column(c).FillWidth()
 	count := ui.Local(col, "ant.sample.extra.upload", func() int { return 0 })
 	col.Children(func() {
+		// 只接受图片与 PDF，最多 3 个（超出部分被忽略）。
 		extra.Upload(c, extra.UploadMultiple(true),
-			extra.UploadAccept("任意类型"),
+			extra.UploadAccept("PNG / JPG / PDF"),
+			extra.UploadExtensions("png", "jpg", "pdf"),
+			extra.UploadMaxCount(3),
 			extra.UploadOnChange(func(files []extra.UploadFile) { *count = len(files) }))
 		if *count > 0 {
 			widgets.TextMuted(c, "已选择文件（见列表）")
@@ -155,7 +159,9 @@ func TransferDemo(c *ui.Context) {
 			{Key: "b", Label: "列表项 B"},
 			{Key: "c", Label: "列表项 C"},
 		}
-		extra.Transfer(c, items, right, extra.TransferTitles("候选", "已选"))
+		extra.Transfer(c, items, right,
+			extra.TransferTitles("候选", "已选"),
+			extra.TransferSearchable(true))
 	})
 }
 
@@ -166,11 +172,15 @@ func CarouselDemo(c *ui.Context) {
 	t := c.Theme()
 	col := ui.Column(c).FillWidth().Gap(t.Space(5))
 	col.Children(func() {
+		// 箭头 + 圆点 + 3 秒自动播放（系统偏好「减少动态」时自动暂停）。
 		extra.Carousel(c, []func(*ui.Context){
 			func(c *ui.Context) { widgets.Title(c, "欢迎使用", widgets.H3) },
 			func(c *ui.Context) { widgets.Title(c, "第二页", widgets.H3) },
 			func(c *ui.Context) { widgets.Title(c, "第三页", widgets.H3) },
-		}, extra.CarouselHeight(96))
+		}, extra.CarouselHeight(96),
+			extra.CarouselArrows(true),
+			extra.CarouselDots(true),
+			extra.CarouselAutoplay(3*time.Second))
 		row := ui.Row(c).Gap(t.Space(5)).AlignItems(ui.Center)
 		row.Children(func() {
 			extra.QRCode(c, "https://github.com/lishuangquan1987/mygo-antdesign", extra.QRCodeSize(88))

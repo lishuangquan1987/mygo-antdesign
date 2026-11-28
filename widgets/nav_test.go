@@ -17,7 +17,7 @@ func TestBreadcrumbAndTabs(t *testing.T) {
 		col := ui.Column(c).Gap(8)
 		col.Children(func() {
 			widgets.Breadcrumb(c, []string{"首页", "列表", "详情"}, &level)
-			widgets.Tabs(c, &tab, "常规", "外观", "高级")
+			widgets.Tabs(c, &tab, []string{"常规", "外观", "高级"})
 		})
 	}
 	tt := ui.NewTester(view, 400, 160)
@@ -124,7 +124,7 @@ func TestNavFollowsThemeAndDensity(t *testing.T) {
 			col := ui.Column(c).Gap(8).FillWidth()
 			col.Children(func() {
 				widgets.Breadcrumb(c, []string{"首页", "设置"}, &level)
-				widgets.Tabs(c, &tab, "一", "二")
+				widgets.Tabs(c, &tab, []string{"一", "二"})
 				widgets.Pagination(c, &page, 42)
 				widgets.Steps(c, &step, []string{"甲", "乙", "丙"})
 				widgets.Dropdown(c, "菜单", []widgets.MenuItemData{{Label: "项"}})

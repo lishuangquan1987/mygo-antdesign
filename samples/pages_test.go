@@ -1,6 +1,7 @@
 package sample_test
 
 import (
+	"strings"
 	"testing"
 
 	sample "github.com/lishuangquan1987/mygo-antdesign/samples"
@@ -88,8 +89,12 @@ func TestPagesSampleCounts(t *testing.T) {
 	if counts["Input"] != 2 {
 		t.Errorf("Input 片段数 = %d, want 2", counts["Input"])
 	}
+	// Table：基础表格 + 自定义单元格与分页 2 个片段。
+	if counts["Table"] != 2 {
+		t.Errorf("Table 片段数 = %d, want 2", counts["Table"])
+	}
 	// 单片段控件页。
-	for _, name := range []string{"Empty", "Result", "Meter", "Anchor", "QRCode", "Table"} {
+	for _, name := range []string{"Empty", "Result", "Meter", "Anchor", "QRCode"} {
 		if counts[name] != 1 {
 			t.Errorf("%s 片段数 = %d, want 1", name, counts[name])
 		}
@@ -102,4 +107,57 @@ func TestPagesSampleCounts(t *testing.T) {
 	if sample.FragmentCount() != total {
 		t.Errorf("FragmentCount = %d, want %d", sample.FragmentCount(), total)
 	}
+}
+
+// TestSampleCodeExtracted 校验每个示例的 Code 都是真实源码片段（不是
+// Extract 的占位提示）：防止 sample: 标记写错后页面静默显示一句注释。
+func TestSampleCodeExtracted(t *testing.T) {
+	buildAll(t)
+	for _, p := range sample.Pages() {
+		for _, s := range p.Samples {
+			if s.Code == "" {
+				t.Errorf("%s / %s：代码为空", p.Name, s.Title)
+				continue
+			}
+			if strings.HasPrefix(s.Code, "// 未找到标记段") ||
+				strings.HasPrefix(s.Code, "// 标记段") {
+				t.Errorf("%s / %s：%s", p.Name, s.Title, strings.SplitN(s.Code, "\n", 2)[0])
+			}
+		}
+	}
+}
+
+// TestPageOverridesValid 校验 pages.go 的旧式映射没有失效条目：
+// key 的「分组名|片段标题」必须真实存在，目标页名非空。
+func TestPageOverridesValid(t *testing.T) {
+	buildAll(t)
+	exist := map[string]bool{}
+	for _, d := range sample.All() {
+		for _, s := range d.Samples {
+			exist[d.Name+"|"+s.Title] = true
+		}
+	}
+	for _, k := range sample.OverrideKeys() {
+		if !exist[k] {
+			t.Errorf("pageOverrides 失效 key：%q（分组或片段标题已改名）", k)
+		}
+	}
+	for _, p := range sample.Pages() {
+		if p.Name == "" {
+			t.Error("存在空页名")
+		}
+	}
+}
+
+// TestRegisterDuplicatePanics 同名控件重复注册必须 panic（防止侧栏出现
+// 两个同名页，也防止两个包误用同一个 Name）。
+func TestRegisterDuplicatePanics(t *testing.T) {
+	buildAll(t)
+	d := sample.All()[0]
+	defer func() {
+		if recover() == nil {
+			t.Error("重复注册同名控件应 panic")
+		}
+	}()
+	sample.Register(d)
 }

@@ -23,18 +23,21 @@ func Demo() samples.WidgetDemo {
 		Samples: []samples.Sample{
 			{
 				Title:       "标题",
+				Page:        "Title",
 				Description: "H1–H5 五级标题，字号对齐 antd Typography.Title，随基准字号缩放。",
 				Code:        samples.Extract(demoSrc, "titles"),
 				View:        Titles,
 			},
 			{
 				Title:       "文本与文本组件",
+				Page:        "Paragraph",
 				Description: "次要、加粗、删除线、下划线、斜体与高亮等文本变体。",
 				Code:        samples.Extract(demoSrc, "texts"),
 				View:        Texts,
 			},
 			{
 				Title:       "行内代码",
+				Page:        "Code",
 				Description: "Code 展示行内代码样式（容器底色 + 描边）。",
 				Code:        samples.Extract(demoSrc, "code"),
 				View:        Code,

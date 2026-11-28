@@ -3,6 +3,7 @@ package input
 
 import (
 	_ "embed"
+	"regexp"
 	"time"
 
 	"github.com/egoist/mygo/ui"
@@ -54,9 +55,16 @@ func Demo() samples.WidgetDemo {
 			},
 			{
 				Title:       "表单",
-				Description: "Form 标签列对齐，FormItem 支持必填、帮助与错误文字。",
+				Description: "Form 标签列对齐，带必填星号、帮助与错误文字。",
 				Code:        samples.Extract(demoSrc, "form"),
 				View:        FormDemo,
+			},
+			{
+				Title:       "表单即时校验",
+				Description: "FormItemRules 逐帧校验，错误替代帮助文字。",
+				Code:        samples.Extract(demoSrc, "formrules"),
+				View:        FormRulesDemo,
+				Page:        "Form",
 			},
 			{
 				Title:       "自动补全",
@@ -161,19 +169,47 @@ func PickerDemo(c *ui.Context) {
 
 // sample:form
 func FormDemo(c *ui.Context) {
-	name := ""
-	email := ""
-	widgets.Form(c, func() {
-		widgets.FormItem(c, "用户名", func() {
-			widgets.Input(c, &name, widgets.PlaceholderText("请输入用户名"))
-		}, widgets.FormItemRequired(true))
-		widgets.FormItem(c, "邮箱", func() {
-			widgets.Input(c, &email, widgets.PlaceholderText("name@example.com"))
-		}, widgets.FormItemHelp("用于接收通知"), widgets.FormItemError("邮箱格式不正确"))
-		widgets.FormGroup(c, "其他", func() {
-			widgets.FormItem(c, "备注", func() {
-				widgets.TextArea(c, &name, widgets.Rows(2))
-			})
+	host := ui.Column(c).FillWidth()
+	// 输入值放在 Local 里跨帧保存：函数内的局部变量每帧重建，输入会被清空。
+	name := ui.Local(host, "ant.sample.input.form.name", func() string { return "" })
+	email := ui.Local(host, "ant.sample.input.form.email", func() string { return "" })
+	host.Children(func() {
+		widgets.Form(c, func() {
+			widgets.FormItem(c, "用户名", func() {
+				widgets.Input(c, name, widgets.PlaceholderText("请输入用户名"))
+			}, widgets.FormItemRequired(true))
+			widgets.FormItem(c, "邮箱", func() {
+				widgets.Input(c, email, widgets.PlaceholderText("name@example.com"))
+			}, widgets.FormItemHelp("用于接收通知"), widgets.FormItemError("邮箱格式不正确"))
+		})
+	})
+}
+
+// /sample
+
+// sample:formrules
+func FormRulesDemo(c *ui.Context) {
+	host := ui.Column(c).FillWidth()
+	user := ui.Local(host, "ant.sample.input.rules.user", func() string { return "" })
+	mail := ui.Local(host, "ant.sample.input.rules.mail", func() string { return "" })
+	mailRe := regexp.MustCompile(`^[^@\s]+@[^@\s]+\.[^@\s]+$`)
+	host.Children(func() {
+		widgets.Form(c, func() {
+			widgets.FormItem(c, "用户名", func() {
+				widgets.Input(c, user, widgets.PlaceholderText("3–12 个字符"))
+			},
+				widgets.FormItemRequired(true),
+				widgets.FormItemValue(func() string { return *user }),
+				widgets.FormItemRules(widgets.FormRule{MinLen: 3, MaxLen: 12, Message: "用户名需 3–12 个字符"}),
+			)
+			widgets.FormItem(c, "邮箱", func() {
+				widgets.Input(c, mail, widgets.PlaceholderText("name@example.com"))
+			},
+				widgets.FormItemRequired(true),
+				widgets.FormItemValue(func() string { return *mail }),
+				widgets.FormItemRules(widgets.FormRule{Pattern: mailRe, PatternHint: "邮箱格式不正确"}),
+				widgets.FormItemHelp("校验通过时显示这段帮助文字"),
+			)
 		})
 	})
 }

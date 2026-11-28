@@ -29,6 +29,13 @@ func Demo() samples.WidgetDemo {
 				View:        BreadcrumbDemo,
 			},
 			{
+				Title:       "卡片式页签",
+				Description: "TabsCard 卡片式页签，切换时回报索引。",
+				Code:        samples.Extract(demoSrc, "tabscard"),
+				View:        TabsCardDemo,
+				Page:        "Tabs",
+			},
+			{
 				Title:       "下拉菜单",
 				Description: "Dropdown 菜单项、分隔线与危险项。",
 				Code:        samples.Extract(demoSrc, "dropdown"),
@@ -39,6 +46,13 @@ func Demo() samples.WidgetDemo {
 				Description: "超过 7 页自动折叠为「1 2 3 4 … N」窗口。",
 				Code:        samples.Extract(demoSrc, "pagination"),
 				View:        PaginationDemo,
+			},
+			{
+				Title:       "分页器选项",
+				Description: "每页条数 + 总数文案 + 禁用态。",
+				Code:        samples.Extract(demoSrc, "paginationoptions"),
+				View:        PaginationOptionsDemo,
+				Page:        "Pagination",
 			},
 			{
 				Title:       "步骤条",
@@ -69,7 +83,28 @@ func BreadcrumbDemo(c *ui.Context) {
 	tab := ui.Local(col, "ant.sample.nav.tab", func() int { return 0 })
 	col.Children(func() {
 		widgets.Breadcrumb(c, []string{"首页", "列表", "详情"}, level)
-		widgets.Tabs(c, tab, "常规", "外观", "高级")
+		widgets.Tabs(c, tab, []string{"常规", "外观", "高级"})
+	})
+}
+
+// /sample
+
+// sample:tabscard
+func TabsCardDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	labels := []string{"常规", "外观", "高级"}
+	tab := ui.Local(col, "ant.sample.nav.cardtab", func() int { return 0 })
+	last := ui.Local(col, "ant.sample.nav.cardlast", func() string { return labels[0] })
+	col.Children(func() {
+		widgets.Tabs(c, tab, labels,
+			widgets.TabsCard(),
+			widgets.TabsOnChange(func(i int) {
+				if i >= 0 && i < len(labels) {
+					*last = labels[i]
+				}
+			}),
+		)
+		widgets.Paragraph(c, "当前页签："+*last, widgets.Secondary())
 	})
 }
 
@@ -100,6 +135,21 @@ func PaginationDemo(c *ui.Context) {
 	page := ui.Local(col, "ant.sample.nav.page", func() int { return 1 })
 	col.Children(func() {
 		widgets.Pagination(c, page, 42, widgets.OnPageChange(func(int) {}))
+	})
+}
+
+// /sample
+
+// sample:paginationoptions
+func PaginationOptionsDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	page := ui.Local(col, "ant.sample.nav.optpage", func() int { return 1 })
+	size := ui.Local(col, "ant.sample.nav.optsize", func() int { return 20 })
+	col.Children(func() {
+		// 三个分页器各演示一项能力，避免单行内容过宽被卡片裁切。
+		widgets.Pagination(c, page, 28, widgets.PaginationShowTotal())
+		widgets.Pagination(c, page, 28, widgets.PaginationPageSize(size))
+		widgets.Pagination(c, page, 8, widgets.PaginationDisabled(true))
 	})
 }
 

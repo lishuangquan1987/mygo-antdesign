@@ -1,6 +1,9 @@
 package ant
 
 import (
+	"slices"
+	"strings"
+
 	"github.com/egoist/mygo/ui"
 
 	"github.com/lishuangquan1987/mygo-antdesign/icon"
@@ -14,6 +17,7 @@ type ControlOption func(*controlConfig)
 type controlConfig struct {
 	disabled bool
 	onChg    func()
+	ph       string
 }
 
 // ControlDisabled 禁用（antd disabled）。
@@ -21,6 +25,18 @@ func ControlDisabled(b bool) ControlOption { return func(c *controlConfig) { c.d
 
 // OnChange 值变化回调（antd onChange；Changed 为本帧变化语义）。
 func OnChange(fn func()) ControlOption { return func(c *controlConfig) { c.onChg = fn } }
+
+// ControlPlaceholder 空值时的占位文字（antd placeholder）：选择类控件的
+// 触发器与输入框共用；留空时按控件默认（「请选择」）。
+func ControlPlaceholder(s string) ControlOption { return func(c *controlConfig) { c.ph = s } }
+
+// placeholder 返回占位文字，缺省「请选择」。
+func (c *controlConfig) placeholder() string {
+	if c.ph != "" {
+		return c.ph
+	}
+	return "请选择"
+}
 
 // applyControl 应用通用选项并在值变化时触发回调。
 func applyControl(el ui.Element, cfg *controlConfig) {
@@ -285,10 +301,12 @@ func Select(c *ui.Context, selected *string, options []string, opts ...ControlOp
 		label := *selected
 		color := t.Text
 		if label == "" {
-			label, color = "请选择", t.TextMuted
+			label, color = cfg.placeholder(), t.TextMuted
 		}
+		// 文字占满剩余宽度，箭头才能稳定贴在右端（否则 SingleLine 文本
+		// 会把箭头挤出触发器可视区）。
 		ui.Text(c, label).TextColor(color).
-			FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine()
+			FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine().Grow(1)
 		icon.Icon(c, icon.Down, t.Space(3), icon.WithColor(t.TextMuted))
 	})
 
@@ -344,6 +362,7 @@ func Combobox(c *ui.Context, selected *string, options []string, opts ...Control
 		Radius(t.Radius).
 		Border(1, t.Border).
 		Background(t.Surface).
+		Placeholder(cfg.placeholder()).
 		FontSize(internal.ControlFont(t, internal.SizeMiddle))
 	if cfg.disabled {
 		cb.Input.Disabled(true)
@@ -378,6 +397,202 @@ func Combobox(c *ui.Context, selected *string, options []string, opts ...Control
 	// ComboboxBase 只报告 Chosen，需由调用方写回输入文本。
 	if chosen, ok := cb.Chosen(); ok {
 		*selected = chosen
+		if chosen != before && cfg.onChg != nil {
+			cfg.onChg()
+		}
+	}
+	return cb.Input
+}
+
+// SelectMulti 多选下拉（antd Select mode="multiple"）。selected 由调用方
+// 持有，点击选项切换选中，触发器内以标签展示已选：
+//
+//	var tags []string
+//	ant.SelectMulti(c, &tags, []string{"前端", "后端", "设计"}, ant.OnChange(app.save))
+func SelectMulti(c *ui.Context, selected *[]string, options []string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+	before := slices.Clone(*selected)
+
+	host := ui.Row(c)
+	open := ui.Local(host, "ant.selectmulti.open", func() bool { return false })
+	has := func(v string) bool { return slices.Contains(*selected, v) }
+
+	trigger := ui.ButtonBase(c).
+		MinHeight(internal.ControlHeight(t, internal.SizeMiddle)).
+		Padding(t.Space(1), t.Space(2)).
+		Radius(t.Radius).
+		Border(1, t.Border).
+		Background(t.Surface).
+		AlignItems(ui.Center).
+		Gap(t.Space(1))
+	trigger.Label("多选下拉")
+	if cfg.disabled {
+		trigger.Disabled(true)
+	}
+	trigger.Children(func() {
+		chips := ui.Row(c).Gap(t.Space(1)).AlignItems(ui.Center).Grow(1)
+		if trigger.Hovered() && !cfg.disabled {
+			trigger.Border(1, t.Accent)
+		}
+		chips.Children(func() {
+			if len(*selected) == 0 {
+				ui.Text(c, cfg.placeholder()).TextColor(t.TextMuted).
+					FontSize(internal.ControlFont(t, internal.SizeMiddle))
+				return
+			}
+			for _, v := range *selected {
+				v := v
+				chip := ui.Row(c).Height(t.Space(5)).
+					Padding(0, t.Space(1.5)).
+					Radius(t.Radius * 0.67).
+					Background(t.Background.Mix(t.Text, 0.06)).
+					AlignItems(ui.Center).Gap(t.Space(1))
+				chip.Children(func() {
+					ui.Text(c, v).TextColor(t.Text).FontSize(t.Rem(0.86)).SingleLine()
+					x := ui.ButtonBase(c).Size(t.Space(3.5), t.Space(3.5)).
+						Radius(t.Space(1.75)).Center().Label("移除 " + v)
+					if x.Hovered() {
+						x.Background(t.Text.Alpha(0.08))
+					}
+					x.Children(func() {
+						icon.Icon(c, icon.Close, t.Space(2), icon.WithColor(t.TextMuted))
+					})
+					if x.Clicked() && !cfg.disabled {
+						*selected = slices.DeleteFunc(*selected, func(s string) bool { return s == v })
+					}
+				})
+			}
+		})
+		icon.Icon(c, icon.Down, t.Space(3), icon.WithColor(t.TextMuted))
+	})
+	if trigger.Clicked() && !cfg.disabled {
+		*open = !*open
+	}
+
+	ui.Popover(c, trigger, open, func() {
+		panel := ui.Column(c).Width(t.Space(56)).Gap(t.Space(1)).
+			Padding(t.Space(1)).
+			Radius(t.Radius+t.Space(0.5)).
+			Background(t.Surface).
+			Border(1, t.Border).
+			Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
+		panel.Children(func() {
+			for _, opt := range options {
+				opt := opt
+				item := ui.ButtonBase(c).FillWidth().
+					Height(internal.ControlHeight(t, internal.SizeSmall)).
+					Padding(0, t.Space(2)).
+					Radius(t.Radius * 0.67).
+					AlignItems(ui.Center).Gap(t.Space(2))
+				if item.Hovered() {
+					item.Background(t.SurfaceHover)
+				}
+				item.Children(func() {
+					box := ui.Box(c).Size(t.Space(4), t.Space(4)).
+						Radius(t.Space(0.5)).Border(1, t.Border).Center()
+					if has(opt) {
+						box.Background(t.Accent)
+						box.Border(1, t.Accent)
+						box.Children(func() {
+							icon.Icon(c, icon.Check, t.Space(2.5), icon.WithColor(t.AccentText))
+						})
+					} else {
+						box.Children(func() {})
+					}
+					ui.Text(c, opt).TextColor(t.Text).
+						FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine()
+				})
+				if item.Clicked() {
+					if has(opt) {
+						*selected = slices.DeleteFunc(*selected, func(s string) bool { return s == opt })
+					} else {
+						*selected = append(*selected, opt)
+					}
+				}
+			}
+		})
+	})
+
+	if !slices.Equal(before, *selected) && cfg.onChg != nil {
+		cfg.onChg()
+	}
+	return host
+}
+
+// SelectSearch 可搜索下拉（antd Select showSearch）：键入关键字过滤候选，
+// 只能选中候选之一（与 Combobox 的差别是值受限）：
+//
+//	var city string
+//	ant.SelectSearch(c, &city, []string{"北京", "上海", "广州"})
+func SelectSearch(c *ui.Context, selected *string, options []string, opts ...ControlOption) ui.Element {
+	cfg := &controlConfig{}
+	for _, o := range opts {
+		o(cfg)
+	}
+	t := c.Theme()
+
+	host := ui.Row(c)
+	query := ui.Local(host, "ant.selectsearch.query", func() string { return *selected })
+	before := *selected
+
+	cb := ui.ComboboxBase(c, query)
+	cb.Input.
+		Placeholder(cfg.placeholder()).
+		Label("城市选择").
+		Height(internal.ControlHeight(t, internal.SizeMiddle)).
+		Padding(0, internal.ControlPaddingX(t, internal.SizeMiddle)).
+		Radius(t.Radius).
+		Border(1, t.Border).
+		Background(t.Surface).
+		FontSize(internal.ControlFont(t, internal.SizeMiddle))
+	if cfg.disabled {
+		cb.Input.Disabled(true)
+	}
+
+	q := strings.ToLower(strings.TrimSpace(*query))
+	var matched []string
+	for _, opt := range options {
+		if q == "" || strings.Contains(strings.ToLower(opt), q) {
+			matched = append(matched, opt)
+		}
+	}
+
+	cb.Popup(func(panel ui.Element) {
+		panel.Padding(t.Space(1)).
+			Radius(t.Radius+t.Space(0.5)).
+			Background(t.Surface).
+			Border(1, t.Border).
+			Shadow(0, 6, 16, 0, t.Text.Alpha(0.08))
+		for _, opt := range matched {
+			opt := opt
+			item := cb.Item(opt).
+				Height(internal.ControlHeight(t, internal.SizeSmall)).
+				Padding(0, t.Space(2)).
+				Radius(t.Radius * 0.67).
+				AlignItems(ui.Center)
+			if opt == *selected {
+				item.Background(t.Selection)
+			} else if item.Highlighted() {
+				item.Background(t.SurfaceHover)
+			}
+			item.Children(func() {
+				ui.Text(c, opt).TextColor(t.Text).
+					FontSize(internal.ControlFont(t, internal.SizeMiddle)).SingleLine()
+			})
+		}
+		if len(matched) == 0 {
+			ui.Text(c, "无匹配项").TextColor(t.TextMuted).
+				FontSize(t.Rem(0.86)).Padding(t.Space(2))
+		}
+	})
+
+	if chosen, ok := cb.Chosen(); ok {
+		*selected = chosen
+		*query = chosen
 		if chosen != before && cfg.onChg != nil {
 			cfg.onChg()
 		}

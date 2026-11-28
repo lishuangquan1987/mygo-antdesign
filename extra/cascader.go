@@ -5,6 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
@@ -91,16 +92,19 @@ func renderCascaderColumns(c *ui.Context, t *ui.Theme, nodes []CascaderNode, idx
 			for i, n := range cur {
 				i := i
 				hasChild := len(n.Children) > 0
-				item := ui.Row(c).
+				// ButtonBase 让每个选项可聚焦：Tab 移动、Enter/Space 选择
+				// （纯 Row 只有鼠标命中区，键盘无法操作）。
+				item := ui.ButtonBase(c).
 					FillWidth().
 					Padding(t.Space(1), t.Space(2)).
 					Gap(t.Space(2)).
-					AlignItems(ui.Center)
+					AlignItems(ui.Center).
+					Label(n.Label)
 				item.Children(func() {
 					ui.Text(c, n.Label).TextColor(t.Text).
 						FontSize(internal.ControlFont(t, internal.SizeMiddle)).Grow(1)
 					if hasChild {
-						ui.Text(c, "▸").TextColor(t.TextMuted)
+						icon.Icon(c, icon.Right, t.Space(2.5), icon.WithColor(t.TextMuted))
 					}
 				})
 				// 悬停高亮：antd menu-item-hover。

@@ -2,6 +2,7 @@ package extra
 
 import (
 	"path/filepath"
+	"strings"
 
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/transfer"
@@ -24,6 +25,8 @@ type uploadConfig struct {
 	multiple bool
 	onChange func(files []UploadFile)
 	hint     string
+	exts     []string // 允许的扩展名（含点，如 ".png"）；空表示不限
+	maxCount int      // 最多文件数；0 表示不限
 }
 
 // UploadMultiple 允许一次选择多个文件。
@@ -31,6 +34,15 @@ func UploadMultiple(b bool) UploadOption { return func(c *uploadConfig) { c.mult
 
 // UploadAccept 提示的文件类型说明（如 "图片或 PDF"）。
 func UploadAccept(desc string) UploadOption { return func(c *uploadConfig) { c.accept = desc } }
+
+// UploadExtensions 限定可选文件类型（antd accept）：扩展名可带点（".png"）
+// 也可不带（"png"），不区分大小写；不在列表中的文件会被忽略。
+func UploadExtensions(exts ...string) UploadOption {
+	return func(c *uploadConfig) { c.exts = append(c.exts, exts...) }
+}
+
+// UploadMaxCount 最多文件数（antd maxCount）：达到上限后新增文件被忽略。
+func UploadMaxCount(n int) UploadOption { return func(c *uploadConfig) { c.maxCount = n } }
 
 // UploadHint 拖放区的提示文字（默认「点击选择或拖拽文件到此处」）。
 func UploadHint(s string) UploadOption { return func(c *uploadConfig) { c.hint = s } }
@@ -83,7 +95,7 @@ func Upload(c *ui.Context, opts ...UploadOption) ui.Element {
 			Formats: []transfer.Format{transfer.FileList, transfer.URIList},
 		}); ok {
 			if paths, err := drop.Data.Files(); err == nil && len(paths) > 0 {
-				addPaths(files, paths)
+				addPaths(cfg, files, paths)
 				fireUpload(cfg, files)
 			}
 		}
@@ -130,13 +142,19 @@ func openDialog(cfg *uploadConfig, files *[]UploadFile) {
 	if err != nil || len(paths) == 0 {
 		return
 	}
-	addPaths(files, paths)
+	addPaths(cfg, files, paths)
 	fireUpload(cfg, files)
 }
 
-// addPaths 把路径加入列表（按路径去重）。
-func addPaths(files *[]UploadFile, paths []string) {
+// addPaths 把路径加入列表（按路径去重，按扩展名与数量上限过滤）。
+func addPaths(cfg *uploadConfig, files *[]UploadFile, paths []string) {
 	for _, p := range paths {
+		if cfg.maxCount > 0 && len(*files) >= cfg.maxCount {
+			break
+		}
+		if !allowedExt(cfg, p) {
+			continue
+		}
 		f := UploadFile{Name: filepath.Base(p), Path: p}
 		dup := false
 		for _, existing := range *files {
@@ -149,6 +167,24 @@ func addPaths(files *[]UploadFile, paths []string) {
 			*files = append(*files, f)
 		}
 	}
+}
+
+// allowedExt 判断扩展名是否在允许列表内（不区分大小写；"png" 与 ".png" 等价）。
+func allowedExt(cfg *uploadConfig, path string) bool {
+	if len(cfg.exts) == 0 {
+		return true
+	}
+	ext := strings.ToLower(filepath.Ext(path))
+	for _, want := range cfg.exts {
+		w := strings.ToLower(want)
+		if !strings.HasPrefix(w, ".") {
+			w = "." + w
+		}
+		if w == ext {
+			return true
+		}
+	}
+	return false
 }
 
 // removeFile 移除第 i 项。

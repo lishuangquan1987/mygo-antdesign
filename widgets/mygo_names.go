@@ -63,7 +63,8 @@ func Rating(c *ui.Context, value *int, max int, opts ...ControlOption) ui.Elemen
 	return Rate(c, value, max, opts...)
 }
 
-// Spinner 加载指示器（MyGo 命名；`Spin` 为别名）。
+// Spinner 加载指示器（沿用 MyGo 的 Spinner 命名；实现是自绘的 Spin，
+// 不是对 ui.Spinner 的包装）。
 func Spinner(c *ui.Context, opts ...SpinOption) ui.Element {
 	return Spin(c, opts...)
 }

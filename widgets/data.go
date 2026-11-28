@@ -211,6 +211,7 @@ type statisticConfig struct {
 	suffix    string
 	trend     int // 1 上升 / -1 下降 / 0 无
 	precision int
+	formatter func(float64) string
 }
 
 // StatisticPrefix 数值前缀（如 "¥"）。
@@ -227,6 +228,36 @@ func StatisticTrendUp() StatisticOption { return func(c *statisticConfig) { c.tr
 
 // StatisticTrendDown 下降趋势（中文习惯：绿跌）。
 func StatisticTrendDown() StatisticOption { return func(c *statisticConfig) { c.trend = -1 } }
+
+// StatisticFormatter 自定义数值格式（antd formatter）；未设置时按 precision
+// 保留小数并加千分位。
+func StatisticFormatter(fn func(float64) string) StatisticOption {
+	return func(c *statisticConfig) { c.formatter = fn }
+}
+
+// formatNumber 千分位格式化（antd Statistic 默认分组），支持负数与小数。
+func formatNumber(v float64, precision int) string {
+	s := strconv.FormatFloat(v, 'f', precision, 64)
+	neg := ""
+	if len(s) > 0 && s[0] == '-' {
+		neg, s = "-", s[1:]
+	}
+	intPart, frac := s, ""
+	for i := 0; i < len(s); i++ {
+		if s[i] == '.' {
+			intPart, frac = s[:i], s[i:]
+			break
+		}
+	}
+	var b []byte
+	for i := 0; i < len(intPart); i++ {
+		if i > 0 && (len(intPart)-i)%3 == 0 {
+			b = append(b, ',')
+		}
+		b = append(b, intPart[i])
+	}
+	return neg + string(b) + frac
+}
 
 // Statistic 统计数值（antd Statistic）：标题 + 大字号数值 + 可选前缀/后缀/趋势。
 //
@@ -247,16 +278,22 @@ func Statistic(c *ui.Context, title string, value float64, opts ...StatisticOpti
 			if cfg.prefix != "" {
 				ui.Text(c, cfg.prefix).TextColor(t.Text).FontSize(t.Rem(1.14))
 			}
-			ui.Text(c, strconv.FormatFloat(value, 'f', cfg.precision, 64)).
+			text := ""
+			if cfg.formatter != nil {
+				text = cfg.formatter(value)
+			} else {
+				text = formatNumber(value, cfg.precision)
+			}
+			ui.Text(c, text).
 				TextColor(t.Text).FontSize(t.Rem(1.86)).FontWeight(600)
 			if cfg.suffix != "" {
 				ui.Text(c, cfg.suffix).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
 			}
 			switch cfg.trend {
 			case 1:
-				ui.Text(c, "▲").TextColor(t.Danger).FontSize(t.Rem(0.8))
+				icon.Icon(c, icon.Up, t.Rem(0.8), icon.WithColor(t.Danger))
 			case -1:
-				ui.Text(c, "▼").TextColor(t.Success).FontSize(t.Rem(0.8))
+				icon.Icon(c, icon.Down, t.Rem(0.8), icon.WithColor(t.Success))
 			}
 		})
 	})
@@ -364,7 +401,13 @@ type TimelineItem struct {
 // TimelineOption 定制 Timeline。
 type TimelineOption func(*timelineConfig)
 
-type timelineConfig struct{}
+type timelineConfig struct{ pending string }
+
+// TimelinePending 在末尾追加一个待办节点（antd Timeline pending）：
+// 空心灰点 + 次要色文字，表示尚未发生的步骤。
+func TimelinePending(text string) TimelineOption {
+	return func(c *timelineConfig) { c.pending = text }
+}
 
 func timelineDotColor(t *ui.Theme, c TimelineColor) ui.Color {
 	switch c {
@@ -422,6 +465,21 @@ func Timeline(c *ui.Context, items []TimelineItem, opts ...TimelineOption) ui.El
 						ui.Text(c, it.Description).TextColor(t.TextMuted).FontSize(t.FontSize)
 					}
 				})
+			})
+		}
+		// 待办节点：空心灰点 + 次要色文字（antd pending）。
+		if cfg.pending != "" {
+			row := ui.Row(c).FillWidth().AlignItems(ui.Center).Gap(t.Space(2))
+			row.Children(func() {
+				rail := ui.Column(c).Width(t.Space(3)).AlignItems(ui.Center)
+				rail.Children(func() {
+					dot := ui.Box(c).Size(t.Space(2.5), t.Space(2.5)).
+						Radius(t.Space(1.25)).
+						Border(1, t.Border).
+						Background(t.Surface)
+					dot.Children(func() {})
+				})
+				ui.Text(c, cfg.pending).TextColor(t.TextMuted).FontSize(t.FontSize)
 			})
 		}
 	})

@@ -58,6 +58,13 @@ func Demo() samples.WidgetDemo {
 				View:        SelectDemo,
 			},
 			{
+				Title:       "多选与可搜索",
+				Description: "多选标签，可键入关键字过滤候选。",
+				Code:        samples.Extract(demoSrc, "selectadvanced"),
+				View:        SelectAdvancedDemo,
+				Page:        "Select",
+			},
+			{
 				Title:       "开关按钮",
 				Description: "Toggle 保持按下的按钮，适合编辑器工具条。",
 				Code:        samples.Extract(demoSrc, "toggle"),
@@ -153,7 +160,22 @@ func SelectDemo(c *ui.Context) {
 	cmd := ui.Local(col, "ant.sample.select.cmd", func() string { return "" })
 	col.Children(func() {
 		widgets.Select(c, city, []string{"北京", "上海", "广州", "深圳"}, widgets.OnChange(func() {}))
-		widgets.Combobox(c, cmd, []string{"重启服务", "重启网关", "重启集群"}, widgets.OnChange(func() {}))
+		widgets.Combobox(c, cmd, []string{"重启服务", "重启网关", "重启集群"},
+			widgets.ControlPlaceholder("输入或选择命令"), widgets.OnChange(func() {}))
+	})
+}
+
+// /sample
+
+// sample:selectadvanced
+func SelectAdvancedDemo(c *ui.Context) {
+	col := ui.Column(c).FillWidth().Gap(c.Theme().Space(3))
+	cities := []string{"北京", "上海", "广州", "深圳", "杭州"}
+	tags := ui.Local(col, "ant.sample.select.tags", func() []string { return []string{"北京", "上海"} })
+	city := ui.Local(col, "ant.sample.select.search", func() string { return "" })
+	col.Children(func() {
+		widgets.SelectMulti(c, tags, cities, widgets.OnChange(func() {}))
+		widgets.SelectSearch(c, city, cities, widgets.OnChange(func() {}))
 	})
 }
 

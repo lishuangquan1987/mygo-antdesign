@@ -9,7 +9,21 @@ import (
 // TooltipOption 定制 Tooltip。
 type TooltipOption func(*tooltipConfig)
 
-type tooltipConfig struct{}
+type tooltipConfig struct {
+	maxWidth float32
+	color    *ui.Color
+}
+
+// TooltipMaxWidth 气泡最大宽度（DIP）；超出时文字换行（默认单行）。
+func TooltipMaxWidth(w float32) TooltipOption {
+	return func(c *tooltipConfig) { c.maxWidth = w }
+}
+
+// TooltipColor 自定义气泡底色（antd color 预设，如深蓝、红色）；文字自动
+// 使用主题反差色。
+func TooltipColor(col ui.Color) TooltipOption {
+	return func(c *tooltipConfig) { c.color = &col }
+}
 
 // Tooltip 文字提示（antd Tooltip）：悬停或键盘聚焦锚点时显示反色小气泡。
 // 复用 MyGo 的 TooltipBase（0.6s 延迟、键盘聚焦立即显示、Esc 关闭），
@@ -34,13 +48,34 @@ func Tooltip(c *ui.Context, text string, anchor func(*ui.Context), opts ...Toolt
 	ui.TooltipBase(c, anchorEl, func(tip ui.Element) {
 		// 反色小气泡；箭头在无头 Tester 中无法稳定绘制（见 docs/09），暂不实现。
 		tip.Padding(t.Space(1), t.Space(2)).
-			Radius(t.Radius * 0.67).
-			Background(t.Inverse)
+			Radius(t.Radius * 0.67)
+		bg := t.Inverse
+		fg := t.InverseText
+		if cfg.color != nil {
+			bg = *cfg.color
+			// 自定义底色可能是浅色（如主色浅色阶），此时反色文字会看不清：
+			// 按底色亮度切到正文色，保证对比度。
+			if colorLuma(bg) > 0.6 {
+				fg = t.Text
+			}
+		}
+		tip.Background(bg)
+		if cfg.maxWidth > 0 {
+			tip.MaxWidth(cfg.maxWidth)
+		}
 		tip.Children(func() {
-			ui.Text(c, text).TextColor(t.InverseText).FontSize(t.FontSize).SingleLine()
+			txt := ui.Text(c, text).TextColor(fg).FontSize(t.FontSize)
+			if cfg.maxWidth == 0 {
+				txt.SingleLine()
+			}
 		})
 	})
 	return host
+}
+
+// colorLuma 返回颜色的感知亮度（0 黑 ~ 1 白），用于按底色挑选反差文字色。
+func colorLuma(c ui.Color) float64 {
+	return (0.299*float64(c.R) + 0.587*float64(c.G) + 0.114*float64(c.B)) / 255
 }
 
 // ---------- Popconfirm ----------

@@ -3,6 +3,7 @@ package ant
 import (
 	"github.com/egoist/mygo/ui"
 
+	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	"github.com/lishuangquan1987/mygo-antdesign/internal"
 )
 
@@ -206,7 +207,8 @@ func SearchInput(c *ui.Context, query *string, opts ...InputOption) ui.Element {
 	return Input(c, query, append(opts, InputOption(func(cfg *inputConfig) {
 		if cfg.suffix == nil {
 			cfg.suffix = func(c *ui.Context) {
-				ui.Text(c, "⌕").TextColor(c.Theme().TextMuted)
+				icon.Icon(c, icon.Search, c.Theme().Rem(0.9),
+					icon.WithColor(c.Theme().TextMuted))
 			}
 		}
 	}))...)

@@ -36,7 +36,8 @@ GALLERY_CAPTURE=1 go test ./gallery -run TestGalleryAuditScreenshots
 ```
 
 - 输出 `images/gallery/gallery-home-{light,dark}.png` 与每个控件页 `gallery-<控件名>-{light,dark}.png`（1280×800）。
-- 逐张审读，检查项见 [REFERENCE.md](REFERENCE.md) 第 4 节：对齐、截断、留白、主题残留、密度错乱等。发现问题 → 修代码 → 重新截图，直至无瑕疵。
+- **每个页面都必须放大之后再检测看是否有瑕疵（强制）**：整页缩略图看不出细节，须用图片裁剪工具把页面分区（侧栏、头部工具条、预览卡片、代码区）裁出后放大（2 倍以上）逐块审读；卡片间隙、文字截断、描边对齐、代码高亮等瑕疵只在放大后才能暴露。不允许只看整页原图就下结论。
+- 逐张审读，检查项见 [REFERENCE.md](REFERENCE.md) 第 4 节：对齐、截断、留白、主题残留、密度错乱等。发现问题 → 修代码 → 重新截图并再次放大复验，直至无瑕疵。
 
 ## 5. 收尾（强制，同 AGENTS.md 第 5 节）
 

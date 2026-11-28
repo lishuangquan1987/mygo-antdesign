@@ -271,6 +271,9 @@ func (g *Gallery) sidebar(c *ui.Context) {
 
 		// 搜索框：复用库自身的 Input（antd Input 规范：容器底描边、
 		// 聚焦主色描边 + 2px 焦点环），前缀搜索图标，后缀 allowClear。
+		// 宽度用显式值（侧栏 Space(64) - 左右各 Space(4)）：
+		// FillWidth 百分比按父容器全宽解析，Margin/Padding 都约束不住，
+		// 会右侧溢出、边框压到分隔线。
 		widgets.Input(c, &g.query,
 			widgets.InputPrefix(func(c *ui.Context) {
 				icon.Icon(c, icon.Search, t.Space(4), icon.WithColor(t.TextMuted))
@@ -291,7 +294,7 @@ func (g *Gallery) sidebar(c *ui.Context) {
 			}),
 			widgets.PlaceholderText("搜索控件 / 分类"),
 			widgets.InputLabel("搜索控件"),
-		).FillWidth().Margin(0, t.Space(4))
+		).Width(t.Space(56)).Margin(0, t.Space(4))
 
 		// 目录。
 		ui.Scroll(c).Fill().Grow(1).Children(func() {

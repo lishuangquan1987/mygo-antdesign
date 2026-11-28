@@ -70,8 +70,8 @@ func (g *Gallery) sidebar(c *ui.Context) {
 			nav.Children(func() {
 				filtered := g.filtered()
 
-				// 「开始」入口固定在目录最上方。
-				g.navItem(c, homeName, homeName == g.selected, 0)
+				// 「组件总览」入口固定在目录最上方。
+				g.navItem(c, homeName, homeName == g.selected)
 
 				if len(filtered) == 0 {
 					empty := ui.Column(c).FillWidth().Padding(t.Space(4), t.Space(2)).Gap(t.Space(1))
@@ -81,7 +81,7 @@ func (g *Gallery) sidebar(c *ui.Context) {
 					})
 					return
 				}
-				for _, cat := range categories {
+				for _, cat := range samples.CategoryOrder {
 					var group []samples.ControlPage
 					for _, p := range filtered {
 						if p.Category == cat {
@@ -91,15 +91,12 @@ func (g *Gallery) sidebar(c *ui.Context) {
 					if len(group) == 0 {
 						continue
 					}
-					head := ui.Row(c).FillWidth().
-						Justify(ui.SpaceBetween).
-						Padding(t.Space(2), t.Space(3), t.Space(1), t.Space(3))
-					head.Children(func() {
-						ui.Text(c, string(cat)).TextColor(t.TextMuted).FontSize(t.Rem(0.75)).FontWeight(600)
-						ui.Textf(c, "%d 控件", len(group)).TextColor(t.TextMuted).FontSize(t.Rem(0.72))
-					})
+					g.categoryHead(c, cat, len(group))
+					if g.collapsed[cat] {
+						continue
+					}
 					for _, p := range group {
-						g.navItem(c, p.Name, p.Name == g.selected, len(p.Samples))
+						g.navItem(c, p.Name, p.Name == g.selected)
 					}
 				}
 			})
@@ -118,30 +115,62 @@ func (g *Gallery) sidebar(c *ui.Context) {
 	})
 }
 
+// categoryHead 侧栏分类标题：可点击折叠/展开（antd Menu 子菜单样式，
+// 箭头指示状态，hover 浅底）。
+func (g *Gallery) categoryHead(c *ui.Context, cat samples.Category, n int) {
+	t := c.Theme()
+	folded := g.collapsed[cat]
+	head := ui.ButtonBase(c).FillWidth().
+		Height(t.Space(7)).
+		Padding(0, t.Space(3)).
+		Radius(t.Radius + t.Space(0.5)).
+		AlignItems(ui.Center)
+	if head.Hovered() {
+		head.Background(t.SurfaceHover)
+	}
+	head.Children(func() {
+		arrow := icon.Down
+		if folded {
+			arrow = icon.Right
+		}
+		icon.Icon(c, arrow, t.Space(3), icon.WithColor(t.TextMuted))
+		ui.Textf(c, "%s %d", string(cat), n).
+			TextColor(t.TextMuted).FontSize(t.Rem(0.75)).FontWeight(600).
+			SingleLine().Grow(1)
+	})
+	if head.Clicked() {
+		if g.collapsed == nil {
+			g.collapsed = make(map[samples.Category]bool)
+		}
+		g.collapsed[cat] = !g.collapsed[cat]
+	}
+}
+
 // navItem 侧栏目录里的一项（对齐 antd Menu：40px 项高、8px 圆角、
-// 选中浅主色底 + 主色文字，hover 出浅填充；无左侧指示条）。
-func (g *Gallery) navItem(c *ui.Context, name string, selected bool, samples int) {
+// 选中浅主色底 + 主色文字，hover 出浅填充；文案「中文名 英文名」）。
+func (g *Gallery) navItem(c *ui.Context, name string, selected bool) {
 	t := c.Theme()
 	item := ui.ButtonBase(c).FillWidth().
 		Height(t.Space(10)).
 		Padding(0, t.Space(3)).
 		Radius(t.Radius + t.Space(0.5)).
-		AlignItems(ui.Center)
+		AlignItems(ui.Center).
+		Gap(t.Space(1))
 	if selected {
 		item.Background(t.Selection)
 	} else if item.Hovered() {
 		item.Background(t.SurfaceHover)
 	}
 	item.Children(func() {
-		ui.Text(c, name).
+		ui.Text(c, samples.PageZh(name)).
 			TextColor(map[bool]ui.Color{true: t.Accent, false: t.Text}[selected]).
 			FontSize(t.Rem(0.9)).
-			SingleLine().
-			Grow(1)
-		if samples > 0 {
-			ui.Textf(c, "%d 例", samples).
-				TextColor(t.TextMuted).
-				FontSize(t.Rem(0.7))
+			SingleLine()
+		if name != homeName {
+			ui.Text(c, name).
+				TextColor(map[bool]ui.Color{true: t.Accent, false: t.TextMuted}[selected]).
+				FontSize(t.Rem(0.72)).
+				SingleLine().Grow(1)
 		}
 	})
 	if item.Clicked() {

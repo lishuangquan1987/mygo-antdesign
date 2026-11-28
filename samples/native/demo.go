@@ -21,7 +21,7 @@ func Demo() samples.WidgetDemo {
 	return samples.WidgetDemo{
 		Name:     "原生补全",
 		Package:  "widgets",
-		Category: samples.CatNative,
+		Category: samples.CatOther,
 		Summary:  "按 MyGo 命名补齐的控件：Toolbar、SplitButton、GridView、CheckboxGroup、ColorWell，以及 Markdown/CodeEditor/ChartPlot/RichTextEditor 子包适配。",
 		Samples: []samples.Sample{
 			{

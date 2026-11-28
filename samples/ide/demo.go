@@ -21,7 +21,7 @@ func Demo() samples.WidgetDemo {
 	return samples.WidgetDemo{
 		Name:     "IDE 风格",
 		Package:  "samples",
-		Category: samples.CatGeneral,
+		Category: samples.CatOther,
 		Summary:  "紧凑密度落地上位机 / IDE 场景：侧栏 + 标签页 + 代码区 + 状态栏。",
 		Samples: []samples.Sample{
 			{

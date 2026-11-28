@@ -19,7 +19,7 @@ const (
 
 // AntToken 是 Ant Design 语义 Token 的常用子集。字段名对齐 antd 的
 // design token 语义（colorPrimary、colorText、colorBgContainer…），
-// 数值对齐 antd v5 默认主题。
+// 数值对齐 antd 6.7.2 默认主题（v6 视觉默认 Token 与 v5 一致）。
 //
 // 零值 token 不可用；请用 Light 或 Dark 工厂创建。
 type AntToken struct {

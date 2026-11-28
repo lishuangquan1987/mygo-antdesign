@@ -2,7 +2,7 @@ package theme
 
 import "github.com/egoist/mygo/ui"
 
-// antd v5 默认色板（docs/04-theme-system.md 的映射表）。
+// antd 6.7.2 默认色板（v6 与 v5 视觉默认 Token 一致；docs/04-theme-system.md 的映射表）。
 var (
 	antdBlue       = ui.Hex("#1677ff") // colorPrimary（亮）
 	antdBlueDark   = ui.Hex("#1668dc") // colorPrimary（暗）

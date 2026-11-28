@@ -79,26 +79,36 @@ func Paragraph(c *ui.Context, s string, opts ...TextOption) ui.Element {
 	}
 	t := c.Theme()
 
-	el := ui.Text(c, s).TextColor(t.Text)
-	if cfg.secondary {
-		el.TextColor(t.TextMuted)
-	}
-	if cfg.strong {
-		el.FontWeight(600)
-	}
-	if cfg.underline {
-		el.Underline()
-	}
-	if cfg.italic {
-		el.Italic()
-	}
-	if cfg.delete {
-		el.Strikethrough()
+	build := func() ui.Element {
+		el := ui.Text(c, s).TextColor(t.Text)
+		if cfg.secondary {
+			el.TextColor(t.TextMuted)
+		}
+		if cfg.strong {
+			el.FontWeight(600)
+		}
+		if cfg.underline {
+			el.Underline()
+		}
+		if cfg.italic {
+			el.Italic()
+		}
+		if cfg.delete {
+			el.Strikethrough()
+		}
+		if cfg.marked {
+			el.Background(t.Background.Mix(t.Text, 0.12)).Padding(0, t.Space(1))
+		}
+		return el
 	}
 	if cfg.marked {
-		el.Background(t.Background.Mix(t.Text, 0.12)).Padding(0, t.Space(1))
+		// mark 高亮只包裹文字（antd <mark> 行内样式）：块级 Text 会撑满
+		// 交叉轴，背景随之拉满整行，用 Row 收敛到内容宽度。
+		row := ui.Row(c)
+		row.Children(func() { build() })
+		return row
 	}
-	return el
+	return build()
 }
 
 // Code 行内代码（antd Typography.Text code）：容器底色调、描边、小字号。

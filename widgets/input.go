@@ -65,7 +65,7 @@ func OnSubmit(fn func()) InputOption { return func(c *inputConfig) { c.onSub = f
 // （默认 1px colorBorder，聚焦 2px 焦点色，禁用灰底——对齐 antd）。
 // 聚焦描边由各 Input 函数在内层原语 Focused() 后追加（容器不可聚焦）。
 func inputFrame(c *ui.Context, t *ui.Theme, cfg *inputConfig) ui.Element {
-	el := ui.Row(c).
+	el := ui.Row(c).FillWidth().
 		Height(internal.ControlHeight(t, cfg.size)).
 		Padding(0, internal.ControlPaddingX(t, cfg.size)).
 		Radius(t.Radius).

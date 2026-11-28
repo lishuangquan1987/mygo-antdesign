@@ -28,12 +28,14 @@ func ControlHeight(t *ui.Theme, s SizeKind) float32 {
 }
 
 // ControlPaddingX 控件水平内边距（antd paddingContentHorizontal）。
+// 小档 12 / 中大档 16：两档只差 4px（antd 为 7/11 的比例），同一列里
+// 不同尺寸控件的文字起始位置肉眼基本对齐。
 func ControlPaddingX(t *ui.Theme, s SizeKind) float32 {
 	switch s {
 	case SizeSmall:
-		return t.Space(2) // antd small ≈ 7px，取 8
+		return t.Space(3)
 	default:
-		return t.Space(4) // antd middle/large ≈ 15~16px
+		return t.Space(4)
 	}
 }
 

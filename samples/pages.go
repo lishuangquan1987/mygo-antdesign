@@ -17,10 +17,179 @@ type ControlPage struct {
 	Samples []Sample
 }
 
-// CategoryOrder 侧栏分组的固定展示顺序。
+// CategoryOrder 侧栏分组的固定展示顺序（对齐 ant.design/components
+// 组件总览的类别顺序：通用 → 布局 → 导航 → 数据录入 → 数据展示 → 反馈 → 其他）。
 var CategoryOrder = []Category{
-	CatGeneral, CatInput, CatDisplay, CatNav, CatFeedback, CatExtra, CatNative,
+	CatGeneral, CatLayout, CatNav, CatInput, CatDisplay, CatFeedback, CatOther,
 }
+
+// pageCategory 控件页的分类覆写。分组（WidgetDemo）只有一个 Category，
+// 但同一分组里的片段可能映射到不同分类的控件页（如布局组里的 FloatButton
+// 属于「通用」、Affix 属于「其他」，反馈组里的 Tooltip/Popover/Tour 属于
+// 「数据展示」）。此处按 antd 官网组件总览的归类逐页覆写。
+var pageCategory = map[string]Category{
+	"Divider":     CatLayout,
+	"FloatButton": CatGeneral,
+	"Hyperlink":   CatGeneral,
+	"Anchor":      CatNav,
+	"Masonry":     CatLayout,
+	"Segmented":   CatDisplay,
+	"Calendar":    CatDisplay,
+	"Popover":     CatDisplay,
+	"Tooltip":     CatDisplay,
+	"Tour":        CatDisplay,
+	"Tree":        CatDisplay,
+	"Carousel":    CatDisplay,
+	"QRCode":      CatDisplay,
+	"Cascader":    CatInput,
+	"TreeSelect":  CatInput,
+	"Upload":      CatInput,
+	"Transfer":    CatInput,
+	"Rating":      CatInput,
+	"Result":      CatFeedback,
+	"Skeleton":    CatFeedback,
+	"Confirm":     CatFeedback,
+	"Affix":       CatOther,
+	"BorderBeam":  CatOther,
+	"ContextMenu": CatOther,
+}
+
+// pageZh 控件页的中文名（对齐 antd 官网「按钮 Button」式命名；
+// 未列出的沿用英文名）。
+var pageZh = map[string]string{
+	"Button":                  "按钮",
+	"FloatButton":             "悬浮按钮",
+	"Typography":              "排版",
+	"Title":                   "标题",
+	"Paragraph":               "段落",
+	"Code":                    "代码",
+	"Divider":                 "分割线",
+	"Space":                   "间距",
+	"Flex":                    "弹性布局",
+	"Grid":                    "栅格",
+	"Splitter":                "分隔面板",
+	"SplitterPercent":         "百分比分隔面板",
+	"SplitterVerticalPercent": "垂直百分比分隔面板",
+	"SplitterVertical":        "垂直分隔面板",
+	"Anchor":                  "锚点",
+	"Breadcrumb":              "面包屑",
+	"Dropdown":                "下拉菜单",
+	"Pagination":              "分页",
+	"Steps":                   "步骤条",
+	"Tabs":                    "标签页",
+	"Sidebar":                 "导航菜单",
+	"AutoComplete":            "自动完成",
+	"Autocomplete":            "自动完成",
+	"Cascader":                "级联选择",
+	"Checkbox":                "多选框",
+	"CheckboxGroup":           "复选框组",
+	"ColorPicker":             "颜色选择器",
+	"DateInput":               "日期选择框",
+	"TimeInput":               "时间选择框",
+	"Form":                    "表单",
+	"Input":                   "输入框",
+	"TextArea":                "文本域",
+	"SearchInput":             "搜索框",
+	"NumberInput":             "数字输入框",
+	"Mentions":                "提及",
+	"Radio":                   "单选框",
+	"Rating":                  "评分",
+	"Select":                  "选择器",
+	"Slider":                  "滑动输入条",
+	"RangeSlider":             "双端滑动输入条",
+	"Switch":                  "开关",
+	"Transfer":                "穿梭框",
+	"TreeSelect":              "树选择",
+	"Upload":                  "上传",
+	"Avatar":                  "头像",
+	"Badge":                   "徽标数",
+	"Calendar":                "日历",
+	"Card":                    "卡片",
+	"Carousel":                "走马灯",
+	"Collapse":                "折叠面板",
+	"Collapsible":             "折叠块",
+	"Accordion":               "手风琴",
+	"Descriptions":            "描述列表",
+	"Empty":                   "空状态",
+	"Image":                   "图片",
+	"RemoteImage":             "网络图片",
+	"List":                    "列表",
+	"Popover":                 "气泡卡片",
+	"QRCode":                  "二维码",
+	"Segmented":               "分段控制器",
+	"Statistic":               "统计数值",
+	"Table":                   "表格",
+	"Tag":                     "标签",
+	"Timeline":                "时间轴",
+	"Tooltip":                 "文字提示",
+	"Tour":                    "漫游式引导",
+	"Tree":                    "树形控件",
+	"Alert":                   "警告提示",
+	"Drawer":                  "抽屉",
+	"Message":                 "全局提示",
+	"Modal":                   "对话框",
+	"Notification":            "通知提醒框",
+	"Popconfirm":              "气泡确认框",
+	"Progress":                "进度条",
+	"Result":                  "结果",
+	"Skeleton":                "骨架屏",
+	"Spin":                    "加载中",
+	"Watermark":               "水印",
+	"Affix":                   "固钉",
+	"BorderBeam":              "边框流光",
+	"Meter":                   "电平条",
+	"Hyperlink":               "超链接",
+	"DecimalInput":            "小数输入框",
+	"SearchField":             "搜索字段",
+	"Stepper":                 "步进器",
+	"TokenField":              "标签输入",
+	"EditableText":            "可编辑文本",
+	"Toggle":                  "开关按钮",
+	"ToggleGroup":             "开关按钮组",
+	"GridView":                "网格视图",
+	"ColorWell":               "取色块",
+	"Markdown":                "文档渲染",
+	"CodeEditor":              "代码编辑器",
+	"ChartPlot":               "坐标图",
+	"RichTextEditor":          "富文本编辑器",
+	"Toolbar":                 "工具条",
+	"SplitButton":             "分裂按钮",
+	"ContextMenu":             "右键菜单",
+	"Confirm":                 "确认对话",
+	"IDE 风格":                  "IDE 布局",
+}
+
+// mygoOnly antd 没有对应类型组件的 MyGo 独有控件：组件总览卡片上
+// 加「MyGo」角标（与 antd 给新组件标版本号同一形制）。
+// 类型相同但命名不同的控件（如 NumberInput ↔ InputNumber、
+// Rating ↔ Rate）不算独有，用 MyGo 名称即可。
+var mygoOnly = map[string]bool{
+	"DecimalInput":   true,
+	"Meter":          true,
+	"Collapsible":    true,
+	"Toggle":         true,
+	"ToggleGroup":    true,
+	"GridView":       true,
+	"ColorWell":      true,
+	"Markdown":       true,
+	"CodeEditor":     true,
+	"ChartPlot":      true,
+	"RichTextEditor": true,
+	"Toolbar":        true,
+	"ContextMenu":    true,
+	"IDE 风格":         true,
+}
+
+// PageZh 返回控件页的中文名（未收录时返回英文名）。
+func PageZh(name string) string {
+	if zh, ok := pageZh[name]; ok && zh != "" {
+		return zh
+	}
+	return name
+}
+
+// IsMyGoOnly 判断控件是否为 antd 没有对应类型的 MyGo 独有控件。
+func IsMyGoOnly(name string) bool { return mygoOnly[name] }
 
 // pageOverrides 片段 → 控件页名。key 为「分组名|片段标题」；
 // 一个片段演示多个控件时展开为多页（各页共享同一 Code/View）。
@@ -267,9 +436,13 @@ func Pages() []ControlPage {
 					if s, ok := pageSummary[name]; ok {
 						summary = s
 					}
+					category := d.Category
+					if cat, ok := pageCategory[name]; ok {
+						category = cat
+					}
 					add(ControlPage{
 						Name:     name,
-						Category: d.Category,
+						Category: category,
 						Package:  d.Package,
 						Summary:  summary,
 						Samples:  []Sample{s},
@@ -290,13 +463,14 @@ func FragmentCount() int {
 	return n
 }
 
-// MatchPage 判断控件页是否命中搜索词（控件名/简介/分类，大小写不敏感）。
+// MatchPage 判断控件页是否命中搜索词（控件名/中文名/简介/分类，大小写不敏感）。
 func MatchPage(p ControlPage, query string) bool {
 	q := strings.TrimSpace(strings.ToLower(query))
 	if q == "" {
 		return true
 	}
 	return strings.Contains(strings.ToLower(p.Name), q) ||
-		strings.Contains(strings.ToLower(p.Summary), q) ||
-		strings.Contains(strings.ToLower(string(p.Category)), q)
+		strings.Contains(string(p.Category), q) ||
+		strings.Contains(PageZh(p.Name), q) ||
+		strings.Contains(strings.ToLower(p.Summary), q)
 }

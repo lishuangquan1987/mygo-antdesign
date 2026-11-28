@@ -48,7 +48,7 @@ func Demo() samples.WidgetDemo {
 
 // sample:titles
 func Titles(c *ui.Context) {
-	col := ui.Column(c).Gap(4)
+	col := ui.Column(c).FillWidth().Gap(4)
 	col.Children(func() {
 		widgets.Title(c, "一级标题", widgets.H1)
 		widgets.Title(c, "二级标题", widgets.H2)
@@ -61,7 +61,7 @@ func Titles(c *ui.Context) {
 
 // sample:texts
 func Texts(c *ui.Context) {
-	col := ui.Column(c).Gap(6)
+	col := ui.Column(c).FillWidth().Gap(6)
 	col.Children(func() {
 		widgets.Paragraph(c, "默认正文，颜色跟随主题主文本色。")
 		widgets.Paragraph(c, "次要文本，用于辅助说明。", widgets.Secondary())

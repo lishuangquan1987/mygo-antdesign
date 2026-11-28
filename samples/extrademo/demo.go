@@ -21,7 +21,7 @@ func Demo() samples.WidgetDemo {
 	return samples.WidgetDemo{
 		Name:     "缺口控件",
 		Package:  "extra",
-		Category: samples.CatExtra,
+		Category: samples.CatDisplay,
 		Summary:  "Tree / Cascader / TreeSelect / Upload / Transfer / Carousel / QRCode：基于底座组合实现。",
 		Samples: []samples.Sample{
 			{

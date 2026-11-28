@@ -9,8 +9,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/egoist/mygo/ui"
+	"github.com/egoist/mygo/ui/editor"
 	"github.com/lishuangquan1987/mygo-antdesign/icon"
 	samples "github.com/lishuangquan1987/mygo-antdesign/samples"
 	"github.com/lishuangquan1987/mygo-antdesign/theme"
@@ -36,23 +36,19 @@ const (
 	compareDensity
 )
 
-// 侧栏分类顺序。
-var categories = []samples.Category{
-	samples.CatGeneral, samples.CatInput, samples.CatDisplay,
-	samples.CatNav, samples.CatFeedback, samples.CatExtra,
-}
-
 // Gallery 持有展示应用的状态；View 是状态的函数，每次交互后下一帧重绘。
 type Gallery struct {
-	dark     bool
-	density  theme.Density
-	brand    string  // 品牌色 hex，"" 表示 antd 默认
-	compare  int     // compareNone / compareTheme / compareDensity
-	fontSize float32 // 0 表示跟随密度（标准 14 / 紧凑 13）
-	size     gallerySize
-	selected string // 当前展示的控件名
-	codeTab  int    // 代码区当前展示的示例下标
-	query    string // 侧栏搜索词
+	dark      bool
+	density   theme.Density
+	brand     string  // 品牌色 hex，"" 表示 antd 默认
+	compare   int     // compareNone / compareTheme / compareDensity
+	fontSize  float32 // 0 表示跟随密度（标准 14 / 紧凑 13）
+	size      gallerySize
+	selected  string                    // 当前展示的控件名
+	codeTab   int                       // 对比模式下当前展示的示例下标
+	query     string                    // 侧栏搜索词
+	collapsed map[samples.Category]bool // 侧栏分类折叠状态（nil 表示全部展开）
+	expanded  map[string]bool           // demo 代码展开状态（key = 页名|示例标题）
 }
 
 // gallerySize Gallery 的全局尺寸档（docs/06 §10：控件尺寸统一注入）。
@@ -71,8 +67,8 @@ func NewGallery() *Gallery {
 	return &Gallery{density: theme.Comfortable, selected: homeName}
 }
 
-// homeName 首页在侧栏中的名字（g.selected == homeName 时展示首页）。
-const homeName = "开始"
+// homeName 总览页在侧栏中的名字（g.selected == homeName 时展示总览）。
+const homeName = "组件总览"
 
 // fontScale 把尺寸、字号与品牌色并入主题选项（0 表示跟随密度）。
 func (g *Gallery) fontScale(d theme.Density) []theme.Option {
@@ -225,14 +221,13 @@ func (g *Gallery) header(c *ui.Context) {
 		Background(t.Surface).
 		Border(1, t.Border).BorderWidth(0, 0, 1, 0)
 	head.Children(func() {
-		ui.Textf(c, "控件 / %s", d.Category).TextColor(t.TextMuted).FontSize(t.Rem(0.72))
+		ui.Textf(c, "%s / %s / %s", homeName, d.Category, d.Name).
+			TextColor(t.TextMuted).FontSize(t.Rem(0.72))
 
 		title := ui.Row(c).AlignItems(ui.Center).Gap(t.Space(2))
 		title.Children(func() {
 			ui.Text(c, d.Name).FontSize(t.Rem(1.71)).FontWeight(600).TextColor(t.Text)
-			if len(d.Samples) > 0 {
-				widgets.Tag(c, fmt.Sprintf("%d 个示例", len(d.Samples)), widgets.TagPrimary())
-			}
+			ui.Text(c, samples.PageZh(d.Name)).FontSize(t.Rem(1.14)).TextColor(t.TextMuted)
 		})
 
 		ui.Text(c, d.Summary).TextColor(t.TextMuted).FontSize(t.Rem(0.9))
@@ -353,10 +348,10 @@ func (g *Gallery) tools(c *ui.Context) {
 	})
 }
 
-// content 右侧内容区：单控件单页、上下撑满的分栏布局——
-// 上方集中摆放该控件全部状态/示例的实时预览（两列网格、行高均分），
-// 下方集中展示全部示例代码（antd Tabs 切换 + 代码编辑器撑满），
-// 中间用可拖拽的垂直分隔面板分配比例，整页无空白。
+// content 右侧内容区：对齐 antd 组件文档页的结构——该控件全部示例
+// 竖排为一张张 demo 卡片（标题 + 描述 + 居中实时预览 + 底部操作条），
+// 代码默认收起，点「展开代码」就地展开（懒加载编辑器，不展开不构建）。
+// 整页放进滚动容器，内容自然高、卡片永远完整显示。
 func (g *Gallery) content(c *ui.Context) {
 	d, ok := g.current()
 	if !ok {
@@ -366,96 +361,73 @@ func (g *Gallery) content(c *ui.Context) {
 		return
 	}
 
-	root := ui.Column(c).Fill()
-	percent := ui.Local(root, "gallery.split", func() float32 { return 58 })
-	root.Children(func() {
-		widgets.SplitterVerticalPercent(c, percent, func() {
-			g.previews(c, d)
-		}, func() {
-			g.codePanel(c, d)
-		}).Fill()
-	})
-}
-
-// previews 上方预览区：该控件全部示例（状态）的实时预览，
-// 两列一行、行高均分，撑满整个预览面板，不留空白。
-// 网格四周留 Padding、卡片之间留 Gap（antd Card gutter 16px），
-// 避免卡片贴着面板边缘或相互粘连。
-func (g *Gallery) previews(c *ui.Context, d samples.ControlPage) {
 	t := c.Theme()
-	grid := ui.Column(c).Fill().Padding(t.Space(4)).Gap(t.Space(4))
-	n := len(d.Samples)
-	if n == 0 {
-		grid.Children(func() {
-			ui.Column(c).Fill().Center().Children(func() {
-				widgets.Empty(c, widgets.EmptyDescription("该控件暂无示例"))
-			})
-		})
-		return
-	}
-	grid.Children(func() {
-		// 对比模式：一次只展示当前示例（上下两栏各占一半面板），否则
-		// 一格卡片高度不足以同时放下两种主题的预览。示例用下方页签切换。
-		if g.compare != compareNone {
-			if g.codeTab >= n {
-				g.codeTab = 0
-			}
-			row := ui.Row(c).FillWidth().Fill()
-			row.Children(func() {
-				g.statePanel(c, g.codeTab, d.Samples[g.codeTab])
-			})
-			return
-		}
-		rows := (n + 1) / 2
-		for i := 0; i < n; i += 2 {
-			end := i + 2
-			if end > n {
-				end = n
-			}
-			row := ui.Row(c).FillWidth().Gap(t.Space(4)).AlignItems(ui.Stretch)
-			if rows == 1 {
-				// 仅一行时撑满整个预览区，避免上下留白。
-				row.Fill()
-			} else {
-				row.Grow(1)
-			}
-			row.Children(func() {
-				for j := i; j < end; j++ {
-					g.statePanel(c, j, d.Samples[j])
+	root := ui.Column(c).Fill()
+	// 预览页的滚动位置按控件页保存，切页时互不干扰。
+	scroll := ui.Local(root, "gallery.preview.scroll."+d.Name, func() ui.ScrollState {
+		return ui.ScrollState{}
+	})
+	root.Children(func() {
+		pane := ui.Scroll(c).Fill().Grow(1).TrackScroll(scroll)
+		pane.Children(func() {
+			col := ui.Column(c).FillWidth().Padding(t.Space(4)).Gap(t.Space(4))
+			col.Children(func() {
+				// 对比模式：一次只展示当前示例（亮暗/密度上下分栏），
+				// 示例用页签切换。
+				if g.compare != compareNone {
+					n := len(d.Samples)
+					if g.codeTab >= n {
+						g.codeTab = 0
+					}
+					titles := make([]string, n)
+					for i, s := range d.Samples {
+						titles[i] = s.Title
+					}
+					widgets.Tabs(c, &g.codeTab, titles)
+					g.demoCard(c, d.Name, g.codeTab, d.Samples[g.codeTab])
+					return
+				}
+				for i := range d.Samples {
+					g.demoCard(c, d.Name, i, d.Samples[i])
 				}
 			})
-		}
+		})
 	})
 }
 
-// statePanel 预览网格中的一格：状态标题 + 居中的实时预览，
-// 随网格行列拉伸撑满，无需滚动。
-func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
+// demoCard 一张示例卡片（对齐 antd demo-block）：标题 + 描述 + 居中
+// 实时预览 + 底部操作条（复制代码 / 展开代码）。代码区懒加载：展开时
+// 才构建编辑器，收起时不保留任何状态（性能）。
+func (g *Gallery) demoCard(c *ui.Context, page string, index int, s samples.Sample) {
 	t := c.Theme()
-	panel := ui.Column(c).Grow(1).
+	key := page + "|" + s.Title
+	panel := ui.Column(c).FillWidth().
 		Background(t.Surface).
 		Radius(t.Radius+t.Space(0.5)).
 		Border(1, t.Border).
 		Shadow(0, 1, 2, 0, t.Text.Alpha(0.04))
 	panel.Children(func() {
-		head := ui.Row(c).FillWidth().
-			Padding(t.Space(2), t.Space(4)).
-			AlignItems(ui.Center).
-			Gap(t.Space(2)).
-			Border(1, t.Border).BorderWidth(0, 0, 1, 0)
+		// 标题 + 描述（antd demo 卡片头部，左对齐）。
+		head := ui.Column(c).FillWidth().
+			Padding(t.Space(5), t.Space(8), 0, t.Space(8)).
+			Gap(t.Space(1))
 		head.Children(func() {
-			ui.Textf(c, "%02d", index+1).TextColor(t.Accent).FontSize(t.Rem(0.86)).FontWeight(600)
-			ui.Text(c, s.Title).FontSize(t.Rem(1.0)).FontWeight(600).TextColor(t.Text).SingleLine()
-			ui.Text(c, s.Description).TextColor(t.TextMuted).FontSize(t.Rem(0.78)).
-				SingleLine().Grow(1)
+			ui.Textf(c, "%02d. %s", index+1, s.Title).
+				FontSize(t.Rem(1.0)).FontWeight(600).TextColor(t.Text)
+			if s.Description != "" {
+				ui.Text(c, s.Description).TextColor(t.TextMuted).FontSize(t.Rem(0.82))
+			}
 		})
-		body := ui.Column(c).Fill().Grow(1).
-			Padding(t.Space(5))
+
+		// 实时预览：居中（Fill 示例撑满），MinHeight 保证体量。
+		body := ui.Column(c).FillWidth().
+			Padding(t.Space(6), t.Space(8)).
+			MinHeight(t.Space(34))
 		body.Children(func() {
 			switch g.compare {
 			case compareTheme:
-				// 两个子面板上下平分高度（横排每面板仅约 264px，宽内容必截断）；
-				// 各自内容超出时由 comparePane 内部的 Scroll 滚动，不再截断。
+				// 两个子面板上下排列（各占一半面板高度）；
+				// 各自内容超出时由 comparePane 内部的 Scroll 滚动，不截断。
 				col := ui.Column(c).Fill().Gap(t.Space(2))
 				col.Children(func() {
 					g.comparePane(c, "亮色", false, g.density, s.View)
@@ -469,17 +441,85 @@ func (g *Gallery) statePanel(c *ui.Context, index int, s samples.Sample) {
 				})
 			default:
 				if s.Fill {
-					host := ui.Column(c).Fill()
+					host := ui.Column(c).FillWidth().Grow(1)
 					host.Children(func() {
 						s.View(c)
 					})
 				} else {
-					host := ui.Column(c).Fill().Center()
+					host := ui.Column(c).FillWidth().MinHeight(t.Space(30)).Center()
 					host.Children(func() {
 						s.View(c)
 					})
 				}
 			}
 		})
+
+		// 展开的代码区（懒加载）：构建过才保留 ui.Local 状态。
+		open := g.expanded[key]
+		if open {
+			g.codeView(c, panel, page, s)
+		}
+
+		// 底部操作条：右对齐「复制代码 / 展开代码」。
+		foot := ui.Row(c).FillWidth().
+			Padding(t.Space(2), t.Space(6)).
+			Justify(ui.End).
+			AlignItems(ui.Center).
+			Gap(t.Space(3)).
+			Border(1, t.Border).BorderWidth(1, 0, 0, 0)
+		foot.Children(func() {
+			if widgets.Button(c, "复制代码", widgets.Size(widgets.Small), widgets.Text()).Clicked() {
+				c.WriteClipboard(s.Code)
+				c.Toast("代码已复制")
+			}
+			label := "展开代码"
+			arrow := icon.Down
+			if open {
+				label = "收起代码"
+				arrow = icon.Up
+			}
+			if widgets.Button(c, label, widgets.Size(widgets.Small), widgets.Text()).Clicked() {
+				if g.expanded == nil {
+					g.expanded = make(map[string]bool)
+				}
+				g.expanded[key] = !open
+			}
+			icon.Icon(c, arrow, t.Space(3), icon.WithColor(t.TextMuted))
+		})
+	})
+}
+
+// codeView 展开的示例代码区：完整源码（FitContent 自适应行数），
+// 编辑器状态按 页名+示例标题 缓存——收起时不构建、不保留（懒加载）。
+func (g *Gallery) codeView(c *ui.Context, host ui.Element, page string, s samples.Sample) {
+	t := c.Theme()
+	area := ui.Column(c).FillWidth().
+		Padding(t.Space(4), t.Space(6)).
+		Background(t.Background)
+	area.Children(func() {
+		st := ui.Local(host, "gallery.code."+page+"."+s.Title, func() editor.State {
+			buf := editor.NewBuffer(s.Code)
+			// 示例代码均为 Go：设置语言启用语法高亮。
+			buf.SetLanguage(editor.LanguageNamed("go"))
+			return editor.State{
+				Buffer:       buf,
+				ReadOnly:     true,
+				NoActiveLine: true,
+				FitContent:   true,
+			}
+		})
+		if t.Dark {
+			// 编辑器原语绘制主题 Background（暗色=页面底 #000），
+			// 代码区属于容器层级：用局部主题把 BgLayout 提到容器色
+			// #141414（不能拷贝 ui.Theme 结构体——会使编辑器渲染
+			// 异常，必须走 AntToken → theme.Sub 正规通道）。
+			etk := g.token()
+			etk.BgLayout = etk.BgContainer
+			theme.Sub(c, etk).FillWidth().Children(func() {
+				widgets.CodeEditor(c, st).FillWidth()
+			})
+		} else {
+			widgets.CodeEditor(c, st).FillWidth()
+		}
 	})
 }

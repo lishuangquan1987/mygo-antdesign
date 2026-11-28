@@ -63,19 +63,19 @@ func TestGalleryRenders(t *testing.T) {
 	g := newTestGallery()
 	tt := ui.NewTester(g.View, 1280, 800)
 	tt.Frame()
-	// 默认展示首页；侧栏仍列出全部控件页。
-	if !tt.HasText("Ant Design 风格的 MyGo 原生控件库") {
-		t.Error("首页主视觉未渲染")
+	// 默认展示组件总览（对齐 ant.design/components）；侧栏仍列出全部控件页。
+	if !tt.HasText("组件总览") {
+		t.Error("组件总览标题未渲染")
 	}
-	if !tt.HasText("控件构造函数") {
-		t.Error("首页统计未渲染")
+	if !tt.HasText("通用") {
+		t.Error("分类分区未渲染")
 	}
 	if !tt.HasText("Button") {
-		t.Fatal("侧栏未显示 Button")
+		t.Fatal("组件总览未显示 Button")
 	}
-	// 点击「浏览控件」进入第一个控件页。
-	if err := tt.Click("浏览控件"); err != nil {
-		t.Fatalf("点击浏览控件失败: %v", err)
+	// 点击「按钮」入口（总览卡片或侧栏项均可）进入控件页。
+	if err := tt.Click("按钮"); err != nil {
+		t.Fatalf("点击按钮入口失败: %v", err)
 	}
 	tt.Frame()
 	if !tt.HasText("基础用法") {
@@ -154,6 +154,37 @@ func TestGalleryCopyCode(t *testing.T) {
 	tt.Frame()
 	if got := tt.Clipboard(); got == "" {
 		t.Error("复制代码后剪贴板为空")
+	}
+}
+
+// TestGalleryExpandCode 验证示例代码的展开/收起状态机
+// （懒加载：折叠分支不构建编辑器，展开按钮文案随状态翻转）。
+// 注：ui/editor 用专用文本画布渲染代码，不进入可测文本标签，
+// 因此通过页脚按钮文案断言状态而非代码内容。
+func TestGalleryExpandCode(t *testing.T) {
+	g := newTestGallery()
+	g.selected = "Button"
+	tt := ui.NewTester(g.View, 1280, 800)
+	tt.Frame()
+	if !tt.HasText("展开代码") {
+		t.Fatal("示例卡片未渲染展开按钮")
+	}
+	if tt.HasText("收起代码") {
+		t.Error("初始状态下不应有收起按钮（默认全部折叠）")
+	}
+	if err := tt.Click("展开代码"); err != nil {
+		t.Fatalf("点击展开代码失败: %v", err)
+	}
+	tt.Frame()
+	if !tt.HasText("收起代码") {
+		t.Error("点击展开代码后按钮未翻转为收起代码")
+	}
+	if err := tt.Click("收起代码"); err != nil {
+		t.Fatalf("点击收起代码失败: %v", err)
+	}
+	tt.Frame()
+	if tt.HasText("收起代码") {
+		t.Error("点击收起代码后未恢复折叠状态")
 	}
 }
 

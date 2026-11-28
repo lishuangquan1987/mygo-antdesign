@@ -19,7 +19,7 @@ func Demo() samples.WidgetDemo {
 	return samples.WidgetDemo{
 		Name:     "布局",
 		Package:  "widgets",
-		Category: samples.CatGeneral,
+		Category: samples.CatLayout,
 		Summary:  "布局：Space 间距容器、Flex 弹性布局、Grid 网格。",
 		Samples: []samples.Sample{
 			{
@@ -159,16 +159,28 @@ func FloatButtonDemo(c *ui.Context) {
 
 // sample:affix
 func AffixDemo(c *ui.Context) {
+	t := c.Theme()
 	host := ui.Column(c).FillWidth()
+	// 滚动位置跨帧保存；容器定高，固钉在其中吸顶。
+	st := ui.Local(host, "ant.sample.layout.affix.scroll", func() ui.ScrollState {
+		return ui.ScrollState{}
+	})
 	host.Children(func() {
-		widgets.Affix(c, 0, func() {
-			box := ui.Box(c).FillWidth().Padding(c.Theme().Space(2)).
-				Background(c.Theme().Surface).Border(1, c.Theme().Border)
-			box.Children(func() { ui.Text(c, "吸顶工具条（滚动时保持顶部）") })
+		sc := ui.Scroll(c).FillWidth().Height(t.Space(40)).TrackScroll(st).
+			KeepScrollbars(true)
+		sc.Children(func() {
+			col := ui.Column(c).FillWidth()
+			col.Children(func() {
+				widgets.Affix(c, 0, func() {
+					box := ui.Box(c).FillWidth().Padding(t.Space(2)).
+						Background(t.Surface).Border(1, t.Border)
+					box.Children(func() { ui.Text(c, "吸顶工具条（滚动时保持顶部）") })
+				})
+				for i := 0; i < 12; i++ {
+					widgets.Paragraph(c, "可滚动内容行")
+				}
+			})
 		})
-		for i := 0; i < 12; i++ {
-			widgets.Paragraph(c, "可滚动内容行")
-		}
 	})
 }
 
@@ -177,12 +189,12 @@ func AffixDemo(c *ui.Context) {
 // sample:splitterpercent
 func SplitterDemo2(c *ui.Context) {
 	t := c.Theme()
-	host := ui.Column(c).FillWidth().Height(c.Theme().Space(40)).Gap(c.Theme().Space(2))
+	host := ui.Column(c).FillWidth().Height(t.Space(56)).Gap(t.Space(2))
 	percent := ui.Local(host, "ant.sample.layout.splitpercent", func() float32 { return 30 })
 	verticalPercent := ui.Local(host, "ant.sample.layout.splitverticalpercent", func() float32 { return 50 })
 	host.Children(func() {
-		// 横向分栏占上部（Grow 撑满剩余高度），竖向分栏固定高度，
-		// 避免 Fill 百分比在无界方向上解析异常。
+		// 横向分栏占上部（Grow 撑满剩余高度），竖向分栏固定高度且不低于
+		// 两个最小窗格（每格 40 DIP）加分隔条，否则分隔条没有可拖区间。
 		row := ui.Row(c).FillWidth().Grow(1).AlignItems(ui.Stretch)
 		row.Children(func() {
 			widgets.SplitterPercent(c, percent, func() {
@@ -195,20 +207,22 @@ func SplitterDemo2(c *ui.Context) {
 			widgets.Paragraph(c, "上栏（50%）")
 		}, func() {
 			widgets.Paragraph(c, "下栏")
-		}).FillWidth().Height(t.Space(20))
+		}).FillWidth().Height(t.Space(32))
 	})
 }
 
+// /sample
+
 // sample:verticalsplit
 func VerticalSplitDemo(c *ui.Context) {
-	host := ui.Column(c).FillWidth().Height(c.Theme().Space(30))
+	host := ui.Column(c).FillWidth().Height(c.Theme().Space(38))
 	size := ui.Local(host, "ant.sample.layout.splitvertical", func() float32 { return 100 })
 	host.Children(func() {
 		widgets.SplitterVertical(c, size, func() {
 			widgets.Paragraph(c, "上栏（固定 100 DIP）")
 		}, func() {
 			widgets.Paragraph(c, "下栏")
-		})
+		}).Fill()
 	})
 }
 

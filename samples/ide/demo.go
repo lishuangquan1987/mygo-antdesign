@@ -66,9 +66,9 @@ func Layout(c *ui.Context) {
 							{"theme.go", icon.File},
 							{"widgets.go", icon.File},
 						} {
-						row := ui.ButtonBase(c).FillWidth().Height(t.Space(6)).
-							Padding(0, t.Space(1)).Radius(t.Radius * 0.5).
-							Gap(t.Space(1.5)).AlignItems(ui.Center)
+							row := ui.ButtonBase(c).FillWidth().Height(t.Space(6)).
+								Padding(0, t.Space(1)).Radius(t.Radius * 0.5).
+								Gap(t.Space(1.5)).AlignItems(ui.Center)
 							if f.name == "theme.go" {
 								row.Background(t.Selection)
 							}

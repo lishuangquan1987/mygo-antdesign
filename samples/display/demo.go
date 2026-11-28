@@ -200,19 +200,19 @@ func SkeletonStatDemo(c *ui.Context) {
 func DescTimelineDemo(c *ui.Context) {
 	t := c.Theme()
 	// 紧凑间距：Descriptions + Timeline 合计高度需在预览面板内完整
-	// 展示（含末项），不留被底边截断的半行。
-	col := ui.Column(c).Gap(t.Space(2))
+	// 展示（含末项），不留被底边截断的半行。描述 3 列压成单行，
+	// 时间轴 3 项，保证 800px 视口下完整收尾。
+	col := ui.Column(c).Gap(t.Space(1))
 	col.Children(func() {
 		widgets.Descriptions(c, []widgets.DescriptionItem{
 			{Label: "用户名", Value: "张三"},
 			{Label: "手机号", Value: "13800000000"},
 			{Label: "状态", Value: "已启用"},
-		}, widgets.DescriptionsColumns(2), widgets.DescriptionsTitle("账号信息"),
+		}, widgets.DescriptionsColumns(3),
 			widgets.DescriptionsBordered(true))
 		widgets.Timeline(c, []widgets.TimelineItem{
 			{Title: "创建订单", Description: "2026-11-27 09:00"},
 			{Title: "已支付", Description: "2026-11-27 09:05", Color: widgets.TimelineGreen},
-			{Title: "已发货", Description: "2026-11-27 12:30", Color: widgets.TimelineRed},
 			{Title: "已完成", Color: widgets.TimelineGray},
 		})
 	})

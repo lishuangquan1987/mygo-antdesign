@@ -102,7 +102,7 @@ func Alert(c *ui.Context, title string, opts ...AlertOption) ui.Element {
 			badge := ui.Box(c).Size(t.Space(4), t.Space(4)).
 				Radius(t.Space(2)).Background(color).Center()
 			badge.Children(func() {
-				ui.Text(c, alertIcon(cfg.typ)).TextColor(ui.Hex("#fff")).
+				ui.Text(c, alertIcon(cfg.typ)).TextColor(t.AccentText).
 					FontSize(t.Rem(0.72)).SingleLine()
 			})
 			body := ui.Column(c).Grow(1).Gap(t.Space(1))

@@ -44,7 +44,7 @@ func Divider(c *ui.Context, opts ...DividerOption) ui.Element {
 		// 纯线条：1px 底描边（可虚线），上下 24px 外边距（antd 默认
 		// margin: 24px 0）。此前线条画在 8px 高的透明盒底部，视觉上
 		// 上方留白比下方多 8px（不对称）。
-		line := ui.Box(c).FillWidth().Height(1).Border(1, t.Border).
+		line := ui.Box(c).FillWidth().Height(t.Space(0.25)).Border(1, t.Border).
 			Margin(t.Space(6), 0)
 		if cfg.dashed {
 			line.BorderStyle(ui.BorderDashed)
@@ -88,7 +88,7 @@ func Divider(c *ui.Context, opts ...DividerOption) ui.Element {
 // lineEl 一条水平线（Grow 由调用方设置）。1px 高 + 底描边，行内
 // AlignItems(Center) 时与文字垂直居中对齐（8px 盒会让线下沉 4px）。
 func lineEl(c *ui.Context, t *ui.Theme, dashed bool) ui.Element {
-	line := ui.Box(c).FillWidth().Height(1).Border(1, t.Border)
+	line := ui.Box(c).FillWidth().Height(t.Space(0.25)).Border(1, t.Border)
 	if dashed {
 		line.BorderStyle(ui.BorderDashed)
 	}
@@ -104,7 +104,7 @@ func VerticalDivider(c *ui.Context) ui.Element {
 	t := c.Theme()
 	// 1px 宽 + 左描边 = 1px 线，左右各 8px 外边距对称（8px 盒会让
 	// 线偏在左侧、左右留白不等）。
-	line := ui.Box(c).FillHeight().Width(1).Border(1, t.Border).
+	line := ui.Box(c).FillHeight().Width(t.Space(0.25)).Border(1, t.Border).
 		Margin(0, t.Space(2))
 	line.BorderWidth(0, 1, 0, 0)
 	return line
@@ -113,7 +113,7 @@ func VerticalDivider(c *ui.Context) ui.Element {
 // DashedVerticalDivider 虚线垂直分割线。
 func DashedVerticalDivider(c *ui.Context) ui.Element {
 	t := c.Theme()
-	line := ui.Box(c).FillHeight().Width(1).Border(1, t.Border).
+	line := ui.Box(c).FillHeight().Width(t.Space(0.25)).Border(1, t.Border).
 		BorderStyle(ui.BorderDashed).Margin(0, t.Space(2))
 	line.BorderWidth(0, 1, 0, 0)
 	return line
